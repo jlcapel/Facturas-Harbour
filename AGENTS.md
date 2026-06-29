@@ -97,6 +97,7 @@ Extraídos literalmente de `Facturas/Models/`:
 | `QRService` | Generación código QR |
 | `NifValService` | Validación NIF contra censo AEAT vía VNifV2 |
 | `ValidacionIdentificacionService` | Validación DNI/NIE/CIF + 27 UE VAT |
+| `ViesService` | Validación VAT intracomunitario vía VIES SOAP |
 | `Logger` | Log a archivo en `~/.local/share/Facturas/logs/` |
 | `ExportacionService` | Exportación XML de registros |
 | `ExportacionCsvService` | Exportación CSV de gastos |
@@ -190,6 +191,7 @@ Total = BaseImponible + IvaImporte − IrpfImporte
 | Gastos | `src/views/GastosView.prg` | Listado + marcar pagado/no pagado |
 | Gasto (edición) | `src/views/GastoEditView.prg` | Proveedor, categoría, importes, IVA/retención |
 | Validación NIF | `src/views/ValidacionView.prg` | Consulta NIF contra AEAT VNifV2 |
+| Validación VAT | `src/views/ViesView.prg` | Consulta VAT intracomunitario vía VIES |
 
 Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPUP` — no funciona con Cinnamon).
 

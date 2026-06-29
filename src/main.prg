@@ -68,6 +68,8 @@ PROCEDURE Main()
       ENDMENU
       MENU TITLE "Validación"
          MENUITEM "NIF (AEAT VNifV2)" ACTION {|| ValidacionView(db)}
+         SEPARATOR
+         MENUITEM "VAT Intracomunitario (VIES)" ACTION {|| ViesView(db)}
       ENDMENU
       MENU TITLE "Exportar"
          MENUITEM "Registros AEAT (XML)" ACTION {|| ExportarRegAeat(db)}
