@@ -38,13 +38,13 @@ mkdir -p "$TMPDIR"
 
 # 1. Compilar todos los .prg -> .c con harbour
 find "$SRCDIR" -name "*.prg" | while read f; do
-  harbour "$f" -n -q -m -es2 -d___GTK3___ -i"$SRCDIR" -i/usr/local/include/harbour -i/usr/local/share/harbour/contrib/hbsqlit3 -i/usr/local/share/harbour/contrib/hbhpdf -o"$TMPDIR"/$(basename "$f" .prg).c
+  harbour "$f" -n -q -m -es2 -d___GTK3___ -i"$SRCDIR" -i/usr/local/include/harbour -i/usr/local/share/harbour/contrib/hbsqlit3 -i/usr/local/share/harbour/contrib/hbhpdf -i/usr/local/share/harbour/contrib/hbcurl -o"$TMPDIR"/$(basename "$f" .prg).c
 done
 
 # 2. Compilar todos los .c -> .o con gcc
 GTK_CFLAGS=$(pkg-config --cflags gtk+-3.0)
 for f in "$TMPDIR"/*.c; do
-  gcc -c -O3 "$f" -o "${f%.c}.o" -I/usr/local/include/harbour $GTK_CFLAGS -DHWG_USE_POINTER_ITEM
+  gcc -c -O3 "$f" -o "${f%.c}.o" -I/usr/local/include/harbour -I/usr/local/share/harbour/contrib/hbcurl $GTK_CFLAGS -DHWG_USE_POINTER_ITEM
 done
 
 # 3. Enlazar
@@ -54,6 +54,7 @@ gcc "$TMPDIR"/*.o \
   -lhwgui -lprocmisc -lhbxml \
    -lhbcplr -lhbdebug -lharbour \
    -lhbsqlit3 -lsqlite3 \
+   -lhbcurl -lcurl \
    -lhbhpdf -lhpdf \
    $GTK_LIBS -lm \
   -Wl,--end-group \

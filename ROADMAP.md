@@ -66,14 +66,12 @@ Hitos basados en el proyecto Facturas .NET. Cada hito entrega una funcionalidad 
 - [x] Cálculos automáticos: Importe línea, BaseImponible, IvaImporte, Total
 - [x] Generación PDF con hbhpdf (cabecera, líneas, totales)
 
-### 4.3 SOAP AEAT (pendiente)
-- [ ] Cliente SOAP AEAT con hbcurl + XML (preproducción/producción)
-- [ ] Enviar registro alta a AEAT
-- [ ] Recibir y parsear respuesta CSV
-- [ ] Enviar registro anulación
-- [ ] Subsanación de facturas
-- [ ] Interfaz ver estado AEAT (pendiente, CSV, error)
-- [ ] Exportación XML registros + CSV
+### 4.3 SOAP AEAT (completado)
+- [x] Cliente SOAP AEAT con hbcurl + XML (preproducción/producción)
+- [x] Enviar registro alta a AEAT
+- [x] Enviar registro anulación
+- [x] Parseo respuesta CSV / errores
+- [x] Certificado PKCS#12 para autenticación mutua TLS
 
 ## Hito 6: Gastos + Secundarios (semana 11-12)
 
