@@ -113,6 +113,7 @@ Extraídos literalmente de `Facturas/Models/`:
 | `GastoService` | CRUD gastos con cálculo IVA/retención, marcar pagado |
 | `AeatClientService` | Cliente SOAP XML a AEAT (pre/producción), parseo respuesta CSV |
 | `InvoicePdfService` | Generación PDF A4 con cabecera, cliente, líneas, totales, IRPF |
+| `ListadoPdfService` | PDF de listados genéricos A4 apaisado (cabecera + tabla) |
 ## VERI*FACTU (extraído de AeatConstants.cs y VeriFactuService.cs)
 
 ### Hash oficial AEAT
