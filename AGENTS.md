@@ -103,6 +103,10 @@ Extraídos literalmente de `Facturas/Models/`:
 | `TipoIvaService` | CRUD tipos IVA |
 | `PaisService` | CRUD paises |
 | `TipoIdentificacionService` | CRUD tipos identificación |
+| `ProveedorService` | CRUD proveedores |
+| `CategoriaGastoService` | CRUD categorías de gasto |
+| `BienInversionService` | CRUD bienes de inversión |
+| `GastoService` | CRUD gastos con cálculo IVA/retención, marcar pagado |
 | `AeatClientService` | Cliente SOAP XML a AEAT (pre/producción), parseo respuesta CSV |
 | `InvoicePdfService` | Generación PDF A4 con cabecera, cliente, líneas, totales, IRPF |
 | `ExportacionService` | Exportación XML de registros |
@@ -178,6 +182,13 @@ Total = BaseImponible + IvaImporte − IrpfImporte
 | Clientes | `src/views/ClientesView.prg` | Crear, editar (con combos país/tipo ID), eliminar |
 | Artículos | `src/views/ArticulosView.prg` | Crear, editar (con combo tipo IVA), eliminar |
 | Empresa/Configuración | `src/views/EmpresaView.prg` | Empresa, Veri*Factu, IVA, IRPF |
+| Facturas | `src/views/FacturasView.prg` | Listado + imprimir PDF + anular |
+| Factura (edición) | `src/views/FacturaEditView.prg` | Cabecera + líneas editables + totales |
+| Proveedores | `src/views/ProveedoresView.prg` | Crear, editar (con combos país/tipo ID), eliminar |
+| Categorías Gasto | `src/views/CategoriasGastoView.prg` | Crear, editar, eliminar |
+| Bienes Inversión | `src/views/BienesInversionView.prg` | Crear, editar, eliminar |
+| Gastos | `src/views/GastosView.prg` | Listado + marcar pagado/no pagado |
+| Gasto (edición) | `src/views/GastoEditView.prg` | Proveedor, categoría, importes, IVA/retención |
 
 Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPUP` — no funciona con Cinnamon).
 
@@ -188,7 +199,8 @@ Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPU
 | Hito 1 | ✅ | Toolchain multiplataforma (Linux + Windows) |
 | Hito 2 | ✅ | BD SQLite (15 tablas + seed) + servicios básicos |
 | Hito 3 | ✅ | CRUD maestros: 6 ventanas HWGUI + 2 servicios |
-| Hito 4 | ⏳ | Facturas + PDF + VERI*FACTU (backend servicios OK, pendiente UI + PDF + SOAP) |
+| Hito 4 | ✅ | Facturas + PDF + VERI*FACTU (UI + PDF + SOAP completo) |
+| Hito 6 | ✅ | Gastos + Secundarios: 4 servicios DB + 6 vistas HWGUI |
 
 ## Problemas conocidos (del proyecto .NET)
 
@@ -196,3 +208,5 @@ Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPU
 2. **SQLite decimal**: SQLite mapea decimal como TEXT. Usar CAST(columna AS REAL) en SQL directo.
 3. **Schema drift**: La BD se crea en el primer arranque. Si el modelo cambia (nuevas columnas), hay que añadirlas con ALTER TABLE o borrar la BD.
 4. **Sin migraciones**: No hay migraciones automáticas. EnsureCreated() no existe en Harbour — crear tablas manualmente en primer arranque.
+5. **CHECKBOX HWGUI**: se usa `@ x, y CHECKBOX <var> CAPTION "..." SIZE w, h` (NO `@ x, y GET <var> CHECKBOX`).
+6. **@ en múltiples líneas**: cada control `@ x, y` debe ir en su propia línea (no separar con `;`).

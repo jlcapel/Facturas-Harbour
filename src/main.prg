@@ -52,12 +52,19 @@ PROCEDURE Main()
          SEPARATOR
          MENUITEM "Clientes" ACTION {|| ClientesView(db)}
          MENUITEM "Artículos" ACTION {|| ArticulosView(db)}
+         SEPARATOR
+         MENUITEM "Proveedores" ACTION {|| ProveedoresView(db)}
+         MENUITEM "Categorías de gasto" ACTION {|| CategoriasGastoView(db)}
+         MENUITEM "Bienes de inversión" ACTION {|| BienesInversionView(db)}
       ENDMENU
       MENU TITLE "Empresa"
          MENUITEM "Configuración" ACTION {|| EmpresaView(db)}
       ENDMENU
       MENU TITLE "Facturas"
          MENUITEM "Listado" ACTION {|| FacturasView(db)}
+      ENDMENU
+      MENU TITLE "Gastos"
+         MENUITEM "Listado" ACTION {|| GastosView(db)}
       ENDMENU
    ENDMENU
 
