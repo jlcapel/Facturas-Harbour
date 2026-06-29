@@ -66,6 +66,9 @@ PROCEDURE Main()
       MENU TITLE "Gastos"
          MENUITEM "Listado" ACTION {|| GastosView(db)}
       ENDMENU
+      MENU TITLE "Validación"
+         MENUITEM "NIF (AEAT VNifV2)" ACTION {|| ValidacionView(db)}
+      ENDMENU
       MENU TITLE "Exportar"
          MENUITEM "Registros AEAT (XML)" ACTION {|| ExportarRegAeat(db)}
          MENUITEM "Eventos (XML)" ACTION {|| ExportarEventosXml(db)}

@@ -97,6 +97,9 @@ Extraídos literalmente de `Facturas/Models/`:
 | `QRService` | Generación código QR |
 | `NifValService` | Validación NIF contra censo AEAT vía VNifV2 |
 | `ValidacionIdentificacionService` | Validación DNI/NIE/CIF + 27 UE VAT |
+| `Logger` | Log a archivo en `~/.local/share/Facturas/logs/` |
+| `ExportacionService` | Exportación XML de registros |
+| `ExportacionCsvService` | Exportación CSV de gastos |
 | `FacturaService` | CRUD facturas: crear (con hash AEAT + envío SOAP), anular, obtener |
 | `ClienteService` | CRUD clientes |
 | `ArticuloService` | CRUD artículos |
@@ -109,10 +112,6 @@ Extraídos literalmente de `Facturas/Models/`:
 | `GastoService` | CRUD gastos con cálculo IVA/retención, marcar pagado |
 | `AeatClientService` | Cliente SOAP XML a AEAT (pre/producción), parseo respuesta CSV |
 | `InvoicePdfService` | Generación PDF A4 con cabecera, cliente, líneas, totales, IRPF |
-| `ExportacionService` | Exportación XML de registros |
-| `ExportacionCsvService` | Exportación CSV de gastos |
-| `Logger` | Log a archivo en `~/.local/share/Facturas/logs/` |
-
 ## VERI*FACTU (extraído de AeatConstants.cs y VeriFactuService.cs)
 
 ### Hash oficial AEAT
@@ -190,6 +189,7 @@ Total = BaseImponible + IvaImporte − IrpfImporte
 | Bienes Inversión | `src/views/BienesInversionView.prg` | Crear, editar, eliminar |
 | Gastos | `src/views/GastosView.prg` | Listado + marcar pagado/no pagado |
 | Gasto (edición) | `src/views/GastoEditView.prg` | Proveedor, categoría, importes, IVA/retención |
+| Validación NIF | `src/views/ValidacionView.prg` | Consulta NIF contra AEAT VNifV2 |
 
 Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPUP` — no funciona con Cinnamon).
 
@@ -203,6 +203,7 @@ Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPU
 | Hito 4 | ✅ | Facturas + PDF + VERI*FACTU (UI + PDF + SOAP completo) |
 | Hito 5 | ✅ | Exportación XML/CSV + Logger: 4 servicios + menu exportar |
 | Hito 6 | ✅ | Gastos + Secundarios: 4 servicios DB + 6 vistas HWGUI |
+| Hito 7 | ✅ | Validación NIF: NifValService (SOAP AEAT) + ValidacionIdentificacionService (DNI/NIE/CIF/27 VAT) + certificado en Empresa + vista |
 
 ## Problemas conocidos (del proyecto .NET)
 

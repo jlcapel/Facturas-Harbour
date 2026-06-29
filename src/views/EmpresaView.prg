@@ -6,7 +6,7 @@ FUNCTION EmpresaView(db)
    INIT DIALOG oDlg ;
       TITLE "Configuración VERI*FACTU" ;
       AT 0, 0 ;
-      SIZE 620, 550 ;
+      SIZE 620, 600 ;
       STYLE WS_POPUP + WS_CAPTION + WS_SYSMENU + WS_SIZEBOX + DS_CENTER
 
    @ 10, 10 GROUPBOX "Empresa"
@@ -15,13 +15,16 @@ FUNCTION EmpresaView(db)
    @ 10, 230 GROUPBOX "Veri*Factu"
    VerifactuControls(db, oDlg)
 
-   @ 10, 400 GROUPBOX "IVA por defecto"
+   @ 10, 405 GROUPBOX "Certificado AEAT"
+   CertificadoControls(db, oDlg)
+
+   @ 10, 475 GROUPBOX "IVA por defecto"
    IvaControls(db, oDlg)
 
-   @ 320, 400 GROUPBOX "IRPF"
+   @ 320, 475 GROUPBOX "IRPF"
    IrpfControls(db, oDlg)
 
-   @ 230, 510 BUTTON "Cerrar" SIZE 90, 28 ON CLICK {|| oDlg:Close()}
+   @ 230, 550 BUTTON "Cerrar" SIZE 90, 28 ON CLICK {|| oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
 RETURN NIL
@@ -102,6 +105,22 @@ STATIC FUNCTION VerifactuControls(db, oDlg)
       EstablecerConfiguracion(db, "VeriFactu.VersionSoftware", AllTrim(cVersion)), ;
       EstablecerConfiguracion(db, "VeriFactu.Ambiente", hb_ntos(nAmbiente)), ;
       hwg_MsgInfo("Datos VERI*FACTU guardados", "Información") }
+RETURN NIL
+
+STATIC FUNCTION CertificadoControls(db, oDlg)
+   LOCAL cRuta, cPass
+
+   cRuta := ObtenerConfiguracion(db, "VeriFactu.CertificadoRuta")
+   cPass := ObtenerConfiguracion(db, "VeriFactu.CertificadoPassword")
+
+   @ 30, 430 SAY "Certificado PKCS#12:" SIZE 130, 22 OF oDlg
+   @ 170, 428 GET cRuta SIZE 300, 26 OF oDlg
+   @ 30, 460 SAY "Contraseña:" SIZE 100, 22 OF oDlg
+   @ 140, 458 GET cPass SIZE 150, 26 OF oDlg
+   @ 400, 460 BUTTON "Guardar Certificado" SIZE 120, 22 OF oDlg ON CLICK {;
+      EstablecerConfiguracion(db, "VeriFactu.CertificadoRuta", AllTrim(cRuta)), ;
+      EstablecerConfiguracion(db, "VeriFactu.CertificadoPassword", AllTrim(cPass)), ;
+      hwg_MsgInfo("Certificado guardado", "Información") }
 RETURN NIL
 
 STATIC FUNCTION IvaControls(db, oDlg)

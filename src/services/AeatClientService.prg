@@ -230,8 +230,8 @@ STATIC FUNCTION CargaRespuesta(cData, cResponse)
 STATIC FUNCTION ConfigurarCertificadoSoap(curl, db)
    LOCAL cRuta, cPass
 
-   cRuta := ObtenerConfiguracion(db, "CertificadoRuta")
-   cPass := ObtenerConfiguracion(db, "CertificadoPassword")
+   cRuta := ObtenerConfiguracion(db, "VeriFactu.CertificadoRuta")
+   cPass := ObtenerConfiguracion(db, "VeriFactu.CertificadoPassword")
 
    IF !Empty(cRuta) .AND. hb_FileExists(cRuta)
       curl_easy_setopt(curl, HB_CURLOPT_SSLCERT, cRuta)
