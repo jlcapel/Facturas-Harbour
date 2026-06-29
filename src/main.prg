@@ -75,6 +75,9 @@ PROCEDURE Main()
          SEPARATOR
          MENUITEM "VAT Intracomunitario (VIES)" ACTION {|| ViesView(db)}
       ENDMENU
+      MENU TITLE "AEAT"
+         MENUITEM "Modelos AEAT" ACTION {|| ModelosAeatView(db)}
+      ENDMENU
       MENU TITLE "Exportar"
          MENUITEM "Registros AEAT (XML)" ACTION {|| ExportarRegAeat(db)}
          MENUITEM "Eventos (XML)" ACTION {|| ExportarEventosXml(db)}

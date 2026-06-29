@@ -117,6 +117,14 @@ Extraídos literalmente de `Facturas/Models/`:
 | `BackupService` | Backup automático BD al arrancar, verificar integridad, restaurar desde backup |
 | `NtpService` | Sincronización hora oficial vía HTTP (worldtimeapi.org) con fallback a reloj local |
 | `NumericConfigService` | Configuración numérica: decimales, separadores, redondeo, descuentos |
+| `ModeloAeatHelper` | Funciones compartidas para modelos AEAT: RoundFiscal, FormatearImporte, RangoTrimestre |
+| `Modelo111Service` | Modelo 111 IRPF Retenciones (trimestral, fixed-width 1500) |
+| `Modelo115Service` | Modelo 115 IRPF Alquiler (trimestral, fixed-width 1500) |
+| `Modelo130Service` | Modelo 130 IRPF Estimación Directa (trimestral, XML T3030) |
+| `Modelo303Service` | Modelo 303 IVA Trimestral (trimestral, XML T3030) |
+| `Modelo347Service` | Modelo 347 Operaciones Terceros (anual, fixed-width 1500) |
+| `Modelo349Service` | Modelo 349 Intracomunitario (anual, fixed-width 1500) |
+| `Modelo390Service` | Modelo 390 IVA Resumen Anual (anual, XML T3030) |
 ## VERI*FACTU (extraído de AeatConstants.cs y VeriFactuService.cs)
 
 ### Hash oficial AEAT
@@ -196,6 +204,7 @@ Total = BaseImponible + IvaImporte − IrpfImporte
 | Gasto (edición) | `src/views/GastoEditView.prg` | Proveedor, categoría, importes, IVA/retención |
 | Validación NIF | `src/views/ValidacionView.prg` | Consulta NIF contra AEAT VNifV2 |
 | Validación VAT | `src/views/ViesView.prg` | Consulta VAT intracomunitario vía VIES |
+| Modelos AEAT | `src/views/ModelosAeatView.prg` | Launcher 7 modelos (303/390/130/347/111/115/349) |
 
 Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPUP` — no funciona con Cinnamon).
 
