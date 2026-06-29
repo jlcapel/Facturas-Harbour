@@ -35,37 +35,44 @@ Hitos basados en el proyecto Facturas .NET. Cada hito entrega una funcionalidad 
 - [x] Clase TipoIdentificacionService: CRUD tipos identificación
 - [x] Inicialización de BD en primer arranque
 
-## Hito 3: CRUD Maestros (semana 5-6)
+## Hito 3: CRUD Maestros (semana 5-6) ✅
 
-- [ ] Ventana Paises: listado, nuevo, editar, eliminar
-- [ ] Ventana TiposIVA: listado, nuevo, editar, eliminar
-- [ ] Ventana TiposIdentificacion: listado, nuevo, editar, eliminar
-- [ ] Ventana Clientes: listado, nuevo, editar, eliminar, validación NIF
-- [ ] Ventana Articulos: listado, nuevo, editar, eliminar
-- [ ] Ventana Empresa: datos emisor + configuración VERI*FACTU
+- [x] Ventana Paises: listado, nuevo, editar, eliminar
+- [x] Ventana TiposIVA: listado, nuevo, editar, eliminar
+- [x] Ventana TiposIdentificacion: listado, nuevo, editar, eliminar
+- [x] Ventana Clientes: listado, nuevo, editar, eliminar (combos país/tipo ID)
+- [x] Ventana Articulos: listado, nuevo, editar, eliminar (combo tipo IVA)
+- [x] Ventana Empresa: datos emisor + configuración VERI*FACTU + IVA + IRPF
+- [x] ClienteService, ArticuloService: CRUD con SQLite
 
-## Hito 4: Facturas + PDF (semana 7-8)
+## Hito 4: Facturas + PDF + VERI*FACTU (semana 7-10)
 
+### 4.1 Backend servicios (completado)
+- [x] Cálculos automáticos: Importe línea, BaseImponible, IvaImporte, Total (NumericHelper)
+- [x] IRPF configurable (EmpresaView + FacturaService)
+- [x] Guardar factura en BD con líneas (FacturaService)
+- [x] Numeración automática de facturas
+- [x] Calcular hash AEAT con hb_sha256() (VeriFactuService)
+- [x] Cadena de bloques: encadenar registros (RegistroFacturacion con hash anterior)
+- [x] Desglose IVA agrupado por TipoIva (JSON serializado)
+- [x] Generar URL QR verificación AEAT (QRService)
+- [x] Registro de eventos con hash chain (EventoService)
+- [x] Constantes AEAT: tipos factura, URLs pre/producción (AeatConstants)
+
+### 4.2 Vista factura + PDF (pendiente)
 - [ ] Ventana Facturas: listado con filtros
-- [ ] Ventana Nueva Factura: cabecera, selector cliente, tabla líneas
+- [ ] Ventana Nueva/Editar Factura: cabecera, selector cliente, tabla líneas
 - [ ] Editar líneas: añadir/quitar artículo, cantidad, precio, IVA
-- [ ] Cálculos automáticos: Importe línea, BaseImponible, IvaImporte, Total
-- [ ] IRPF configurable por factura
 - [ ] Generación PDF con hbhpdf (cabecera, líneas, totales)
-- [ ] Guardar factura en BD
 
-## Hito 5: VERI*FACTU (semana 9-10)
-
-- [ ] Calcular hash AEAT con hb_sha256()
-- [ ] Cadena de bloques: encadenar registros
-- [ ] Desglose IVA agrupado
-- [ ] Generar QR con hbzebra
-- [ ] Cliente SOAP AEAT con hbcurl + xml (preproducción)
+### 4.3 SOAP AEAT (pendiente)
+- [ ] Cliente SOAP AEAT con hbcurl + XML (preproducción/producción)
 - [ ] Enviar registro alta a AEAT
 - [ ] Recibir y parsear respuesta CSV
 - [ ] Enviar registro anulación
 - [ ] Subsanación de facturas
 - [ ] Interfaz ver estado AEAT (pendiente, CSV, error)
+- [ ] Exportación XML registros + CSV
 
 ## Hito 6: Gastos + Secundarios (semana 11-12)
 

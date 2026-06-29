@@ -184,11 +184,11 @@ Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPU
 ## Estado del proyecto
 
 | Hito | Estado | Descripción |
-|---|---|---|
+|---|---|---|---|
 | Hito 1 | ✅ | Toolchain multiplataforma (Linux + Windows) |
 | Hito 2 | ✅ | BD SQLite (15 tablas + seed) + servicios básicos |
 | Hito 3 | ✅ | CRUD maestros: 6 ventanas HWGUI + 2 servicios |
-| Hito 4 | ⏳ | Facturas + PDF + VERI*FACTU (pendiente) |
+| Hito 4 | ⏳ | Facturas + PDF + VERI*FACTU (backend servicios OK, pendiente UI + PDF + SOAP) |
 
 ## Problemas conocidos (del proyecto .NET)
 

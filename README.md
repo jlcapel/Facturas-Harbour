@@ -38,10 +38,11 @@ Para Windows cross-compilation, ver AGENTS.md.
 ## Estado del proyecto
 
 | Hito | Estado |
-|---|---|
+|---|---|---|
 | 1 — Toolchain + Hola Mundo | ✅ Completado |
 | 2 — Modelos + BD SQLite | ✅ Completado |
-| 3 — CRUD Maestros | 🔄 Pendiente |
+| 3 — CRUD Maestros | ✅ Completado |
+| 4 — Facturas + PDF + VERI*FACTU | 🔄 En progreso (backend OK, falta UI + PDF + SOAP) |
 
 Ver [`ROADMAP.md`](./ROADMAP.md) para el plan de desarrollo detallado.
 
