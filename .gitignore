@@ -1,0 +1,23 @@
+# Harbour temporals
+/tmp/*.c
+/tmp/*.o
+*.exe
+*.obj
+
+# Build artifacts
+/Facturas
+/Facturas.exe
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor temporals
+*.swp
+*.swo
+*~
+.\#*
+
+# OpenCode
+.opencode/
