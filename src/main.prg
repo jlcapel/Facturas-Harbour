@@ -31,17 +31,41 @@
 #include "hwgui.ch"
 
 PROCEDURE Main()
-   LOCAL oWnd
+   LOCAL oDlg
    LOCAL db
 
    InicializarBaseDatos()
 
    db := AbrirBaseDatos()
 
-   INIT WINDOW oWnd TITLE "Facturas-Harbour" SIZE 400, 200
-   @ 10, 10 SAY "Toolchain OK - BD inicializada" SIZE 380, 30
-   @ 40, 40 SAY ObtenerTextoInfo(db) SIZE 380, 200
-   ACTIVATE WINDOW oWnd
+   INIT DIALOG oDlg ;
+      TITLE "Facturas-Harbour" ;
+      AT 0, 0 ;
+      SIZE 800, 500 ;
+      STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
+
+   MENU OF oDlg
+      MENU TITLE "Maestros"
+         MENUITEM "Países" ACTION {|| PaisesView(db)}
+         MENUITEM "Tipos de IVA" ACTION {|| TiposIvaView(db)}
+         MENUITEM "Tipos de Identificación" ACTION {|| TiposIdentificacionView(db)}
+         SEPARATOR
+         MENUITEM "Clientes" ACTION {|| ClientesView(db)}
+         MENUITEM "Artículos" ACTION {|| ArticulosView(db)}
+      ENDMENU
+      MENU TITLE "Empresa"
+         MENUITEM "Configuración" ACTION {|| EmpresaView(db)}
+      ENDMENU
+      MENU TITLE "Facturas"
+         MENUITEM "Próximamente..." ACTION {|| hwg_MsgInfo("En desarrollo", "Facturas")}
+      ENDMENU
+   ENDMENU
+
+   @ 20, 20 SAY "Facturas-Harbour — App de facturación VERI*FACTU" SIZE 400, 22
+   @ 20, 50 SAY "Seleccione una opción del menú" SIZE 300, 22
+   @ 20, 400 BUTTON "Salir" SIZE 80, 30 ON CLICK {|| oDlg:Close()}
+
+   ACTIVATE DIALOG oDlg CENTER
 
    db := NIL
 RETURN

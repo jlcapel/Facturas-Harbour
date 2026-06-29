@@ -45,7 +45,7 @@ Dependencias del sistema instaladas: cmake, libsqlite3-dev, libcurl4-openssl-dev
 
 ## Base de datos
 
-- Ruta: `~/.local/share/Facturas/facturas.db` (misma que el proyecto .NET, misma BD)
+- Ruta: `~/Facturas/facturas.db` (el proyecto .NET usa `~/.local/share/Facturas/facturas.db`)
 - Esquema SQLite idéntico al proyecto .NET (modelos, columnas, tipos)
 - Seed de paises (~27), tipos de identificación (6), tipos de IVA (6), configuración básica
 - Si se añaden columnas: ALTER TABLE manual con sqlite3
@@ -167,6 +167,28 @@ Total = BaseImponible + IvaImporte − IrpfImporte
 - Logger.Error() en catches; no re-lanzar excepciones en UI
 - Las vistas (HWGUI) NO tienen lógica de negocio; solo eventos de botones y doble click
 - NO inventar nada: toda funcionalidad nueva debe existir primero en el proyecto .NET
+
+## Vistas HWGUI
+
+| Vista | Archivo | CRUD |
+|---|---|---|
+| Países | `src/views/PaisesView.prg` | Crear, editar, desactivar |
+| Tipos IVA | `src/views/TiposIvaView.prg` | Crear, editar, eliminar |
+| Tipos Identificación | `src/views/TiposIdentificacionView.prg` | Crear, editar, desactivar |
+| Clientes | `src/views/ClientesView.prg` | Crear, editar (con combos país/tipo ID), eliminar |
+| Artículos | `src/views/ArticulosView.prg` | Crear, editar (con combo tipo IVA), eliminar |
+| Empresa/Configuración | `src/views/EmpresaView.prg` | Empresa, Veri*Factu, IVA, IRPF |
+
+Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPUP` — no funciona con Cinnamon).
+
+## Estado del proyecto
+
+| Hito | Estado | Descripción |
+|---|---|---|
+| Hito 1 | ✅ | Toolchain multiplataforma (Linux + Windows) |
+| Hito 2 | ✅ | BD SQLite (15 tablas + seed) + servicios básicos |
+| Hito 3 | ✅ | CRUD maestros: 6 ventanas HWGUI + 2 servicios |
+| Hito 4 | ⏳ | Facturas + PDF + VERI*FACTU (pendiente) |
 
 ## Problemas conocidos (del proyecto .NET)
 
