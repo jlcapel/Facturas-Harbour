@@ -23,6 +23,7 @@ FUNCTION PaisesView(db)
    @ 30, 400 BUTTON "Nuevo" SIZE 70, 28 ON CLICK {|| PaisNuevo(db, @aData, oBrw)}
    @ 110, 400 BUTTON "Editar" SIZE 70, 28 ON CLICK {|| PaisEditar(db, @aData, oBrw, oBrw:nCurrent)}
    @ 190, 400 BUTTON "Eliminar" SIZE 70, 28 ON CLICK {|| PaisEliminar(db, @aData, oBrw)}
+   @ 270, 400 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfPaises(db, aData)}
    @ 520, 400 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
@@ -92,6 +93,16 @@ STATIC FUNCTION PaisEditar(db, aData, oBrw, nRow)
       oBrw:aArray := aData
       oBrw:Refresh()
    ENDIF
+RETURN NIL
+
+STATIC FUNCTION ExportPdfPaises(db, aData)
+   LOCAL aCols := { ;
+      {"Código", 60, 2}, ;
+      {"Nombre", 250, 3}, ;
+      {"Nacionalidad", 200, 4}, ;
+      {"UE", 60, 5, .T.} }
+   LOCAL cPath := AbrirListadoPdf(db, "Países", aData, aCols)
+   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, "Exportar"); ENDIF
 RETURN NIL
 
 STATIC FUNCTION PaisEliminar(db, aData, oBrw)

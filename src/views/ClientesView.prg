@@ -23,6 +23,7 @@ FUNCTION ClientesView(db)
    @ 30, 440 BUTTON "Nuevo" SIZE 70, 28 ON CLICK {|| ClienteNuevo(db, @aData, oBrw)}
    @ 110, 440 BUTTON "Editar" SIZE 70, 28 ON CLICK {|| ClienteEditar(db, @aData, oBrw, oBrw:nCurrent)}
    @ 190, 440 BUTTON "Eliminar" SIZE 70, 28 ON CLICK {|| ClienteEliminar(db, @aData, oBrw)}
+   @ 270, 440 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfClientes(db, aData)}
    @ 600, 440 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
@@ -173,3 +174,14 @@ STATIC FUNCTION ListaTiposIdNombres(aTipos)
       AAdd(aNombres, aTipos[nI][3])
    NEXT
    RETURN aNombres
+
+STATIC FUNCTION ExportPdfClientes(db, aData)
+   LOCAL aCols := { ;
+      {"Nombre", 200, 2}, ;
+      {"NIF", 120, 4}, ;
+      {"Población", 150, 9}, ;
+      {"Teléfono", 120, 12}, ;
+      {"Activo", 60, 14, .T.} }
+   LOCAL cPath := AbrirListadoPdf(db, "Clientes", aData, aCols)
+   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, "Exportar"); ENDIF
+RETURN NIL

@@ -17,7 +17,8 @@ FUNCTION GastosView(db)
    @ 110, 450 BUTTON "Editar" SIZE 70, 28 ON CLICK {|| GastoEditar(db, @aData, oBrw, oBrw:nCurrent)}
    @ 190, 450 BUTTON "Eliminar" SIZE 70, 28 ON CLICK {|| GastoEliminar(db, @aData, oBrw)}
    @ 270, 450 BUTTON "Pagado/No" SIZE 80, 28 ON CLICK {|| GastoTogglePago(db, @aData, oBrw)}
-   @ 740, 450 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
+   @ 370, 450 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfGastos(db, aData)}
+   @ 660, 450 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
    ACTIVATE DIALOG oDlg CENTER
 RETURN NIL
 
@@ -51,6 +52,19 @@ STATIC FUNCTION GastoTogglePago(db, aData, oBrw)
    IF nRow < 1 .OR. nRow > Len(aData); hwg_MsgInfo("Seleccione un gasto", "Aviso"); RETURN; ENDIF
    MarcarGastoPagado(db, aData[nRow][1], !aData[nRow][8])
    aData := ObtenerGastos(db); oBrw:aArray := aData; oBrw:Refresh()
+RETURN NIL
+
+STATIC FUNCTION ExportPdfGastos(db, aData)
+   LOCAL aCols := { ;
+      {"Nº Factura", 100, 2}, ;
+      {"Fecha", 90, 3}, ;
+      {"Tipo", 80, 4}, ;
+      {"Proveedor", 160, 5}, ;
+      {"Base", 80, 6, .T.}, ;
+      {"Total", 80, 7, .T.}, ;
+      {"Pagado", 50, 8, .T.} }
+   LOCAL cPath := AbrirListadoPdf(db, "Gastos", aData, aCols)
+   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, "Exportar"); ENDIF
 RETURN NIL
 
 STATIC FUNCTION TipoDocStr(nTipo)

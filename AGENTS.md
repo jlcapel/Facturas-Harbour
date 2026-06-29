@@ -177,19 +177,19 @@ Total = BaseImponible + IvaImporte − IrpfImporte
 ## Vistas HWGUI
 
 | Vista | Archivo | CRUD |
-|---|---|---|
-| Países | `src/views/PaisesView.prg` | Crear, editar, desactivar |
-| Tipos IVA | `src/views/TiposIvaView.prg` | Crear, editar, eliminar |
-| Tipos Identificación | `src/views/TiposIdentificacionView.prg` | Crear, editar, desactivar |
-| Clientes | `src/views/ClientesView.prg` | Crear, editar (con combos país/tipo ID), eliminar |
-| Artículos | `src/views/ArticulosView.prg` | Crear, editar (con combo tipo IVA), eliminar |
+|---|---|---|---|
+| Países | `src/views/PaisesView.prg` | Crear, editar, desactivar + PDF |
+| Tipos IVA | `src/views/TiposIvaView.prg` | Crear, editar, eliminar + PDF |
+| Tipos Identificación | `src/views/TiposIdentificacionView.prg` | Crear, editar, desactivar + PDF |
+| Clientes | `src/views/ClientesView.prg` | Crear, editar (con combos país/tipo ID), eliminar + PDF |
+| Artículos | `src/views/ArticulosView.prg` | Crear, editar (con combo tipo IVA), eliminar + PDF |
 | Empresa/Configuración | `src/views/EmpresaView.prg` | Empresa, Veri*Factu, IVA, IRPF |
 | Facturas | `src/views/FacturasView.prg` | Listado + imprimir PDF + anular |
 | Factura (edición) | `src/views/FacturaEditView.prg` | Cabecera + líneas editables + totales |
-| Proveedores | `src/views/ProveedoresView.prg` | Crear, editar (con combos país/tipo ID), eliminar |
-| Categorías Gasto | `src/views/CategoriasGastoView.prg` | Crear, editar, eliminar |
-| Bienes Inversión | `src/views/BienesInversionView.prg` | Crear, editar, eliminar |
-| Gastos | `src/views/GastosView.prg` | Listado + marcar pagado/no pagado |
+| Proveedores | `src/views/ProveedoresView.prg` | Crear, editar (con combos país/tipo ID), eliminar + PDF |
+| Categorías Gasto | `src/views/CategoriasGastoView.prg` | Crear, editar, eliminar + PDF |
+| Bienes Inversión | `src/views/BienesInversionView.prg` | Crear, editar, eliminar + PDF |
+| Gastos | `src/views/GastosView.prg` | Listado + marcar pagado/no pagado + PDF |
 | Gasto (edición) | `src/views/GastoEditView.prg` | Proveedor, categoría, importes, IVA/retención |
 | Validación NIF | `src/views/ValidacionView.prg` | Consulta NIF contra AEAT VNifV2 |
 | Validación VAT | `src/views/ViesView.prg` | Consulta VAT intracomunitario vía VIES |

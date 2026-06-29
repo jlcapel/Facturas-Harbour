@@ -14,6 +14,7 @@ FUNCTION ProveedoresView(db)
    @ 30, 440 BUTTON "Nuevo" SIZE 70, 28 ON CLICK {|| ProvNuevo(db, @aData, oBrw)}
    @ 110, 440 BUTTON "Editar" SIZE 70, 28 ON CLICK {|| ProvEditar(db, @aData, oBrw, oBrw:nCurrent)}
    @ 190, 440 BUTTON "Eliminar" SIZE 70, 28 ON CLICK {|| ProvEliminar(db, @aData, oBrw)}
+   @ 270, 440 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfProveedores(db, aData)}
    @ 650, 440 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
    ACTIVATE DIALOG oDlg CENTER
 RETURN NIL
@@ -107,6 +108,17 @@ STATIC FUNCTION ListaProvPaises(aPaises)
       AAdd(aNombres, aPaises[nI][2])
    NEXT
    RETURN aNombres
+
+STATIC FUNCTION ExportPdfProveedores(db, aData)
+   LOCAL aCols := { ;
+      {"Nombre", 200, 2}, ;
+      {"NIF", 120, 3}, ;
+      {"Población", 150, 5}, ;
+      {"Teléfono", 120, 7}, ;
+      {"Activo", 50, 10, .T.} }
+   LOCAL cPath := AbrirListadoPdf(db, "Proveedores", aData, aCols)
+   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, "Exportar"); ENDIF
+RETURN NIL
 
 STATIC FUNCTION ListaProvTiposId(aTipos)
    LOCAL aNombres := {}, nI

@@ -21,6 +21,7 @@ FUNCTION TiposIdentificacionView(db)
    @ 30, 350 BUTTON "Nuevo" SIZE 70, 28 ON CLICK {|| TipoIdentNuevo(db, @aData, oBrw)}
    @ 110, 350 BUTTON "Editar" SIZE 70, 28 ON CLICK {|| TipoIdentEditar(db, @aData, oBrw, oBrw:nCurrent)}
    @ 190, 350 BUTTON "Eliminar" SIZE 70, 28 ON CLICK {|| TipoIdentEliminar(db, @aData, oBrw)}
+   @ 270, 350 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfTiposIdent(db, aData)}
    @ 460, 350 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
@@ -79,6 +80,15 @@ STATIC FUNCTION TipoIdentEditar(db, aData, oBrw, nRow)
       oBrw:aArray := aData
       oBrw:Refresh()
    ENDIF
+RETURN NIL
+
+STATIC FUNCTION ExportPdfTiposIdent(db, aData)
+   LOCAL aCols := { ;
+      {"Código AEAT", 120, 2}, ;
+      {"Nombre", 400, 3}, ;
+      {"Activo", 50, 4, .T.} }
+   LOCAL cPath := AbrirListadoPdf(db, "TiposIdentificacion", aData, aCols)
+   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, "Exportar"); ENDIF
 RETURN NIL
 
 STATIC FUNCTION TipoIdentEliminar(db, aData, oBrw)

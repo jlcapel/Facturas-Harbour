@@ -23,6 +23,7 @@ FUNCTION ArticulosView(db)
    @ 30, 440 BUTTON "Nuevo" SIZE 70, 28 ON CLICK {|| ArticuloNuevo(db, @aData, oBrw)}
    @ 110, 440 BUTTON "Editar" SIZE 70, 28 ON CLICK {|| ArticuloEditar(db, @aData, oBrw, oBrw:nCurrent)}
    @ 190, 440 BUTTON "Eliminar" SIZE 70, 28 ON CLICK {|| ArticuloEliminar(db, @aData, oBrw)}
+   @ 270, 440 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfArticulos(db, aData)}
    @ 600, 440 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
@@ -126,3 +127,14 @@ STATIC FUNCTION ListaIvaNombres(aTipos)
       AAdd(aNombres, aTipos[nI][2])
    NEXT
    RETURN aNombres
+
+STATIC FUNCTION ExportPdfArticulos(db, aData)
+   LOCAL aCols := { ;
+      {"Código", 100, 2}, ;
+      {"Descripción", 250, 3}, ;
+      {"Precio", 80, 4, .T.}, ;
+      {"Ud.", 50, 5, .T.}, ;
+      {"Activo", 50, 6, .T.} }
+   LOCAL cPath := AbrirListadoPdf(db, "Artículos", aData, aCols)
+   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, "Exportar"); ENDIF
+RETURN NIL

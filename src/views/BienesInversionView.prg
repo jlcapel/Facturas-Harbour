@@ -17,6 +17,7 @@ FUNCTION BienesInversionView(db)
    @ 30, 440 BUTTON "Nuevo" SIZE 70, 28 ON CLICK {|| BienNuevo(db, @aData, oBrw)}
    @ 110, 440 BUTTON "Editar" SIZE 70, 28 ON CLICK {|| BienEditar(db, @aData, oBrw, oBrw:nCurrent)}
    @ 190, 440 BUTTON "Eliminar" SIZE 70, 28 ON CLICK {|| BienEliminar(db, @aData, oBrw)}
+   @ 270, 440 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfBienes(db, aData)}
    @ 740, 440 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
    ACTIVATE DIALOG oDlg CENTER
 RETURN NIL
@@ -38,6 +39,20 @@ STATIC FUNCTION BienEditar(db, aData, oBrw, nRow)
       GuardarBienInversion(db, aB[1], aR[1], aR[2], aR[3], aR[4], aR[5], aR[6], aR[7], aR[8], aR[9], .T., aR[10])
       aData := ObtenerBienesInversion(db); oBrw:aArray := aData; oBrw:Refresh()
    ENDIF
+RETURN NIL
+
+STATIC FUNCTION ExportPdfBienes(db, aData)
+   LOCAL aCols := { ;
+      {"Nombre", 180, 2}, ;
+      {"FechaAdq.", 90, 3}, ;
+      {"ValorAdq.", 80, 4, .T.}, ;
+      {"%Uso", 50, 5, .T.}, ;
+      {"Amort.Anual", 80, 6, .T.}, ;
+      {"V.Amortiz.", 80, 7, .T.}, ;
+      {"V.Neto", 70, 8, .T.}, ;
+      {"EnUso", 50, 11, .T.} }
+   LOCAL cPath := AbrirListadoPdf(db, "BienesInversion", aData, aCols)
+   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, "Exportar"); ENDIF
 RETURN NIL
 
 STATIC FUNCTION BienEliminar(db, aData, oBrw)

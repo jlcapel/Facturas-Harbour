@@ -22,6 +22,7 @@ FUNCTION TiposIvaView(db)
    @ 30, 350 BUTTON "Nuevo" SIZE 70, 28 ON CLICK {|| TipoIvaNuevo(db, @aData, oBrw)}
    @ 110, 350 BUTTON "Editar" SIZE 70, 28 ON CLICK {|| TipoIvaEditar(db, @aData, oBrw, oBrw:nCurrent)}
    @ 190, 350 BUTTON "Eliminar" SIZE 70, 28 ON CLICK {|| TipoIvaEliminar(db, @aData, oBrw)}
+   @ 270, 350 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfTiposIva(db, aData)}
    @ 460, 350 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
@@ -80,6 +81,16 @@ STATIC FUNCTION TipoIvaEditar(db, aData, oBrw, nRow)
       oBrw:aArray := aData
       oBrw:Refresh()
    ENDIF
+RETURN NIL
+
+STATIC FUNCTION ExportPdfTiposIva(db, aData)
+   LOCAL aCols := { ;
+      {"Nombre", 200, 2}, ;
+      {"% IVA", 80, 3, .T.}, ;
+      {"Activo", 50, 4, .T.}, ;
+      {"Desde", 120, 5} }
+   LOCAL cPath := AbrirListadoPdf(db, "TiposIVA", aData, aCols)
+   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, "Exportar"); ENDIF
 RETURN NIL
 
 STATIC FUNCTION TipoIvaEliminar(db, aData, oBrw)

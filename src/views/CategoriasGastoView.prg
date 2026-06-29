@@ -14,6 +14,7 @@ FUNCTION CategoriasGastoView(db)
    @ 30, 440 BUTTON "Nuevo" SIZE 70, 28 ON CLICK {|| CatNuevo(db, @aData, oBrw)}
    @ 110, 440 BUTTON "Editar" SIZE 70, 28 ON CLICK {|| CatEditar(db, @aData, oBrw, oBrw:nCurrent)}
    @ 190, 440 BUTTON "Eliminar" SIZE 70, 28 ON CLICK {|| CatEliminar(db, @aData, oBrw)}
+   @ 270, 440 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfCategorias(db, aData)}
    @ 520, 440 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
    ACTIVATE DIALOG oDlg CENTER
 RETURN NIL
@@ -35,6 +36,17 @@ STATIC FUNCTION CatEditar(db, aData, oBrw, nRow)
       GuardarCategoriaGasto(db, aC[1], aR[1], aR[2], aR[3], aR[4], .T.)
       aData := ObtenerCategoriasGasto(db); oBrw:aArray := aData; oBrw:Refresh()
    ENDIF
+RETURN NIL
+
+STATIC FUNCTION ExportPdfCategorias(db, aData)
+   LOCAL aCols := { ;
+      {"Nombre", 200, 2}, ;
+      {"% Deducible", 100, 3, .T.}, ;
+      {"IVA Deduc.", 80, 4, .T.}, ;
+      {"Orden", 50, 5, .T.}, ;
+      {"Activo", 50, 6, .T.} }
+   LOCAL cPath := AbrirListadoPdf(db, "CategoriasGasto", aData, aCols)
+   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, "Exportar"); ENDIF
 RETURN NIL
 
 STATIC FUNCTION CatEliminar(db, aData, oBrw)
