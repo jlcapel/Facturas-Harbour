@@ -59,10 +59,11 @@ Hitos basados en el proyecto Facturas .NET. Cada hito entrega una funcionalidad 
 - [x] Registro de eventos con hash chain (EventoService)
 - [x] Constantes AEAT: tipos factura, URLs pre/producción (AeatConstants)
 
-### 4.2 Vista factura + PDF (pendiente)
-- [ ] Ventana Facturas: listado con filtros
-- [ ] Ventana Nueva/Editar Factura: cabecera, selector cliente, tabla líneas
-- [ ] Editar líneas: añadir/quitar artículo, cantidad, precio, IVA
+### 4.2 Vista factura + PDF (en progreso)
+- [x] Ventana Facturas: listado con filtros (nº, fecha, cliente, tipo, total, estado)
+- [x] Ventana Nueva/Editar Factura: cabecera, selector cliente, tabla líneas
+- [x] Editar líneas: añadir/quitar artículo, cantidad, precio, IVA (auto-relleno desde artículo)
+- [x] Cálculos automáticos: Importe línea, BaseImponible, IvaImporte, Total
 - [ ] Generación PDF con hbhpdf (cabecera, líneas, totales)
 
 ### 4.3 SOAP AEAT (pendiente)
