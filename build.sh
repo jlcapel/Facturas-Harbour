@@ -38,7 +38,7 @@ mkdir -p "$TMPDIR"
 
 # 1. Compilar todos los .prg -> .c con harbour
 find "$SRCDIR" -name "*.prg" | while read f; do
-  harbour "$f" -n -q -m -es2 -d___GTK3___ -i"$SRCDIR" -i/usr/local/include/harbour -i/usr/local/share/harbour/contrib/hbsqlit3 -o"$TMPDIR"/$(basename "$f" .prg).c
+  harbour "$f" -n -q -m -es2 -d___GTK3___ -i"$SRCDIR" -i/usr/local/include/harbour -i/usr/local/share/harbour/contrib/hbsqlit3 -i/usr/local/share/harbour/contrib/hbhpdf -o"$TMPDIR"/$(basename "$f" .prg).c
 done
 
 # 2. Compilar todos los .c -> .o con gcc
@@ -52,9 +52,10 @@ GTK_LIBS=$(pkg-config --libs gtk+-3.0)
 gcc "$TMPDIR"/*.o \
   -Wl,--start-group \
   -lhwgui -lprocmisc -lhbxml \
-  -lhbcplr -lhbdebug -lharbour \
-  -lhbsqlit3 -lsqlite3 \
-  $GTK_LIBS -lm \
+   -lhbcplr -lhbdebug -lharbour \
+   -lhbsqlit3 -lsqlite3 \
+   -lhbhpdf -lhpdf \
+   $GTK_LIBS -lm \
   -Wl,--end-group \
   -o "$PROJECT" \
   -L"$HARBOUR_LIB" -L/usr/lib/x86_64-linux-gnu

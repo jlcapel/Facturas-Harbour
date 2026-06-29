@@ -24,7 +24,8 @@ FUNCTION FacturasView(db)
 
    @ 30, 450 BUTTON "Nueva" SIZE 70, 28 ON CLICK {|| FacturaNueva(db, @aData, oBrw)}
    @ 110, 450 BUTTON "Editar" SIZE 70, 28 ON CLICK {|| FacturaEditar(db, @aData, oBrw)}
-   @ 190, 450 BUTTON "Anular" SIZE 70, 28 ON CLICK {|| FacturaAnular(db, @aData, oBrw)}
+   @ 190, 450 BUTTON "Imprimir" SIZE 70, 28 ON CLICK {|| FacturaImprimir(db, aData, oBrw)}
+   @ 270, 450 BUTTON "Anular" SIZE 70, 28 ON CLICK {|| FacturaAnular(db, @aData, oBrw)}
    @ 700, 450 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
@@ -71,5 +72,24 @@ STATIC FUNCTION FacturaAnular(db, aData, oBrw)
          oBrw:aArray := aData
          oBrw:Refresh()
       ENDIF
+   ENDIF
+RETURN NIL
+
+STATIC FUNCTION FacturaImprimir(db, aData, oBrw)
+   LOCAL nRow := oBrw:nCurrent
+   LOCAL cRuta, nId
+   IF nRow < 1 .OR. nRow > Len(aData)
+      hwg_MsgInfo("Seleccione una factura", "Aviso")
+      RETURN
+   ENDIF
+   nId := aData[nRow][1]
+   cRuta := "/tmp/Facturas/" + aData[nRow][2] + ".pdf"
+   IF !hb_DirExists("/tmp/Facturas")
+      hb_DirBuild("/tmp/Facturas")
+   ENDIF
+   IF GenerarPdfFactura(db, nId, cRuta)
+      hwg_MsgInfo("PDF generado: " + cRuta, "Información")
+   ELSE
+      hwg_MsgInfo("Error al generar PDF", "Error")
    ENDIF
 RETURN NIL
