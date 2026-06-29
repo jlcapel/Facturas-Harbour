@@ -13,22 +13,27 @@ Hitos basados en el proyecto Facturas .NET. Cada hito entrega una funcionalidad 
 
 ## Hito 1: Toolchain + Hola Mundo (semana 1-2)
 
-- [ ] Compilar Harbour desde fuente en Linux
-- [ ] Compilar Harbour para Windows (cross MinGW)
-- [ ] Compilar HWGUI Linux (GTK2)
-- [ ] Compilar HWGUI Windows (cross MinGW)
-- [ ] Compilar contribs: hbsqlit3, hbhpdf, hbcurl, hbssl, hbxml, hbjson, hbzebra, hbziparc
-- [ ] Crear facturas.hbp (Harbour Project)
-- [ ] Hola Mundo HWGUI: ventana con menú en Linux
-- [ ] Hola Mundo HWGUI: ventana con menú en Windows (cross)
+- [x] Compilar Harbour desde fuente en Linux
+- [x] Compilar Harbour para Windows (cross MinGW)
+- [x] Compilar HWGUI Linux (GTK3)
+- [x] Compilar HWGUI Windows (cross MinGW)
+- [x] Compilar contribs: hbsqlit3, hbhpdf, hbcurl, hbssl, hbxml, hbjson, hbzebra, hbziparc
+- [x] Crear facturas.hbp (Harbour Project)
+- [x] Hola Mundo HWGUI: ventana con menú en Linux
+- [x] Hola Mundo HWGUI: ventana con menú en Windows (cross)
 
 ## Hito 2: Modelos + DB (semana 3-4)
 
-- [ ] Crear tablas SQLite: Cliente, Articulo, Pais, TipoIva, TipoIdentificacion, Configuracion
-- [ ] Crear tablas SQLite: Factura, LineaFactura, RegistroFacturacion, RegistroEvento
-- [ ] Seed de datos: paises (~27), tipos IVA (6), tipos identificación (6), config básica
-- [ ] Clase ConfiguracionService: Obtener/Establecer clave-valor
-- [ ] Script de inicialización de BD en primer arranque
+- [x] Crear tablas SQLite: Cliente, Articulo, Pais, TipoIva, TipoIdentificacion, Configuracion
+- [x] Crear tablas SQLite: Factura, LineaFactura, RegistroFacturacion, RegistroEvento
+- [x] Crear tablas SQLite: Proveedor, CategoriaGasto, Gasto, LineaGasto, BienInversion
+- [x] Seed de datos: países (29), tipos IVA (6), tipos identificación (6), config básica
+- [x] Seed de datos: categorías gasto (10)
+- [x] Clase ConfiguracionService: Obtener/Establecer clave-valor
+- [x] Clase PaisService: CRUD paises
+- [x] Clase TipoIvaService: CRUD tipos IVA
+- [x] Clase TipoIdentificacionService: CRUD tipos identificación
+- [x] Inicialización de BD en primer arranque
 
 ## Hito 3: CRUD Maestros (semana 5-6)
 

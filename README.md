@@ -37,7 +37,13 @@ Para Windows cross-compilation, ver AGENTS.md.
 
 ## Estado del proyecto
 
-Ver [`ROADMAP.md`](./ROADMAP.md) para el plan de desarrollo.
+| Hito | Estado |
+|---|---|
+| 1 — Toolchain + Hola Mundo | ✅ Completado |
+| 2 — Modelos + BD SQLite | ✅ Completado |
+| 3 — CRUD Maestros | 🔄 Pendiente |
+
+Ver [`ROADMAP.md`](./ROADMAP.md) para el plan de desarrollo detallado.
 
 ## Contacto
 
