@@ -377,20 +377,24 @@ RETURN .T.
 
 STATIC FUNCTION SembrarConfiguracion(db)
    LOCAL aConfig := { ;
-      { "IdSistemaInformatico", "FV" }, ;
-      { "VersionSIF", "1.0.0" }, ;
-      { "NombreRazon", "" }, ;
-      { "Nif", "" }, ;
-      { "Direccion", "" }, ;
-      { "Poblacion", "" }, ;
-      { "Provincia", "" }, ;
-      { "CodigoPostal", "" }, ;
-      { "Telefono", "" }, ;
-      { "Email", "" }, ;
-      { "EntornoAEAT", "Preproduccion" }, ;
-      { "NombreSistemaInformatico", "Facturas" }, ;
-      { "NumeroInstalacion", "1" }, ;
-      { "IrpfPorcentaje", "15" }, ;
+      { "Empresa.Nif", "" }, ;
+      { "Empresa.Nombre", "" }, ;
+      { "Empresa.Direccion", "" }, ;
+      { "Empresa.Poblacion", "" }, ;
+      { "Empresa.Provincia", "" }, ;
+      { "Empresa.CodigoPostal", "" }, ;
+      { "Empresa.Telefono", "" }, ;
+      { "Empresa.Email", "" }, ;
+      { "Empresa.Web", "" }, ;
+      { "VeriFactu.Nif", "" }, ;
+      { "VeriFactu.IdEmisor", "FV" }, ;
+      { "VeriFactu.NombreSoftware", "Facturas" }, ;
+      { "VeriFactu.VersionSoftware", "1.0.0" }, ;
+      { "VeriFactu.Ambiente", "1" }, ;
+      { "IVA.General", "21.00" }, ;
+      { "IVA.Reducido", "10.00" }, ;
+      { "IVA.Superreducido", "4.00" }, ;
+      { "IRPF.Porcentaje", "15" }, ;
       { "UltimoNumeroFactura", "0" } }
 
    LOCAL stmt := sqlite3_prepare(db, "INSERT INTO Configuracion(Clave, Valor) VALUES(?, ?)")
