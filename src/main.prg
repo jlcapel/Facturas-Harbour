@@ -32,7 +32,34 @@
 
 PROCEDURE Main()
    LOCAL oWnd
+   LOCAL db
+
+   InicializarBaseDatos()
+
+   db := AbrirBaseDatos()
+
    INIT WINDOW oWnd TITLE "Facturas-Harbour" SIZE 400, 200
-   @ 80, 80 SAY "Toolchain OK" SIZE 200, 30
+   @ 10, 10 SAY "Toolchain OK - BD inicializada" SIZE 380, 30
+   @ 40, 40 SAY ObtenerTextoInfo(db) SIZE 380, 200
    ACTIVATE WINDOW oWnd
+
+   db := NIL
 RETURN
+
+FUNCTION ObtenerTextoInfo(db)
+   RETURN "BD: " + ObtenerDbPath() + ";" + ;
+      "Paises: " + hb_ntos(ContarTabla(db, "Paises")) + ";" + ;
+      "IVA: " + hb_ntos(ContarTabla(db, "TiposIva")) + ";" + ;
+      "Identif: " + hb_ntos(ContarTabla(db, "TiposIdentificacion")) + ";" + ;
+      "Config: " + hb_ntos(ContarTabla(db, "Configuracion")) + ";" + ;
+      "Gastos: " + hb_ntos(ContarTabla(db, "CategoriasGasto"))
+
+STATIC FUNCTION ContarTabla(db, cTabla)
+   LOCAL stmt, nCount
+   stmt := sqlite3_prepare(db, "SELECT COUNT(*) FROM " + cTabla)
+   nCount := 0
+   IF !Empty(stmt) .AND. sqlite3_step(stmt) == SQLITE_ROW
+      nCount := sqlite3_column_int(stmt, 0)
+   ENDIF
+   sqlite3_finalize(stmt)
+   RETURN nCount

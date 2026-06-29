@@ -31,23 +31,32 @@ set -e
 
 PROJECT="Facturas"
 HARBOUR_LIB="/usr/local/lib/harbour"
+SRCDIR="src"
+TMPDIR="/tmp/facturas_build"
+rm -rf "$TMPDIR"
+mkdir -p "$TMPDIR"
 
-# 1. Compilar .prg -> .c con harbour
-harbour src/main.prg -n -q -m -es2 -d___GTK3___ -isrc -i/usr/local/include/harbour -o/tmp/facturas_main.c
+# 1. Compilar todos los .prg -> .c con harbour
+find "$SRCDIR" -name "*.prg" | while read f; do
+  harbour "$f" -n -q -m -es2 -d___GTK3___ -i"$SRCDIR" -i/usr/local/include/harbour -i/usr/local/share/harbour/contrib/hbsqlit3 -o"$TMPDIR"/$(basename "$f" .prg).c
+done
 
-# 2. Compilar .c -> .o con gcc
+# 2. Compilar todos los .c -> .o con gcc
 GTK_CFLAGS=$(pkg-config --cflags gtk+-3.0)
-gcc -c -O3 /tmp/facturas_main.c -o /tmp/facturas_main.o -I/usr/local/include/harbour $GTK_CFLAGS -DHWG_USE_POINTER_ITEM
+for f in "$TMPDIR"/*.c; do
+  gcc -c -O3 "$f" -o "${f%.c}.o" -I/usr/local/include/harbour $GTK_CFLAGS -DHWG_USE_POINTER_ITEM
+done
 
 # 3. Enlazar
 GTK_LIBS=$(pkg-config --libs gtk+-3.0)
-gcc /tmp/facturas_main.o \
+gcc "$TMPDIR"/*.o \
   -Wl,--start-group \
   -lhwgui -lprocmisc -lhbxml \
   -lhbcplr -lhbdebug -lharbour \
+  -lhbsqlit3 -lsqlite3 \
   $GTK_LIBS -lm \
   -Wl,--end-group \
   -o "$PROJECT" \
-  -L"$HARBOUR_LIB"
+  -L"$HARBOUR_LIB" -L/usr/lib/x86_64-linux-gnu
 
 echo "OK: ./$PROJECT"

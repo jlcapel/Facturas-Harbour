@@ -19,5 +19,9 @@ Thumbs.db
 *~
 .\#*
 
+# Runtime
+Error.log
+/tmp/facturas_build/
+
 # OpenCode
 .opencode/
