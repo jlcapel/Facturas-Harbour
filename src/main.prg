@@ -57,7 +57,7 @@ PROCEDURE Main()
          MENUITEM "Configuración" ACTION {|| EmpresaView(db)}
       ENDMENU
       MENU TITLE "Facturas"
-         MENUITEM "Próximamente..." ACTION {|| hwg_MsgInfo("En desarrollo", "Facturas")}
+         MENUITEM "Listado" ACTION {|| FacturasView(db)}
       ENDMENU
    ENDMENU
 

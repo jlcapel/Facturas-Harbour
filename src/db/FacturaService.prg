@@ -97,8 +97,8 @@ FUNCTION CrearFactura(db, aFactura, aLineas)
    nIrpfPct := ObtenerIrpfPorcentaje(db)
 
    FOR nI := 1 TO Len(aLineas)
-      nBaseImp := nBaseImp + aLineas[nI][6]
-      nIvaImp := nIvaImp + aLineas[nI][6] * aLineas[nI][7] / 100
+      nBaseImp := nBaseImp + aLineas[nI][8]
+      nIvaImp := nIvaImp + aLineas[nI][8] * aLineas[nI][7] / 100
    NEXT
 
    nIrpfImp := nBaseImp * nIrpfPct / 100
@@ -236,6 +236,15 @@ STATIC FUNCTION InsertarLineaFactura(db, aL)
    ELSE
       sqlite3_bind_text(stmt, 10, Str(aL[10], 12, 2))
    ENDIF
+   nRes := sqlite3_step(stmt)
+   sqlite3_finalize(stmt)
+   RETURN nRes == SQLITE_DONE
+
+FUNCTION AnularFactura(db, nId)
+   LOCAL stmt := sqlite3_prepare(db, ;
+      "UPDATE Facturas SET Estado = 1 WHERE Id = ? AND Estado = 0")
+   LOCAL nRes
+   sqlite3_bind_int(stmt, 1, nId)
    nRes := sqlite3_step(stmt)
    sqlite3_finalize(stmt)
    RETURN nRes == SQLITE_DONE
