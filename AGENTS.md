@@ -110,6 +110,7 @@ Extraídos literalmente de `Facturas/Models/`:
 | `AeatClientService` | Cliente SOAP XML a AEAT (pre/producción), parseo respuesta CSV |
 | `InvoicePdfService` | Generación PDF A4 con cabecera, cliente, líneas, totales, IRPF |
 | `ExportacionService` | Exportación XML de registros |
+| `ExportacionCsvService` | Exportación CSV de gastos |
 | `Logger` | Log a archivo en `~/.local/share/Facturas/logs/` |
 
 ## VERI*FACTU (extraído de AeatConstants.cs y VeriFactuService.cs)
@@ -200,6 +201,7 @@ Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPU
 | Hito 2 | ✅ | BD SQLite (15 tablas + seed) + servicios básicos |
 | Hito 3 | ✅ | CRUD maestros: 6 ventanas HWGUI + 2 servicios |
 | Hito 4 | ✅ | Facturas + PDF + VERI*FACTU (UI + PDF + SOAP completo) |
+| Hito 5 | ✅ | Exportación XML/CSV + Logger: 4 servicios + menu exportar |
 | Hito 6 | ✅ | Gastos + Secundarios: 4 servicios DB + 6 vistas HWGUI |
 
 ## Problemas conocidos (del proyecto .NET)

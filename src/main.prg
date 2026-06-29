@@ -66,6 +66,12 @@ PROCEDURE Main()
       MENU TITLE "Gastos"
          MENUITEM "Listado" ACTION {|| GastosView(db)}
       ENDMENU
+      MENU TITLE "Exportar"
+         MENUITEM "Registros AEAT (XML)" ACTION {|| ExportarRegAeat(db)}
+         MENUITEM "Eventos (XML)" ACTION {|| ExportarEventosXml(db)}
+         SEPARATOR
+         MENUITEM "Gastos (CSV)" ACTION {|| ExportarGastosCsv(db)}
+      ENDMENU
    ENDMENU
 
    @ 20, 20 SAY "Facturas-Harbour — App de facturación VERI*FACTU" SIZE 400, 22
@@ -94,3 +100,23 @@ STATIC FUNCTION ContarTabla(db, cTabla)
    ENDIF
    sqlite3_finalize(stmt)
    RETURN nCount
+
+STATIC FUNCTION ExportarRegAeat(db)
+   LOCAL cPath := GuardarXmlRegistros(db)
+   hwg_MsgInfo("Registros AEAT exportados: " + cPath, "Exportación")
+RETURN NIL
+
+STATIC FUNCTION ExportarEventosXml(db)
+   LOCAL cPath := GuardarXmlEventos(db)
+   hwg_MsgInfo("Eventos exportados: " + cPath, "Exportación")
+RETURN NIL
+
+STATIC FUNCTION ExportarGastosCsv(db)
+   LOCAL cYear := hwg_MsgGet("Año", "Introduzca año:", hb_ntos(Year(Date())))
+   LOCAL nYear, cPath
+   IF Empty(cYear); RETURN; ENDIF
+   nYear := Val(cYear)
+   IF nYear < 2000 .OR. nYear > 2100; hwg_MsgInfo("Año no válido", "Error"); RETURN; ENDIF
+   cPath := GuardarCsvGastos(db, nYear)
+   hwg_MsgInfo("Gastos exportados: " + cPath, "Exportación")
+RETURN NIL

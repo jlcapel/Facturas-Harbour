@@ -53,14 +53,14 @@ STATIC FUNCTION GastoTogglePago(db, aData, oBrw)
    aData := ObtenerGastos(db); oBrw:aArray := aData; oBrw:Refresh()
 RETURN NIL
 
-FUNCTION TipoDocStr(nTipo)
+STATIC FUNCTION TipoDocStr(nTipo)
    LOCAL aTipos := {"Factura", "Ticket Simplif.", "Recibo", "DUA", "Otro"}
    IF nTipo < 1 .OR. nTipo > Len(aTipos)
       RETURN "Otro"
    ENDIF
    RETURN aTipos[nTipo + 1]
 
-FUNCTION MedioPagoStr(nPago)
+STATIC FUNCTION MedioPagoStr(nPago)
    LOCAL aPagos := {"Efectivo", "Transferencia", "Tarjeta", "Domiciliación", "Otro"}
    IF nPago < 1 .OR. nPago > Len(aPagos)
       RETURN "Otro"
