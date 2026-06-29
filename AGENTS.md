@@ -114,6 +114,9 @@ Extraídos literalmente de `Facturas/Models/`:
 | `AeatClientService` | Cliente SOAP XML a AEAT (pre/producción), parseo respuesta CSV |
 | `InvoicePdfService` | Generación PDF A4 con cabecera, cliente, líneas, totales, IRPF |
 | `ListadoPdfService` | PDF de listados genéricos A4 apaisado (cabecera + tabla) |
+| `BackupService` | Backup automático BD al arrancar, verificar integridad, restaurar desde backup |
+| `NtpService` | Sincronización hora oficial vía HTTP (worldtimeapi.org) con fallback a reloj local |
+| `NumericConfigService` | Configuración numérica: decimales, separadores, redondeo, descuentos |
 ## VERI*FACTU (extraído de AeatConstants.cs y VeriFactuService.cs)
 
 ### Hash oficial AEAT

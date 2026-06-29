@@ -35,8 +35,12 @@ PROCEDURE Main()
    LOCAL db
 
    InicializarBaseDatos()
-
    db := AbrirBaseDatos()
+
+   IF !EnsureDbReady()
+      LogInfo("Main: no se pudo asegurar integridad BD")
+   ENDIF
+   HacerBackup()
 
    INIT DIALOG oDlg ;
       TITLE "Facturas-Harbour" ;
