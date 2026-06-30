@@ -113,33 +113,33 @@ PROCEDURE Main()
    // --- PRINCIPAL ---
    @ 126, 15 SAY L("MainSidebarPrincipal") SIZE 180, 14 COLOR SIDEBAR_SEC FONT oFntSec TRANSPARENT
 
-   @ 146, 12 BUTTON L("MenuFacturas")        SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| FacturasView(s_Db)}
-   @ 178, 12 BUTTON L("MenuClientes")        SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ClientesView(s_Db)}
-   @ 210, 12 BUTTON L("MenuArticulos")       SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ArticulosView(s_Db)}
-   @ 242, 12 BUTTON L("MenuProveedores")     SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ProveedoresView(s_Db)}
-   @ 274, 12 BUTTON L("MenuGastos")          SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| GastosView(s_Db)}
-   @ 306, 12 BUTTON L("MenuBienesInversion") SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| BienesInversionView(s_Db)}
+   @ 146, 12 BUTTON L("MenuFacturas")        SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| FacturasView(s_Db)}
+   @ 178, 12 BUTTON L("MenuClientes")        SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| ClientesView(s_Db)}
+   @ 210, 12 BUTTON L("MenuArticulos")       SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| ArticulosView(s_Db)}
+   @ 242, 12 BUTTON L("MenuProveedores")     SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| ProveedoresView(s_Db)}
+   @ 274, 12 BUTTON L("MenuGastos")          SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| GastosView(s_Db)}
+   @ 306, 12 BUTTON L("MenuBienesInversion") SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| BienesInversionView(s_Db)}
 
    @ 336, 12 LINE LENGTH 195
 
    // --- CONFIGURACIÓN ---
    @ 348, 15 SAY L("MainSidebarConfig") SIZE 180, 14 COLOR SIDEBAR_SEC FONT oFntSec TRANSPARENT
 
-   @ 368, 12 BUTTON L("ConfigMenuEmpresa")        SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| EmpresaView(s_Db)}
-   @ 400, 12 BUTTON L("ConfigMenuTiposIva")       SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| TiposIvaView(s_Db)}
-   @ 432, 12 BUTTON L("MenuPaises")               SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| PaisesView(s_Db)}
-   @ 464, 12 BUTTON L("ConfigMenuIdentificacion") SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| TiposIdentificacionView(s_Db)}
-   @ 496, 12 BUTTON L("ConfigMenuCategoriasGasto") SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| CategoriasGastoView(s_Db)}
+   @ 368, 12 BUTTON L("ConfigMenuEmpresa")        SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| EmpresaView(s_Db)}
+   @ 400, 12 BUTTON L("ConfigMenuTiposIva")       SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| TiposIvaView(s_Db)}
+   @ 432, 12 BUTTON L("MenuPaises")               SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| PaisesView(s_Db)}
+   @ 464, 12 BUTTON L("ConfigMenuIdentificacion") SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| TiposIdentificacionView(s_Db)}
+   @ 496, 12 BUTTON L("ConfigMenuCategoriasGasto") SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| CategoriasGastoView(s_Db)}
 
    @ 526, 12 LINE LENGTH 195
 
    // --- UTILIDADES ---
    @ 538, 15 SAY "UTILIDADES" SIZE 180, 14 COLOR SIDEBAR_SEC FONT oFntSec TRANSPARENT
 
-   @ 558, 12 BUTTON L("DashValidacion")     SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ValidacionView(s_Db)}
-   @ 590, 12 BUTTON "VIES"                  SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ViesView(s_Db)}
-   @ 622, 12 BUTTON L("UtilMenuModelosAeat") SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ModelosAeatView(s_Db)}
-   @ 654, 12 BUTTON L("MenuExportar")       SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| MenuExportar()}
+   @ 558, 12 BUTTON L("DashValidacion")     SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| ValidacionView(s_Db)}
+   @ 590, 12 BUTTON "VIES"                  SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| ViesView(s_Db)}
+   @ 622, 12 BUTTON L("UtilMenuModelosAeat") SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| ModelosAeatView(s_Db)}
+   @ 654, 12 BUTTON L("MenuExportar")       SIZE 195, 24 COLOR SIDEBAR_TEXT BACKCOLOR SIDEBAR_BG FONT oFntNav ON CLICK {|| MenuExportar()}
 
    @ 718, 55 SAY "v1.0 — Harbour + HWGUI" SIZE 180, 14 COLOR hwg_ColorRGB2N(71, 85, 105) FONT oFntSmall TRANSPARENT
 
