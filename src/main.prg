@@ -19,7 +19,9 @@
 #define ACCENT_GREEN hwg_ColorRGB2N(34, 197, 94)
 #define ACCENT_PURPLE hwg_ColorRGB2N(139, 92, 246)
 
-STATIC s_Db  // db handle used by nav callbacks
+#define WIN_H 750
+
+STATIC s_Db
 
 PROCEDURE Main()
    LOCAL oDlg, cLang
@@ -54,7 +56,7 @@ PROCEDURE Main()
    INIT DIALOG oDlg ;
       TITLE "Facturas-Harbour" ;
       AT 0, 0 ;
-      SIZE 1200, 720 ;
+      SIZE 1200, WIN_H ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    MENU OF oDlg
@@ -96,61 +98,59 @@ PROCEDURE Main()
    ENDMENU
 
    // =====================================================================
-   //  SIDEBAR — dark panel, full height
+   //  SIDEBAR
    // =====================================================================
-   @ 0, 0 SAY "" SIZE SIDEBAR_W, 720 BACKCOLOR SIDEBAR_BG
+   @ 0, 0 SAY "" SIZE SIDEBAR_W, WIN_H BACKCOLOR SIDEBAR_BG
 
-   // Logo circle "F"
    @ 20, 18 SAY "F" SIZE 44, 44 COLOR hwg_ColorRGB2N(255, 255, 255) BACKCOLOR ACCENT_BLUE FONT oFntLogo TRANSPARENT
 
-   @ 72, 22 SAY "Facturas" SIZE 170, 26 COLOR hwg_ColorRGB2N(241, 245, 249) FONT oFntBrand TRANSPARENT
+   @ 68, 22 SAY "Facturas" SIZE 170, 24 COLOR hwg_ColorRGB2N(241, 245, 249) FONT oFntBrand TRANSPARENT
 
-   @ 100, 24 SAY "VERI*FACTU" SIZE 170, 16 COLOR hwg_ColorRGB2N(148, 163, 184) FONT oFntSmall TRANSPARENT
+   @ 94, 24 SAY "VERI*FACTU" SIZE 170, 14 COLOR hwg_ColorRGB2N(148, 163, 184) FONT oFntSmall TRANSPARENT
 
-   // Divider
-   @ 120, 12 LINE LENGTH 195
+   @ 114, 12 LINE LENGTH 195
 
-   // ---------------------------------------------------------------
-   //  PRINCIPAL section
-   // ---------------------------------------------------------------
-   @ 132, 15 SAY L("MainSidebarPrincipal") SIZE 180, 14 COLOR SIDEBAR_SEC FONT oFntSec TRANSPARENT
+   // --- PRINCIPAL ---
+   @ 126, 15 SAY L("MainSidebarPrincipal") SIZE 180, 14 COLOR SIDEBAR_SEC FONT oFntSec TRANSPARENT
 
-   @ 148, 12 BUTTON L("MenuFacturas")        SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| FacturasView(s_Db)}
-   @ 176, 12 BUTTON L("MenuClientes")        SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ClientesView(s_Db)}
-   @ 204, 12 BUTTON L("MenuArticulos")       SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ArticulosView(s_Db)}
-   @ 232, 12 BUTTON L("MenuProveedores")     SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ProveedoresView(s_Db)}
-   @ 260, 12 BUTTON L("MenuGastos")          SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| GastosView(s_Db)}
-   @ 288, 12 BUTTON L("MenuBienesInversion") SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| BienesInversionView(s_Db)}
+   @ 146, 12 BUTTON L("MenuFacturas")        SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| FacturasView(s_Db)}
+   @ 178, 12 BUTTON L("MenuClientes")        SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ClientesView(s_Db)}
+   @ 210, 12 BUTTON L("MenuArticulos")       SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ArticulosView(s_Db)}
+   @ 242, 12 BUTTON L("MenuProveedores")     SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ProveedoresView(s_Db)}
+   @ 274, 12 BUTTON L("MenuGastos")          SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| GastosView(s_Db)}
+   @ 306, 12 BUTTON L("MenuBienesInversion") SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| BienesInversionView(s_Db)}
 
-   @ 318, 12 LINE LENGTH 195
+   @ 336, 12 LINE LENGTH 195
 
-   @ 328, 15 SAY L("MainSidebarConfig") SIZE 180, 14 COLOR SIDEBAR_SEC FONT oFntSec TRANSPARENT
+   // --- CONFIGURACIÓN ---
+   @ 348, 15 SAY L("MainSidebarConfig") SIZE 180, 14 COLOR SIDEBAR_SEC FONT oFntSec TRANSPARENT
 
-   @ 348, 12 BUTTON L("ConfigMenuEmpresa")        SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| EmpresaView(s_Db)}
-   @ 376, 12 BUTTON L("ConfigMenuTiposIva")       SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| TiposIvaView(s_Db)}
-   @ 404, 12 BUTTON L("MenuPaises")               SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| PaisesView(s_Db)}
-   @ 432, 12 BUTTON L("ConfigMenuIdentificacion") SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| TiposIdentificacionView(s_Db)}
-   @ 460, 12 BUTTON L("ConfigMenuCategoriasGasto") SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| CategoriasGastoView(s_Db)}
+   @ 368, 12 BUTTON L("ConfigMenuEmpresa")        SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| EmpresaView(s_Db)}
+   @ 400, 12 BUTTON L("ConfigMenuTiposIva")       SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| TiposIvaView(s_Db)}
+   @ 432, 12 BUTTON L("MenuPaises")               SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| PaisesView(s_Db)}
+   @ 464, 12 BUTTON L("ConfigMenuIdentificacion") SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| TiposIdentificacionView(s_Db)}
+   @ 496, 12 BUTTON L("ConfigMenuCategoriasGasto") SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| CategoriasGastoView(s_Db)}
 
-   @ 490, 12 LINE LENGTH 195
+   @ 526, 12 LINE LENGTH 195
 
-   @ 500, 15 SAY "UTILIDADES" SIZE 180, 14 COLOR SIDEBAR_SEC FONT oFntSec TRANSPARENT
+   // --- UTILIDADES ---
+   @ 538, 15 SAY "UTILIDADES" SIZE 180, 14 COLOR SIDEBAR_SEC FONT oFntSec TRANSPARENT
 
-   @ 520, 12 BUTTON L("DashValidacion")     SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ValidacionView(s_Db)}
-   @ 548, 12 BUTTON "VIES"                  SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ViesView(s_Db)}
-   @ 576, 12 BUTTON L("UtilMenuModelosAeat") SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ModelosAeatView(s_Db)}
-   @ 604, 12 BUTTON L("MenuExportar")       SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| MenuExportar()}
+   @ 558, 12 BUTTON L("DashValidacion")     SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ValidacionView(s_Db)}
+   @ 590, 12 BUTTON "VIES"                  SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ViesView(s_Db)}
+   @ 622, 12 BUTTON L("UtilMenuModelosAeat") SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ModelosAeatView(s_Db)}
+   @ 654, 12 BUTTON L("MenuExportar")       SIZE 195, 24 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| MenuExportar()}
 
-   // Version footer
-   @ 640, 55 SAY "v1.0 — Harbour + HWGUI" SIZE 180, 14 COLOR hwg_ColorRGB2N(71, 85, 105) FONT oFntSmall TRANSPARENT
+   @ 718, 55 SAY "v1.0 — Harbour + HWGUI" SIZE 180, 14 COLOR hwg_ColorRGB2N(71, 85, 105) FONT oFntSmall TRANSPARENT
 
-   @ 0, SIDEBAR_W SAY "" SIZE 985, 720 BACKCOLOR PAGE_BG
+   // =====================================================================
+   //  CONTENT AREA
+   // =====================================================================
+   @ 0, SIDEBAR_W SAY "" SIZE 985, WIN_H BACKCOLOR PAGE_BG
 
    @ 24, 244 SAY L("DashboardTitle") SIZE 400, 30 COLOR TEXT_DARK FONT oFntPgTitle TRANSPARENT
 
-   // ---------------------------------------------------------------
-   //  CARD 1 — Facturación
-   // ---------------------------------------------------------------
+   // --- CARD 1: Facturación ---
    nCardW := 300; nCardH := 230; nGap := 18
    nCX := SIDEBAR_W + 14; nCY1 := 68
 
@@ -168,9 +168,7 @@ PROCEDURE Main()
 
    @ nCY1 + 150, nCX + 14 BUTTON "Modelos AEAT" SIZE 272, 26 FONT oFntBtn ON CLICK {|| ModelosAeatView(s_Db)}
 
-   // ---------------------------------------------------------------
-   //  CARD 2 — Gastos
-   // ---------------------------------------------------------------
+   // --- CARD 2: Gastos ---
    nCY2 := nCY1 + nCardH + nGap
 
    @ nCY2, nCX SAY "" SIZE nCardW, nCardH BACKCOLOR CARD_BG
@@ -187,9 +185,7 @@ PROCEDURE Main()
 
    @ nCY2 + 150, nCX + 14 BUTTON "Exportar Gastos CSV" SIZE 272, 26 FONT oFntBtn ON CLICK {|| ExportarGastosCsv(s_Db)}
 
-   // ---------------------------------------------------------------
-   //  CARD 3 — Configuración & Utilidades
-   // ---------------------------------------------------------------
+   // --- CARD 3: Configuración ---
    nCX2 := nCX + nCardW + nGap; nCY3 := nCY1
 
    @ nCY3, nCX2 SAY "" SIZE nCardW, nCardH BACKCOLOR CARD_BG
@@ -208,8 +204,6 @@ PROCEDURE Main()
    @ nCY3 + 150, nCX2 + 156 BUTTON "Países"     SIZE 130, 26 FONT oFntBtn ON CLICK {|| PaisesView(s_Db)}
 
    // =====================================================================
-   //  STATUS BAR
-   // =====================================================================
    ADD STATUS TO oDlg PARTS 400, 300
 
    ACTIVATE DIALOG oDlg CENTER
@@ -218,9 +212,6 @@ PROCEDURE Main()
 RETURN
 
 // =====================================================================
-//  Dialogs emergentes
-// =====================================================================
-
 STATIC FUNCTION MaestrosView()
    LOCAL oDlg
    INIT DIALOG oDlg TITLE "Maestros" AT 0, 0 SIZE 260, 160 ;
