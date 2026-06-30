@@ -3,22 +3,22 @@
 FUNCTION GastosView(db)
    LOCAL oDlg, oBrw, aData
    aData := ObtenerGastos(db)
-   INIT DIALOG oDlg TITLE "Gastos" AT 0,0 SIZE 900, 520 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
+   INIT DIALOG oDlg TITLE L("GastosTitle") AT 0,0 SIZE 900, 520 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
    @ 20, 20 BROWSE oBrw ARRAY SIZE 750, 410 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
    oBrw:aArray := aData
-   oBrw:AddColumn(HColumn():New("Nº Factura", {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 14, 0))
-   oBrw:AddColumn(HColumn():New("Fecha", {|v,o| (v), DToC(o:aArray[o:nCurrent, 3])}, "D", 12, 0, .F., DT_CENTER))
-   oBrw:AddColumn(HColumn():New("Tipo", {|v,o| (v), TipoDocStr(o:aArray[o:nCurrent, 4])}, "C", 10, 0, .F., DT_CENTER))
-   oBrw:AddColumn(HColumn():New("Proveedor", {|v,o| (v), o:aArray[o:nCurrent, 5]}, "C", 22, 0))
-   oBrw:AddColumn(HColumn():New("Base", {|v,o| (v), Str(o:aArray[o:nCurrent, 6], 10, 2)}, "N", 10, 0, .F., DT_RIGHT))
-   oBrw:AddColumn(HColumn():New("Total", {|v,o| (v), Str(o:aArray[o:nCurrent, 7], 10, 2)}, "N", 10, 0, .F., DT_RIGHT))
-   oBrw:AddColumn(HColumn():New("Pagado", {|v,o| (v), Iif(o:aArray[o:nCurrent, 8], "Sí", "No")}, "C", 8, 0, .F., DT_CENTER))
-   @ 30, 450 BUTTON "Nuevo" SIZE 70, 28 ON CLICK {|| GastoNuevo(db, @aData, oBrw)}
-   @ 110, 450 BUTTON "Editar" SIZE 70, 28 ON CLICK {|| GastoEditar(db, @aData, oBrw, oBrw:nCurrent)}
-   @ 190, 450 BUTTON "Eliminar" SIZE 70, 28 ON CLICK {|| GastoEliminar(db, @aData, oBrw)}
+   oBrw:AddColumn(HColumn():New(L("GastosNumFactura"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 14, 0))
+   oBrw:AddColumn(HColumn():New(L("GastosFecha"), {|v,o| (v), DToC(o:aArray[o:nCurrent, 3])}, "D", 12, 0, .F., DT_CENTER))
+   oBrw:AddColumn(HColumn():New(L("ClientesTipo"), {|v,o| (v), TipoDocStr(o:aArray[o:nCurrent, 4])}, "C", 10, 0, .F., DT_CENTER))
+   oBrw:AddColumn(HColumn():New(L("GastosProveedor"), {|v,o| (v), o:aArray[o:nCurrent, 5]}, "C", 22, 0))
+   oBrw:AddColumn(HColumn():New(L("GastosBase"), {|v,o| (v), Str(o:aArray[o:nCurrent, 6], 10, 2)}, "N", 10, 0, .F., DT_RIGHT))
+   oBrw:AddColumn(HColumn():New(L("GastosTotal"), {|v,o| (v), Str(o:aArray[o:nCurrent, 7], 10, 2)}, "N", 10, 0, .F., DT_RIGHT))
+   oBrw:AddColumn(HColumn():New(L("GastosPagado"), {|v,o| (v), Iif(o:aArray[o:nCurrent, 8], L("CommonSi"), L("CommonNo"))}, "C", 8, 0, .F., DT_CENTER))
+   @ 30, 450 BUTTON L("GastosNuevo") SIZE 70, 28 ON CLICK {|| GastoNuevo(db, @aData, oBrw)}
+   @ 110, 450 BUTTON L("GastosEditar") SIZE 70, 28 ON CLICK {|| GastoEditar(db, @aData, oBrw, oBrw:nCurrent)}
+   @ 190, 450 BUTTON L("GastosEliminar") SIZE 70, 28 ON CLICK {|| GastoEliminar(db, @aData, oBrw)}
    @ 270, 450 BUTTON "Pagado/No" SIZE 80, 28 ON CLICK {|| GastoTogglePago(db, @aData, oBrw)}
    @ 370, 450 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfGastos(db, aData)}
-   @ 660, 450 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
+   @ 660, 450 BUTTON L("GastosVolver") SIZE 70, 28 ON CLICK {|| oDlg:Close()}
    ACTIVATE DIALOG oDlg CENTER
 RETURN NIL
 
@@ -56,15 +56,15 @@ RETURN NIL
 
 STATIC FUNCTION ExportPdfGastos(db, aData)
    LOCAL aCols := { ;
-      {"Nº Factura", 100, 2}, ;
-      {"Fecha", 90, 3}, ;
-      {"Tipo", 80, 4}, ;
-      {"Proveedor", 160, 5}, ;
-      {"Base", 80, 6, .T.}, ;
-      {"Total", 80, 7, .T.}, ;
-      {"Pagado", 50, 8, .T.} }
-   LOCAL cPath := AbrirListadoPdf(db, "Gastos", aData, aCols)
-   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, "Exportar"); ENDIF
+      {L("GastosNumFactura"), 100, 2}, ;
+      {L("GastosFecha"), 90, 3}, ;
+      {L("ClientesTipo"), 80, 4}, ;
+      {L("GastosProveedor"), 160, 5}, ;
+      {L("GastosBase"), 80, 6, .T.}, ;
+      {L("GastosTotal"), 80, 7, .T.}, ;
+      {L("GastosPagado"), 50, 8, .T.} }
+   LOCAL cPath := AbrirListadoPdf(db, L("GastosTitle"), aData, aCols)
+   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, L("CommonExportar")); ENDIF
 RETURN NIL
 
 STATIC FUNCTION TipoDocStr(nTipo)

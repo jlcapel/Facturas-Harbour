@@ -4,12 +4,12 @@ FUNCTION EmpresaView(db)
    LOCAL oDlg
 
    INIT DIALOG oDlg ;
-      TITLE "Configuración VERI*FACTU" ;
+      TITLE L("EmpresaConfigVerifactu") ;
       AT 0, 0 ;
-      SIZE 620, 600 ;
+      SIZE 620, 630 ;
       STYLE WS_POPUP + WS_CAPTION + WS_SYSMENU + WS_SIZEBOX + DS_CENTER
 
-   @ 10, 10 GROUPBOX "Empresa"
+   @ 10, 10 GROUPBOX L("EmpresaTitle")
    EmpresaControls(db, oDlg)
 
    @ 10, 230 GROUPBOX "Veri*Factu"
@@ -24,7 +24,11 @@ FUNCTION EmpresaView(db)
    @ 320, 475 GROUPBOX "IRPF"
    IrpfControls(db, oDlg)
 
-   @ 230, 550 BUTTON "Cerrar" SIZE 90, 28 ON CLICK {|| oDlg:Close()}
+   @ 10, 540 GROUPBOX L("UtilidadesIdioma")
+   @ 30, 558 SAY L("UtilidadesIdiomaLabel") SIZE 60, 22
+   IdiomaControls(db, oDlg)
+
+   @ 230, 570 BUTTON L("CommonCerrar") SIZE 90, 28 ON CLICK {|| oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
 RETURN NIL
@@ -44,19 +48,19 @@ STATIC FUNCTION EmpresaControls(db, oDlg)
 
    @ 30, 40 SAY "NIF:" SIZE 80, 22 OF oDlg
    @ 120, 38 GET cNif SIZE 150, 26 OF oDlg
-   @ 30, 70 SAY "Nombre:" SIZE 80, 22 OF oDlg
+   @ 30, 70 SAY L("BienesNombreLabel") SIZE 80, 22 OF oDlg
    @ 120, 68 GET cNombre SIZE 300, 26 OF oDlg
-   @ 30, 100 SAY "Dirección:" SIZE 80, 22 OF oDlg
+   @ 30, 100 SAY L("ClientesDireccion") SIZE 80, 22 OF oDlg
    @ 120, 98 GET cDireccion SIZE 300, 26 OF oDlg
-   @ 30, 130 SAY "Población:" SIZE 80, 22 OF oDlg
+   @ 30, 130 SAY L("ClientesPoblacionLabel") SIZE 80, 22 OF oDlg
    @ 120, 128 GET cPoblacion SIZE 150, 26 OF oDlg
-   @ 290, 130 SAY "Provincia:" SIZE 80, 22 OF oDlg
+   @ 290, 130 SAY L("ClientesProvincia") SIZE 80, 22 OF oDlg
    @ 370, 128 GET cProvincia SIZE 120, 26 OF oDlg
    @ 30, 160 SAY "C.Postal:" SIZE 80, 22 OF oDlg
    @ 120, 158 GET cCp SIZE 100, 26 OF oDlg
-   @ 290, 160 SAY "Teléfono:" SIZE 80, 22 OF oDlg
+   @ 290, 160 SAY L("ClientesTelefonoLabel") SIZE 80, 22 OF oDlg
    @ 370, 158 GET cTelefono SIZE 120, 26 OF oDlg
-   @ 30, 190 SAY "Email:" SIZE 80, 22 OF oDlg
+   @ 30, 190 SAY L("ClientesEmailLabel") SIZE 80, 22 OF oDlg
    @ 120, 188 GET cEmail SIZE 200, 26 OF oDlg
 
    @ 400, 195 BUTTON "Guardar Empresa" SIZE 110, 22 OF oDlg ON CLICK {;
@@ -115,7 +119,7 @@ STATIC FUNCTION CertificadoControls(db, oDlg)
 
    @ 30, 430 SAY "Certificado PKCS#12:" SIZE 130, 22 OF oDlg
    @ 170, 428 GET cRuta SIZE 300, 26 OF oDlg
-   @ 30, 460 SAY "Contraseña:" SIZE 100, 22 OF oDlg
+   @ 30, 460 SAY L("EmpresaContrasena") SIZE 100, 22 OF oDlg
    @ 140, 458 GET cPass SIZE 150, 26 OF oDlg
    @ 400, 460 BUTTON "Guardar Certificado" SIZE 120, 22 OF oDlg ON CLICK {;
       EstablecerConfiguracion(db, "VeriFactu.CertificadoRuta", AllTrim(cRuta)), ;
@@ -159,7 +163,40 @@ STATIC FUNCTION IrpfControls(db, oDlg)
    @ 300, 460 SAY "Se aplica sobre" SIZE 110, 22 OF oDlg
    @ 300, 480 SAY "la base imponible." SIZE 110, 22 OF oDlg
 
-   @ 400, 480 BUTTON "Guardar IRPF" SIZE 90, 22 OF oDlg ON CLICK {;
-      EstablecerConfiguracion(db, "IRPF.Porcentaje", AllTrim(cIrpf)), ;
-      hwg_MsgInfo("IRPF guardado", "Información") }
+    @ 400, 480 BUTTON "Guardar IRPF" SIZE 90, 22 OF oDlg ON CLICK {;
+       EstablecerConfiguracion(db, "IRPF.Porcentaje", AllTrim(cIrpf)), ;
+       hwg_MsgInfo("IRPF guardado", "Información") }
+RETURN NIL
+
+STATIC FUNCTION IdiomaControls(db, oDlg)
+   LOCAL aIdiomas := {L("LangEspanol"), L("LangEnglish"), L("LangFrancais"), L("LangCatalan"), L("LangEuskera")}
+   LOCAL nIdx := 1, cIdioma, oCb
+
+   cIdioma := ObtenerConfiguracion(db, "Language")
+   SWITCH cIdioma
+   CASE "en"; nIdx := 2; EXIT
+   CASE "fr"; nIdx := 3; EXIT
+   CASE "ca"; nIdx := 4; EXIT
+   CASE "eu"; nIdx := 5; EXIT
+   ENDSWITCH
+
+   @ 90, 555 COMBOBOX oCb ITEMS aIdiomas SIZE 120, 200 OF oDlg
+   oCb:value := nIdx
+   @ 220, 555 BUTTON "Aplicar" SIZE 60, 22 OF oDlg ON CLICK {|| ;
+      nIdx := oCb:value, ;
+      LocalCambiarIdioma(db, nIdx), ;
+      hwg_MsgInfo("Idioma cambiado. Reinicie la aplicación para ver los cambios.", "Idioma") }
+RETURN NIL
+
+STATIC FUNCTION LocalCambiarIdioma(db, nIdx)
+   LOCAL cCode
+   SWITCH nIdx
+   CASE 1; cCode := "es"; EXIT
+   CASE 2; cCode := "en"; EXIT
+   CASE 3; cCode := "fr"; EXIT
+   CASE 4; cCode := "ca"; EXIT
+   CASE 5; cCode := "eu"; EXIT
+   ENDSWITCH
+   EstablecerConfiguracion(db, "Language", cCode)
+   LocalizationSetLang(cCode)
 RETURN NIL

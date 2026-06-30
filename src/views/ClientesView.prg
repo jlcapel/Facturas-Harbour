@@ -6,7 +6,7 @@ FUNCTION ClientesView(db)
    aData := ObtenerClientes(db)
 
    INIT DIALOG oDlg ;
-      TITLE "Clientes" ;
+      TITLE L("ClientesTitle") ;
       AT 0, 0 ;
       SIZE 750, 500 ;
       STYLE WS_POPUP + WS_CAPTION + WS_SYSMENU + WS_SIZEBOX + DS_CENTER
@@ -14,17 +14,17 @@ FUNCTION ClientesView(db)
    @ 20, 20 BROWSE oBrw ARRAY SIZE 550, 400 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
 
    oBrw:aArray := aData
-   oBrw:AddColumn(HColumn():New("Nombre", {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 25, 0))
-   oBrw:AddColumn(HColumn():New("NIF", {|v,o| (v), o:aArray[o:nCurrent, 4]}, "C", 14, 0))
-   oBrw:AddColumn(HColumn():New("Población", {|v,o| (v), o:aArray[o:nCurrent, 9]}, "C", 15, 0))
-   oBrw:AddColumn(HColumn():New("Teléfono", {|v,o| (v), o:aArray[o:nCurrent, 12]}, "C", 14, 0))
-   oBrw:AddColumn(HColumn():New("Activo", {|v,o| (v), iif(o:aArray[o:nCurrent, 14], "Sí", "No")}, "C", 8, 0, .F., DT_CENTER))
+   oBrw:AddColumn(HColumn():New(L("ClientesNombre"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 25, 0))
+   oBrw:AddColumn(HColumn():New(L("ClientesNif"), {|v,o| (v), o:aArray[o:nCurrent, 4]}, "C", 14, 0))
+   oBrw:AddColumn(HColumn():New(L("ClientesPoblacion"), {|v,o| (v), o:aArray[o:nCurrent, 9]}, "C", 15, 0))
+   oBrw:AddColumn(HColumn():New(L("ClientesTelefono"), {|v,o| (v), o:aArray[o:nCurrent, 12]}, "C", 14, 0))
+   oBrw:AddColumn(HColumn():New(L("CommonActivo"), {|v,o| (v), iif(o:aArray[o:nCurrent, 14], L("CommonSi"), L("CommonNo"))}, "C", 8, 0, .F., DT_CENTER))
 
-   @ 30, 440 BUTTON "Nuevo" SIZE 70, 28 ON CLICK {|| ClienteNuevo(db, @aData, oBrw)}
-   @ 110, 440 BUTTON "Editar" SIZE 70, 28 ON CLICK {|| ClienteEditar(db, @aData, oBrw, oBrw:nCurrent)}
-   @ 190, 440 BUTTON "Eliminar" SIZE 70, 28 ON CLICK {|| ClienteEliminar(db, @aData, oBrw)}
+   @ 30, 440 BUTTON L("ClientesNuevo") SIZE 70, 28 ON CLICK {|| ClienteNuevo(db, @aData, oBrw)}
+   @ 110, 440 BUTTON L("ClientesEditar") SIZE 70, 28 ON CLICK {|| ClienteEditar(db, @aData, oBrw, oBrw:nCurrent)}
+   @ 190, 440 BUTTON L("ClientesEliminar") SIZE 70, 28 ON CLICK {|| ClienteEliminar(db, @aData, oBrw)}
    @ 270, 440 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfClientes(db, aData)}
-   @ 600, 440 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
+   @ 600, 440 BUTTON L("ClientesVolver") SIZE 70, 28 ON CLICK {|| oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
 RETURN NIL
@@ -77,7 +77,7 @@ STATIC FUNCTION ClienteEditDialog(db, nId)
    LOCAL cNif := Space(15), cNifIva := Space(15)
    LOCAL cDireccion := Space(50), cPoblacion := Space(30), cProvincia := Space(25)
    LOCAL cCp := Space(10), cTelefono := Space(15), cEmail := Space(30)
-   LOCAL aPaises, aTiposId, aTipoCliente := {"Nacional", "Intracomunitario", "Extracomunitario"}
+   LOCAL aPaises, aTiposId, aTipoCliente := {"Nacional", L("Modelo349Sub"), "Extracomunitario"}
    LOCAL nPaisSel := 1, nTipoIdSel := 1, nTipoClienteSel := 1, aCli
 
    aPaises := ObtenerPaises(db)
@@ -108,13 +108,13 @@ STATIC FUNCTION ClienteEditDialog(db, nId)
 
    INIT DIALOG oDlg TITLE "Editar cliente" AT 0,0 SIZE 520, 480 STYLE DS_CENTER
 
-   @ 20, 15 SAY "Nombre:" SIZE 80, 22
+   @ 20, 15 SAY L("ClientesNombreLabel") SIZE 80, 22
    @ 110, 13 GET cNombre SIZE 370, 26
 
    @ 20, 48 SAY "Tipo:" SIZE 80, 22
    @ 110, 46 COMBOBOX nTipoClienteSel ITEMS aTipoCliente SIZE 150, 200
 
-   @ 20, 81 SAY "País:" SIZE 80, 22
+   @ 20, 81 SAY L("ClientesPais") SIZE 80, 22
    @ 110, 79 COMBOBOX nPaisSel ITEMS ListaPaisesNombres(aPaises) SIZE 200, 200
 
    @ 20, 114 SAY "ID Fiscal:" SIZE 80, 22
@@ -126,26 +126,26 @@ STATIC FUNCTION ClienteEditDialog(db, nId)
    @ 20, 180 SAY "NIF IVA:" SIZE 80, 22
    @ 110, 178 GET cNifIva SIZE 150, 26
 
-   @ 20, 213 SAY "Dirección:" SIZE 80, 22
+   @ 20, 213 SAY L("ClientesDireccion") SIZE 80, 22
    @ 110, 211 GET cDireccion SIZE 370, 26
 
-   @ 20, 246 SAY "Población:" SIZE 80, 22
+   @ 20, 246 SAY L("ClientesPoblacionLabel") SIZE 80, 22
    @ 110, 244 GET cPoblacion SIZE 200, 26
 
-   @ 290, 246 SAY "Provincia:" SIZE 80, 22
+   @ 290, 246 SAY L("ClientesProvincia") SIZE 80, 22
    @ 370, 244 GET cProvincia SIZE 120, 26
 
    @ 20, 279 SAY "C.Postal:" SIZE 80, 22
    @ 110, 277 GET cCp SIZE 100, 26
 
-   @ 20, 312 SAY "Teléfono:" SIZE 80, 22
+   @ 20, 312 SAY L("ClientesTelefonoLabel") SIZE 80, 22
    @ 110, 310 GET cTelefono SIZE 150, 26
 
-   @ 290, 312 SAY "Email:" SIZE 80, 22
+   @ 290, 312 SAY L("ClientesEmailLabel") SIZE 80, 22
    @ 370, 310 GET cEmail SIZE 120, 26
 
-   @ 140, 420 BUTTON "Guardar" SIZE 90, 30 ON CLICK {|| oDlg:Close()}
-   @ 280, 420 BUTTON "Cancelar" SIZE 90, 30 ON CLICK {|| lCancel := .T., oDlg:Close()}
+   @ 140, 420 BUTTON L("ClientesGuardar") SIZE 90, 30 ON CLICK {|| oDlg:Close()}
+   @ 280, 420 BUTTON L("ClientesCancelar") SIZE 90, 30 ON CLICK {|| lCancel := .T., oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
 
@@ -177,11 +177,11 @@ STATIC FUNCTION ListaTiposIdNombres(aTipos)
 
 STATIC FUNCTION ExportPdfClientes(db, aData)
    LOCAL aCols := { ;
-      {"Nombre", 200, 2}, ;
-      {"NIF", 120, 4}, ;
-      {"Población", 150, 9}, ;
-      {"Teléfono", 120, 12}, ;
-      {"Activo", 60, 14, .T.} }
-   LOCAL cPath := AbrirListadoPdf(db, "Clientes", aData, aCols)
-   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, "Exportar"); ENDIF
+      {L("ClientesNombre"), 200, 2}, ;
+      {L("ClientesNif"), 120, 4}, ;
+      {L("ClientesPoblacion"), 150, 9}, ;
+      {L("ClientesTelefono"), 120, 12}, ;
+      {L("CommonActivo"), 60, 14, .T.} }
+   LOCAL cPath := AbrirListadoPdf(db, L("ClientesTitle"), aData, aCols)
+   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, L("CommonExportar")); ENDIF
 RETURN NIL

@@ -19,7 +19,7 @@ FUNCTION ValidacionView(db)
          hwg_MsgInfo("ERROR: " + aResult[4], "Resultado AEAT")) ;
    }
 
-   @ 280, 120 BUTTON "Cerrar" SIZE 90, 28 ON CLICK {|| oDlg:Close()}
+   @ 280, 120 BUTTON L("CommonCerrar") SIZE 90, 28 ON CLICK {|| oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
 RETURN NIL

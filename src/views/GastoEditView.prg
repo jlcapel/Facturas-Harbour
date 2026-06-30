@@ -60,49 +60,49 @@ FUNCTION GastoEditDialog(db, nGastoId)
       SIZE 720, 520 ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
-   @ 20, 15 SAY "Nº Factura:" SIZE 80, 22
+   @ 20, 15 SAY L("GastoEditNumFactura") SIZE 80, 22
    @ 110, 13 GET cNumero SIZE 150, 26
    @ 300, 15 SAY "Tipo doc.:" SIZE 80, 22
    @ 380, 13 COMBOBOX nTipoDoc ITEMS aTiposDoc SIZE 160, 200
-   @ 20, 48 SAY "Fecha emisión:" SIZE 100, 22
+   @ 20, 48 SAY L("GastoEditFechaEmision") SIZE 100, 22
    @ 130, 46 GET dFechaEmi SIZE 110, 26
-   @ 300, 48 SAY "Fecha recepción:" SIZE 110, 22
+   @ 300, 48 SAY L("GastoEditFechaRecepcion") SIZE 110, 22
    @ 420, 46 GET dFechaRec SIZE 110, 26
-   @ 20, 81 SAY "Proveedor:" SIZE 80, 22
+   @ 20, 81 SAY L("GastoEditProveedor") SIZE 80, 22
    @ 110, 79 COMBOBOX nProveedorSel ITEMS ListaProvNombres(aProveedores) SIZE 300, 200
-   @ 20, 114 SAY "Categoría:" SIZE 80, 22
+   @ 20, 114 SAY L("GastoEditCategoria") SIZE 80, 22
    @ 110, 112 COMBOBOX nCategoriaSel ITEMS ListaCatNombres(aCategorias) SIZE 250, 200
-   @ 20, 147 SAY "Descripción:" SIZE 80, 22
+   @ 20, 147 SAY L("GastoEditDescripcion") SIZE 80, 22
    @ 110, 145 GET cDescripcion SIZE 500, 26
    @ 20, 180 GROUPBOX "Importes" SIZE 680, 170
-   @ 30, 200 SAY "Base Imponible:" SIZE 110, 22
+   @ 30, 200 SAY L("GastoEditBaseImponible") SIZE 110, 22
    @ 150, 198 GET nBaseImp PICTURE "9999999.99" SIZE 120, 26
-   @ 310, 200 SAY "% IVA:" SIZE 50, 22
+   @ 310, 200 SAY L("GastoEditPctIva") SIZE 50, 22
    @ 370, 198 GET nIvaPct PICTURE "99.99" SIZE 80, 26
-   @ 30, 233 SAY "% Retención:" SIZE 100, 22
+   @ 30, 233 SAY L("GastoEditPctRetencion") SIZE 100, 22
    @ 150, 231 GET nRetPct PICTURE "99.99" SIZE 80, 26
-   @ 30, 266 SAY "IVA:" SIZE 100, 22
+   @ 30, 266 SAY L("GastoEditIva") SIZE 100, 22
    @ 150, 264 SAY Str(nIvaImp, 12, 2) SIZE 110, 26
-   @ 310, 266 SAY "Retención:" SIZE 80, 22
+   @ 310, 266 SAY L("GastoEditRetencion") SIZE 80, 22
    @ 400, 264 SAY Str(nRetImp, 12, 2) SIZE 110, 26
-   @ 30, 299 SAY "TOTAL:" SIZE 100, 22
+   @ 30, 299 SAY L("PdfTotalLabel") SIZE 100, 22
    @ 150, 297 SAY Str(nTotal, 12, 2) SIZE 120, 26
    @ 310, 299 SAY "Gasto deducible IRPF:" SIZE 130, 22
    @ 450, 297 SAY Str(nGastoDeducible, 12, 2) SIZE 110, 26
-   @ 30, 355 SAY "Medio pago:" SIZE 80, 22
+   @ 30, 355 SAY L("GastoEditMedioPago") SIZE 80, 22
    @ 130, 353 COMBOBOX nMedioPago ITEMS aMediosPago SIZE 160, 200
-   @ 330, 355 CHECKBOX lPagado CAPTION "Pagado" SIZE 80, 26
-   @ 30, 388 SAY "Observaciones:" SIZE 100, 22
+   @ 330, 355 CHECKBOX lPagado CAPTION L("GastosPagado") SIZE 80, 26
+   @ 30, 388 SAY L("GastoEditObservaciones") SIZE 100, 22
    @ 140, 386 GET cObservaciones SIZE 480, 26
-   @ 30, 421 CHECKBOX lIvaDeducible CAPTION "IVA Deducible" SIZE 130, 26
+   @ 30, 421 CHECKBOX lIvaDeducible CAPTION L("CategoriasIvaDeducible") SIZE 130, 26
 
-   @ 320, 490 BUTTON "Guardar" SIZE 90, 28 ON CLICK {;
+   @ 320, 490 BUTTON L("GastoEditGuardar") SIZE 90, 28 ON CLICK {;
       nResult := GuardarGastoDesdeDialog(db, nGastoId, cNumero, dFechaEmi, dFechaOp, dFechaRec, ;
          nTipoDoc, aProveedores, nProveedorSel, aCategorias, nCategoriaSel, ;
          cDescripcion, nBaseImp, nIvaPct, nRetPct, ;
          nMedioPago, lPagado, dFechaPago, cObservaciones, lIvaDeducible, aBienes, nBienSel), ;
       Iif(nResult > 0, oDlg:Close(), NIL) }
-   @ 470, 490 BUTTON "Cancelar" SIZE 90, 28 ON CLICK {|| lCancel := .T., oDlg:Close()}
+   @ 470, 490 BUTTON L("GastoEditCancelar") SIZE 90, 28 ON CLICK {|| lCancel := .T., oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
 

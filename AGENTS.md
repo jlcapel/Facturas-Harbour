@@ -125,6 +125,8 @@ Extraídos literalmente de `Facturas/Models/`:
 | `Modelo347Service` | Modelo 347 Operaciones Terceros (anual, fixed-width 1500) |
 | `Modelo349Service` | Modelo 349 Intracomunitario (anual, fixed-width 1500) |
 | `Modelo390Service` | Modelo 390 IVA Resumen Anual (anual, XML T3030) |
+| `LocalizationService` | i18n multilingüe con 5 idiomas (es/en/fr/ca/eu) desde hash en memoria, función global `L(cKey)` |
+| `Helpers` | ValidarIBAN, EsRespuestaHtml, MatchFilter |
 ## VERI*FACTU (extraído de AeatConstants.cs y VeriFactuService.cs)
 
 ### Hash oficial AEAT
@@ -194,7 +196,7 @@ Total = BaseImponible + IvaImporte − IrpfImporte
 | Tipos Identificación | `src/views/TiposIdentificacionView.prg` | Crear, editar, desactivar + PDF |
 | Clientes | `src/views/ClientesView.prg` | Crear, editar (con combos país/tipo ID), eliminar + PDF |
 | Artículos | `src/views/ArticulosView.prg` | Crear, editar (con combo tipo IVA), eliminar + PDF |
-| Empresa/Configuración | `src/views/EmpresaView.prg` | Empresa, Veri*Factu, IVA, IRPF |
+| Empresa/Configuración | `src/views/EmpresaView.prg` | Empresa, Veri*Factu, IVA, IRPF + selector idioma |
 | Facturas | `src/views/FacturasView.prg` | Listado + imprimir PDF + anular |
 | Factura (edición) | `src/views/FacturaEditView.prg` | Cabecera + líneas editables + totales |
 | Proveedores | `src/views/ProveedoresView.prg` | Crear, editar (con combos país/tipo ID), eliminar + PDF |
@@ -219,6 +221,8 @@ Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPU
 | Hito 5 | ✅ | Exportación XML/CSV + Logger: 4 servicios + menu exportar |
 | Hito 6 | ✅ | Gastos + Secundarios: 4 servicios DB + 6 vistas HWGUI |
 | Hito 7 | ✅ | Validación NIF: NifValService (SOAP AEAT) + ValidacionIdentificacionService (DNI/NIE/CIF/27 VAT) + certificado en Empresa + vista |
+| Hito 8 | ✅ | Modelos AEAT completos (303/390/130/347/111/115/349) + helper + vista lanzador |
+| Hito 9 | ✅ | i18n multilingüe (es/en/fr/ca/eu) + selector idioma en EmpresaView |
 
 ## Problemas conocidos (del proyecto .NET)
 

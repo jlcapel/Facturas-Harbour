@@ -6,19 +6,19 @@ FUNCTION BienesInversionView(db)
    INIT DIALOG oDlg TITLE "Bienes de inversión" AT 0,0 SIZE 900, 500 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
    @ 20, 20 BROWSE oBrw ARRAY SIZE 700, 400 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
    oBrw:aArray := aData
-   oBrw:AddColumn(HColumn():New("Nombre", {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 22, 0))
-   oBrw:AddColumn(HColumn():New("Fecha Adq.", {|v,o| (v), DToC(o:aArray[o:nCurrent, 3])}, "D", 12, 0, .F., DT_CENTER))
+   oBrw:AddColumn(HColumn():New(L("BienesNombre"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 22, 0))
+   oBrw:AddColumn(HColumn():New(L("BienesFechaAdq"), {|v,o| (v), DToC(o:aArray[o:nCurrent, 3])}, "D", 12, 0, .F., DT_CENTER))
    oBrw:AddColumn(HColumn():New("Valor Adq.", {|v,o| (v), Str(o:aArray[o:nCurrent, 4], 10, 2)}, "N", 12, 0, .F., DT_RIGHT))
-   oBrw:AddColumn(HColumn():New("% Uso", {|v,o| (v), Str(o:aArray[o:nCurrent, 5], 6, 2)}, "N", 8, 0, .F., DT_RIGHT))
-   oBrw:AddColumn(HColumn():New("Amort. Anual", {|v,o| (v), Str(o:aArray[o:nCurrent, 6], 10, 2)}, "N", 12, 0, .F., DT_RIGHT))
+   oBrw:AddColumn(HColumn():New(L("BienesPctUso"), {|v,o| (v), Str(o:aArray[o:nCurrent, 5], 6, 2)}, "N", 8, 0, .F., DT_RIGHT))
+   oBrw:AddColumn(HColumn():New(L("BienesAmortAnual"), {|v,o| (v), Str(o:aArray[o:nCurrent, 6], 10, 2)}, "N", 12, 0, .F., DT_RIGHT))
    oBrw:AddColumn(HColumn():New("V.Amortizado", {|v,o| (v), Str(o:aArray[o:nCurrent, 7], 10, 2)}, "N", 12, 0, .F., DT_RIGHT))
    oBrw:AddColumn(HColumn():New("V.Neto", {|v,o| (v), Str(o:aArray[o:nCurrent, 8], 10, 2)}, "N", 10, 0, .F., DT_RIGHT))
-   oBrw:AddColumn(HColumn():New("En uso", {|v,o| (v), Iif(o:aArray[o:nCurrent, 11], "Sí", "No")}, "C", 8, 0, .F., DT_CENTER))
-   @ 30, 440 BUTTON "Nuevo" SIZE 70, 28 ON CLICK {|| BienNuevo(db, @aData, oBrw)}
-   @ 110, 440 BUTTON "Editar" SIZE 70, 28 ON CLICK {|| BienEditar(db, @aData, oBrw, oBrw:nCurrent)}
-   @ 190, 440 BUTTON "Eliminar" SIZE 70, 28 ON CLICK {|| BienEliminar(db, @aData, oBrw)}
+   oBrw:AddColumn(HColumn():New("En uso", {|v,o| (v), Iif(o:aArray[o:nCurrent, 11], L("CommonSi"), L("CommonNo"))}, "C", 8, 0, .F., DT_CENTER))
+   @ 30, 440 BUTTON L("BienesNuevo") SIZE 70, 28 ON CLICK {|| BienNuevo(db, @aData, oBrw)}
+   @ 110, 440 BUTTON L("BienesEditar") SIZE 70, 28 ON CLICK {|| BienEditar(db, @aData, oBrw, oBrw:nCurrent)}
+   @ 190, 440 BUTTON L("CommonEliminar") SIZE 70, 28 ON CLICK {|| BienEliminar(db, @aData, oBrw)}
    @ 270, 440 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfBienes(db, aData)}
-   @ 740, 440 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
+   @ 740, 440 BUTTON L("BienesVolver") SIZE 70, 28 ON CLICK {|| oDlg:Close()}
    ACTIVATE DIALOG oDlg CENTER
 RETURN NIL
 
@@ -43,7 +43,7 @@ RETURN NIL
 
 STATIC FUNCTION ExportPdfBienes(db, aData)
    LOCAL aCols := { ;
-      {"Nombre", 180, 2}, ;
+      {L("BienesNombre"), 180, 2}, ;
       {"FechaAdq.", 90, 3}, ;
       {"ValorAdq.", 80, 4, .T.}, ;
       {"%Uso", 50, 5, .T.}, ;
@@ -52,7 +52,7 @@ STATIC FUNCTION ExportPdfBienes(db, aData)
       {"V.Neto", 70, 8, .T.}, ;
       {"EnUso", 50, 11, .T.} }
    LOCAL cPath := AbrirListadoPdf(db, "BienesInversion", aData, aCols)
-   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, "Exportar"); ENDIF
+   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, L("CommonExportar")); ENDIF
 RETURN NIL
 
 STATIC FUNCTION BienEliminar(db, aData, oBrw)
@@ -85,18 +85,18 @@ STATIC FUNCTION BienEditDialog(db, nId)
    ENDIF
 
    INIT DIALOG oDlg TITLE Iif(nId==0, "Nuevo bien", "Editar bien") AT 0,0 SIZE 520, 380 STYLE DS_CENTER
-   @ 20, 15 SAY "Nombre:" SIZE 80, 22; @ 110, 13 GET cNombre SIZE 370, 26
+   @ 20, 15 SAY L("BienesNombreLabel") SIZE 80, 22; @ 110, 13 GET cNombre SIZE 370, 26
    @ 20, 48 SAY "Fecha adquisición:" SIZE 120, 22; @ 140, 46 GET dFechaAdq SIZE 120, 26
    @ 20, 81 SAY "Valor adquisición:" SIZE 120, 22; @ 140, 79 GET nValorAdq PICTURE "9999999.99" SIZE 120, 26
    @ 20, 114 SAY "% Uso actividad:" SIZE 120, 22; @ 140, 112 GET nPctUso PICTURE "999.99" SIZE 100, 26
-   @ 20, 147 SAY "Categoría:" SIZE 80, 22; @ 110, 145 GET cCategoria SIZE 200, 26
+   @ 20, 147 SAY L("BienesCategoria") SIZE 80, 22; @ 110, 145 GET cCategoria SIZE 200, 26
    @ 20, 180 SAY "Amort. anual:" SIZE 100, 22; @ 140, 178 GET nAmortAnual PICTURE "9999999.99" SIZE 120, 26
    @ 300, 180 SAY "V.Amortizado:" SIZE 100, 22; @ 400, 178 GET nValorAmort PICTURE "9999999.99" SIZE 100, 26
    @ 20, 213 SAY "V.Neto contable:" SIZE 120, 22; @ 140, 211 GET nValorNeto PICTURE "9999999.99" SIZE 120, 26
    @ 20, 246 SAY "Inicio amort.:" SIZE 100, 22; @ 140, 244 GET dFechaIniAmort SIZE 120, 26
    @ 300, 246 SAY "Fecha baja:" SIZE 100, 22; @ 400, 244 GET dFechaBaja SIZE 100, 26
-   @ 140, 330 BUTTON "Guardar" SIZE 80, 28 ON CLICK {|| oDlg:Close()}
-   @ 280, 330 BUTTON "Cancelar" SIZE 80, 28 ON CLICK {|| lCancel := .T., oDlg:Close()}
+   @ 140, 330 BUTTON L("BienesGuardar") SIZE 80, 28 ON CLICK {|| oDlg:Close()}
+   @ 280, 330 BUTTON L("BienesCancelar") SIZE 80, 28 ON CLICK {|| lCancel := .T., oDlg:Close()}
    ACTIVATE DIALOG oDlg CENTER
    IF lCancel; RETURN NIL; ENDIF
    RETURN { AllTrim(cNombre), dFechaAdq, nValorAdq, nPctUso, nAmortAnual, nValorAmort, nValorNeto, ;

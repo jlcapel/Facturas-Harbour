@@ -12,34 +12,34 @@ FUNCTION ModelosAeatView(db)
       AAdd(aAnios, nI)
    NEXT
 
-   INIT DIALOG oDlg TITLE "Modelos AEAT" AT 0,0 SIZE 700, 500 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
+   INIT DIALOG oDlg TITLE L("ModelosAeatTitle") AT 0,0 SIZE 700, 500 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    @ 20, 20 SAY "Modelos AEAT - Seleccione modelo:" SIZE 300, 22
 
-   @ 20, 50 BUTTON "Modelo 303 - IVA Trimestral" SIZE 220, 28 ON CLICK {|| nModelo := 1}
+   @ 20, 50 BUTTON L("Modelo303Title") SIZE 220, 28 ON CLICK {|| nModelo := 1}
    @ 250, 50 BUTTON "Modelo 390 - IVA Resumen Anual" SIZE 220, 28 ON CLICK {|| nModelo := 2}
    @ 20, 85 BUTTON "Modelo 130 - IRPF Estimación Directa" SIZE 220, 28 ON CLICK {|| nModelo := 3}
    @ 250, 85 BUTTON "Modelo 347 - Operaciones Terceros" SIZE 220, 28 ON CLICK {|| nModelo := 4}
    @ 20, 120 BUTTON "Modelo 111 - IRPF Retenciones" SIZE 220, 28 ON CLICK {|| nModelo := 5}
    @ 250, 120 BUTTON "Modelo 115 - IRPF Alquiler" SIZE 220, 28 ON CLICK {|| nModelo := 6}
-   @ 20, 155 BUTTON "Modelo 349 - Intracomunitario" SIZE 220, 28 ON CLICK {|| nModelo := 7}
+   @ 20, 155 BUTTON L("Modelo349Title") SIZE 220, 28 ON CLICK {|| nModelo := 7}
 
-   @ 20, 200 SAY "Ejercicio:" SIZE 80, 22
+   @ 20, 200 SAY L("M111Ejercicio") SIZE 80, 22
    @ 100, 197 COMBOBOX oCbAnio ITEMS aAnios SIZE 100, 200
    oCbAnio:value := Len(aAnios)
 
-   @ 220, 200 SAY "Trimestre:" SIZE 80, 22
+   @ 220, 200 SAY L("M111Trimestre") SIZE 80, 22
    @ 300, 197 COMBOBOX oCbTrim ITEMS {1, 2, 3, 4} SIZE 80, 200
    oCbTrim:value := 1
 
-   @ 20, 240 BUTTON "Generar" SIZE 100, 30 ON CLICK {|| ;
+   @ 20, 240 BUTTON L("CommonGenerar") SIZE 100, 30 ON CLICK {|| ;
       nAnio := aAnios[oCbAnio:value], ;
       nTrim := oCbTrim:value, ;
       GenerarModeloAeat(db, nModelo, nAnio, nTrim) }
 
    @ 140, 240 BUTTON "Abrir Carpeta" SIZE 100, 30 ON CLICK {|| AbrirCarpetaModelo(nModelo) }
 
-   @ 600, 440 BUTTON "Volver" SIZE 70, 28 ON CLICK {|| oDlg:Close()}
+   @ 600, 440 BUTTON L("ModelosAeatVolver") SIZE 70, 28 ON CLICK {|| oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
 RETURN NIL
@@ -62,7 +62,7 @@ STATIC FUNCTION GenerarModeloAeat(db, nModelo, nAnio, nTrim)
    FOR nI := 1 TO Len(aRes) STEP 2
       cText += aRes[nI] + ": " + hb_CStr(aRes[nI + 1]) + Chr(13) + Chr(10)
    NEXT
-   hwg_MsgInfo(cText, "Resultado")
+   hwg_MsgInfo(cText, L("Mode130Resultado"))
    RETURN .T.
 
 STATIC FUNCTION AbrirCarpetaModelo(nModelo)

@@ -8,7 +8,7 @@ FUNCTION ViesView(db)
 
    INIT DIALOG oDlg TITLE "Validación VAT (VIES)" AT 0,0 SIZE 500, 200 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
-   @ 20, 20 SAY "País:" SIZE 80, 22
+   @ 20, 20 SAY L("ClientesPais") SIZE 80, 22
    @ 110, 18 COMBOBOX nPaisSel ITEMS ListaPaisUENombres(aPaisesUE) SIZE 150, 200
 
    @ 20, 55 SAY "Nº VAT:" SIZE 80, 22
@@ -21,7 +21,7 @@ FUNCTION ViesView(db)
          hwg_MsgInfo("NO VÁLIDO" + Iif(!Empty(aResult[5]), hb_eol() + aResult[5], ""), "Resultado VIES")) ;
    }
 
-   @ 280, 120 BUTTON "Cerrar" SIZE 90, 28 ON CLICK {|| oDlg:Close()}
+   @ 280, 120 BUTTON L("CommonCerrar") SIZE 90, 28 ON CLICK {|| oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
 RETURN NIL

@@ -33,6 +33,7 @@
 PROCEDURE Main()
    LOCAL oDlg
    LOCAL db
+   LOCAL cLang
 
    InicializarBaseDatos()
    db := AbrirBaseDatos()
@@ -41,6 +42,10 @@ PROCEDURE Main()
       LogInfo("Main: no se pudo asegurar integridad BD")
    ENDIF
    HacerBackup()
+   cLang := ObtenerConfiguracion(db, "Language")
+   IF cLang != NIL
+      LocalizationSetLang(cLang)
+   ENDIF
 
    INIT DIALOG oDlg ;
       TITLE "Facturas-Harbour" ;
