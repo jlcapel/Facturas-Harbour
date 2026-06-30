@@ -99,7 +99,28 @@ win_build() {
     "$WIN_LIB"/libhbxml.a \
     "$WIN_LIB"/libhbcplr.a \
     "$WIN_LIB"/libhbdebug.a \
-    "$WIN_LIB"/libharbour.a \
+    "$WIN_LIB"/libhbvmmt.a \
+    "$WIN_LIB"/libhbrtl.a \
+    "$WIN_LIB"/libhbcommon.a \
+    "$WIN_LIB"/libhbpp.a \
+    "$WIN_LIB"/libhbmacro.a \
+    "$WIN_LIB"/libhbextern.a \
+    "$WIN_LIB"/libhbrdd.a \
+    "$WIN_LIB"/libhbsix.a \
+    "$WIN_LIB"/libhbpcre.a \
+    "$WIN_LIB"/libhbhsx.a \
+    "$WIN_LIB"/libhblang.a \
+    "$WIN_LIB"/libhbusrrdd.a \
+    "$WIN_LIB"/libhbuddall.a \
+    "$WIN_LIB"/libhbcpage.a \
+    "$WIN_LIB"/libhbnortl.a \
+    "$WIN_LIB"/libhbnulrdd.a \
+    "$WIN_LIB"/librddntx.a \
+    "$WIN_LIB"/librddfpt.a \
+    "$WIN_LIB"/librddcdx.a \
+    "$WIN_LIB"/librddnsx.a \
+    "$WIN_LIB"/libgtwin.a \
+    "$WIN_LIB"/libgtgui.a \
     "$WIN_LIB"/libhbsqlit3.a \
     "$WIN_LIB"/libhbcurl.a \
     "$WIN_LIB"/libcurl.a \
@@ -109,7 +130,8 @@ win_build() {
     "$WIN_LIB"/libhbziparc.a \
     "$WIN_LIB"/libhbzlib.a \
     "$WIN_LIB"/libhbmxml.a \
-    -lws2_32 -lcrypt32 -lbcrypt \
+    -lws2_32 -lcrypt32 -lbcrypt -lgdi32 -lgdiplus -lwinspool -lwinmm -lole32 -loleaut32 -lcomctl32 -lcomdlg32 -luuid \
+    -lsqlite3 \
     -Wl,--end-group \
     -o "$WIN_OUT"
 

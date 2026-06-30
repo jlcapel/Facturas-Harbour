@@ -232,3 +232,11 @@ Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPU
 4. **Sin migraciones**: No hay migraciones automáticas. EnsureCreated() no existe en Harbour — crear tablas manualmente en primer arranque.
 5. **CHECKBOX HWGUI**: se usa `@ x, y CHECKBOX <var> CAPTION "..." SIZE w, h` (NO `@ x, y GET <var> CHECKBOX`).
 6. **@ en múltiples líneas**: cada control `@ x, y` debe ir en su propia línea (no separar con `;`).
+7. **Windows link flags**: `-lws2_32 -lcrypt32 -lbcrypt -lgdi32 -lgdiplus -lwinspool -lwinmm -lole32 -loleaut32 -lcomctl32 -lcomdlg32 -luuid -lsqlite3` + `librddntx.a librddfpt.a librddcdx.a librddnsx.a libgtwin.a libgtgui.a`
+8. **SQLite Windows**: reconstruir con `-DSQLITE_ENABLE_LOAD_EXTENSION=1` y eliminar `-DSQLITE_OMIT_LOAD_EXTENSION` del Makefile generado por configure
+
+## Next Steps
+
+1. ✅ Windows build completado (`./build.sh win` produce `Facturas.exe`)
+2. Pruebas completas Linux + Windows (PDF, SOAP, modelos AEAT, i18n, CRUD)
+3. Compilar hbssl/hbssls para Windows con OpenSSL MinGW (opcional; hbcurl maneja HTTPS internamente)
