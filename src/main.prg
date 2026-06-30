@@ -32,9 +32,9 @@
 #include "hbsqlit3.ch"
 
 PROCEDURE Main()
-   LOCAL oDlg, oPanel
+   LOCAL oDlg
    LOCAL db, cLang
-   LOCAL oFontTitle, oFontSub, oFontBtn, oFontBtnDesc
+   LOCAL oFntTitle, oFntSub, oFntSec, oFntBtn, oFntBtnDesc
 
    InicializarBaseDatos()
    db := AbrirBaseDatos()
@@ -49,13 +49,14 @@ PROCEDURE Main()
       LocalizationSetLang(cLang)
    ENDIF
 
-   PREPARE FONT oFontTitle NAME "Arial" WIDTH 0 HEIGHT -24 WEIGHT 700
-   PREPARE FONT oFontSub NAME "Arial" WIDTH 0 HEIGHT -12 WEIGHT 400
-   PREPARE FONT oFontBtn NAME "Arial" WIDTH 0 HEIGHT -14 WEIGHT 700
-   PREPARE FONT oFontBtnDesc NAME "Arial" WIDTH 0 HEIGHT -10 WEIGHT 400
+   PREPARE FONT oFntTitle NAME "Arial" WIDTH 0 HEIGHT -28 WEIGHT 700
+   PREPARE FONT oFntSub NAME "Arial" WIDTH 0 HEIGHT -11 WEIGHT 400
+   PREPARE FONT oFntSec NAME "Arial" WIDTH 0 HEIGHT -12 WEIGHT 700
+   PREPARE FONT oFntBtn NAME "Arial" WIDTH 0 HEIGHT -10 WEIGHT 700
+   PREPARE FONT oFntBtnDesc NAME "Arial" WIDTH 0 HEIGHT -9 WEIGHT 400
 
    INIT DIALOG oDlg ;
-      TITLE L("AppTitle") ;
+      TITLE "Facturas-Harbour" ;
       AT 0, 0 ;
       SIZE 1024, 700 ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
@@ -98,31 +99,83 @@ PROCEDURE Main()
       ENDMENU
    ENDMENU
 
-   @ 0, 0 SAY "" SIZE 1024, 80 BACKCOLOR hwg_ColorRGB2N(27, 79, 114) ;
-      COLOR hwg_ColorRGB2N(255, 255, 255) FONT oFontTitle
+   @ 0, 0 SAY "" SIZE 1024, 80 BACKCOLOR hwg_ColorRGB2N(30, 60, 114)
 
-   @ 20, 15 SAY L("AppTitle") SIZE 600, 30 ;
-      COLOR hwg_ColorRGB2N(255, 255, 255) FONT oFontTitle BACKCOLOR hwg_ColorRGB2N(27, 79, 114) TRANSPARENT
+   @ 20, 12 SAY L("AppTitle") SIZE 600, 34 ;
+      COLOR hwg_ColorRGB2N(255, 255, 255) FONT oFntTitle TRANSPARENT
 
-   @ 20, 50 SAY L("AppSubtitle") SIZE 600, 20 ;
-      COLOR hwg_ColorRGB2N(189, 210, 224) FONT oFontSub BACKCOLOR hwg_ColorRGB2N(27, 79, 114) TRANSPARENT
+   @ 20, 52 SAY L("AppSubtitle") SIZE 600, 20 ;
+      COLOR hwg_ColorRGB2N(189, 210, 224) FONT oFntSub TRANSPARENT
 
-   @ 20, 95 SAY L("DashboardTitle") SIZE 400, 24 FONT oFontBtn
+   @ 20, 96 SAY L("DashboardTitle") SIZE 400, 22 ;
+      COLOR hwg_ColorRGB2N(52, 73, 94) FONT oFntSec
 
-   DashboardButton(oDlg, 20, 130, L("DashClientes"), L("DashClientesDesc"), {|db| ClientesView(db)}, db, oFontBtn, oFontBtnDesc)
-   DashboardButton(oDlg, 260, 130, L("DashArticulos"), L("DashArticulosDesc"), {|db| ArticulosView(db)}, db, oFontBtn, oFontBtnDesc)
-   DashboardButton(oDlg, 500, 130, L("DashFacturas"), L("DashFacturasDesc"), {|db| FacturasView(db)}, db, oFontBtn, oFontBtnDesc)
+   @ 20, 115 LINE LENGTH 980
 
-   DashboardButton(oDlg, 20, 260, L("DashProveedores"), L("DashProveedoresDesc"), {|db| ProveedoresView(db)}, db, oFontBtn, oFontBtnDesc)
-   DashboardButton(oDlg, 260, 260, L("DashGastos"), L("DashGastosDesc"), {|db| GastosView(db)}, db, oFontBtn, oFontBtnDesc)
-   DashboardButton(oDlg, 500, 260, L("DashModelos"), L("DashModelosDesc"), {|db| ModelosAeatView(db)}, db, oFontBtn, oFontBtnDesc)
+   @ 40, 125 SAY L("DashFacturas") SIZE 200, 20 ;
+      COLOR hwg_ColorRGB2N(41, 128, 185) FONT oFntSec
 
-   DashboardButton(oDlg, 20, 390, L("DashEmpresa"), L("DashEmpresaDesc"), {|db| EmpresaView(db)}, db, oFontBtn, oFontBtnDesc)
-   DashboardButton(oDlg, 260, 390, L("DashValidacion"), L("DashValidacionDesc"), {|db| ValidacionView(db)}, db, oFontBtn, oFontBtnDesc)
-   DashboardButton(oDlg, 500, 390, L("DashExportar"), L("DashExportarDesc"), {|db| ExportarRegAeat(db)}, db, oFontBtn, oFontBtnDesc)
+   @ 40, 150 SAY L("DashClientesDesc") SIZE 200, 16 FONT oFntBtnDesc ;
+      COLOR hwg_ColorRGB2N(127, 140, 141)
+   @ 260, 148 BUTTON "Clientes" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| ClientesView(db)}
+   @ 360, 148 BUTTON "Artículos" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| ArticulosView(db)}
+   @ 460, 148 BUTTON "Facturas" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| FacturasView(db)}
 
-   @ 20, 530 SAY L("AppVersion") SIZE 300, 20 ;
-      COLOR hwg_ColorRGB2N(127, 140, 141) FONT oFontSub
+   @ 40, 185 SAY L("DashArticulosDesc") SIZE 200, 16 FONT oFntBtnDesc ;
+      COLOR hwg_ColorRGB2N(127, 140, 141)
+   @ 260, 183 BUTTON "Países" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| PaisesView(db)}
+   @ 360, 183 BUTTON "Tipos IVA" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| TiposIvaView(db)}
+   @ 460, 183 BUTTON "Identif." SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| TiposIdentificacionView(db)}
+
+   @ 20, 225 LINE LENGTH 980
+
+   @ 40, 235 SAY L("DashGastosLabel") SIZE 200, 20 ;
+      COLOR hwg_ColorRGB2N(39, 174, 96) FONT oFntSec
+
+   @ 40, 260 SAY L("DashProveedoresDesc") SIZE 200, 16 FONT oFntBtnDesc ;
+      COLOR hwg_ColorRGB2N(127, 140, 141)
+   @ 260, 258 BUTTON "Proveedores" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| ProveedoresView(db)}
+   @ 360, 258 BUTTON "Categorías" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| CategoriasGastoView(db)}
+   @ 460, 258 BUTTON "B. Inversión" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| BienesInversionView(db)}
+
+   @ 40, 295 SAY L("DashGastosDesc") SIZE 200, 16 FONT oFntBtnDesc ;
+      COLOR hwg_ColorRGB2N(127, 140, 141)
+   @ 260, 293 BUTTON "Gastos" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| GastosView(db)}
+   @ 360, 293 BUTTON "Modelos AEAT" SIZE 100, 24 FONT oFntBtn ;
+      ON CLICK {|| ModelosAeatView(db)}
+
+   @ 20, 335 LINE LENGTH 980
+
+   @ 40, 345 SAY L("DashConfigLabel") SIZE 200, 20 ;
+      COLOR hwg_ColorRGB2N(142, 68, 173) FONT oFntSec
+
+   @ 40, 370 SAY L("DashEmpresaDesc") SIZE 200, 16 FONT oFntBtnDesc ;
+      COLOR hwg_ColorRGB2N(127, 140, 141)
+   @ 260, 368 BUTTON "Empresa" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| EmpresaView(db)}
+   @ 360, 368 BUTTON "Validación" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| ValidacionView(db)}
+   @ 460, 368 BUTTON "VIES" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| ViesView(db)}
+
+   @ 40, 405 SAY "Exportación de datos" SIZE 200, 16 FONT oFntBtnDesc ;
+      COLOR hwg_ColorRGB2N(127, 140, 141)
+   @ 260, 403 BUTTON "XML AEAT" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| ExportarRegAeat(db)}
+   @ 360, 403 BUTTON "Eventos XML" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| ExportarEventosXml(db)}
+   @ 460, 403 BUTTON "Gastos CSV" SIZE 90, 24 FONT oFntBtn ;
+      ON CLICK {|| ExportarGastosCsv(db)}
 
    @ 880, 660 BUTTON L("DashSalir") SIZE 100, 30 ON CLICK {|| oDlg:Close()}
 
@@ -133,39 +186,9 @@ PROCEDURE Main()
    db := NIL
 RETURN
 
-STATIC FUNCTION DashboardButton(oDlg, nX, nY, cTitle, cDesc, bAction, db, oFontTitle, oFontDesc)
-   LOCAL oBtn
-   @ nX, nY OWNERBUTTON oBtn ;
-      SIZE 220, 100 ;
-      TEXT cTitle ;
-      COLOR hwg_ColorRGB2N(255, 255, 255) ;
-      FONT oFontTitle ;
-      BACKCOLOR hwg_ColorRGB2N(41, 128, 185) ;
-      ON CLICK Eval(bAction, db) ;
-      TOOLTIP cDesc
-
-   @ nX, nY + 60 SAY cDesc SIZE 220, 20 ;
-      COLOR hwg_ColorRGB2N(127, 140, 141) FONT oFontDesc TRANSPARENT
-
-RETURN NIL
-
 FUNCTION ObtenerTextoInfo(db)
-   RETURN "BD: " + ObtenerDbPath() + ";" + ;
-      "Paises: " + hb_ntos(ContarTabla(db, "Paises")) + ";" + ;
-      "IVA: " + hb_ntos(ContarTabla(db, "TiposIva")) + ";" + ;
-      "Identif: " + hb_ntos(ContarTabla(db, "TiposIdentificacion")) + ";" + ;
-      "Config: " + hb_ntos(ContarTabla(db, "Configuracion")) + ";" + ;
-      "Gastos: " + hb_ntos(ContarTabla(db, "CategoriasGasto"))
-
-STATIC FUNCTION ContarTabla(db, cTabla)
-   LOCAL stmt, nCount
-   stmt := sqlite3_prepare(db, "SELECT COUNT(*) FROM " + cTabla)
-   nCount := 0
-   IF !Empty(stmt) .AND. sqlite3_step(stmt) == SQLITE_ROW
-      nCount := sqlite3_column_int(stmt, 0)
-   ENDIF
-   sqlite3_finalize(stmt)
-   RETURN nCount
+   RETURN "BD: " + ObtenerDbPath()
+RETURN NIL
 
 STATIC FUNCTION ExportarRegAeat(db)
    LOCAL cPath := GuardarXmlRegistros(db)
