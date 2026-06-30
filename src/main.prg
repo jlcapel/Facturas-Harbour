@@ -1,211 +1,276 @@
 /*
  * Facturas-Harbour — App de facturación VERI*FACTU (España)
  * Copyright (c) 2025-2026 José L. Capel — jlcapel@hotmail.com
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- *
- * ---
- * Commercial license available for proprietary use.
- * Contact: jlcapel@hotmail.com
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY
- * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Licensed under GPLv3. Commercial license available.
  */
 
 #include "hwgui.ch"
 #include "hbsqlit3.ch"
 
+#define SIDEBAR_W    220
+#define SIDEBAR_BG   hwg_ColorRGB2N(30, 41, 59)
+#define SIDEBAR_TEXT hwg_ColorRGB2N(203, 213, 225)
+#define SIDEBAR_SEC  hwg_ColorRGB2N(100, 116, 139)
+#define PAGE_BG      hwg_ColorRGB2N(241, 245, 249)
+#define CARD_BG      hwg_ColorRGB2N(255, 255, 255)
+#define TEXT_DARK    hwg_ColorRGB2N(15, 23, 42)
+#define TEXT_MUTED   hwg_ColorRGB2N(100, 116, 139)
+#define ACCENT_BLUE  hwg_ColorRGB2N(59, 130, 246)
+#define ACCENT_GREEN hwg_ColorRGB2N(34, 197, 94)
+#define ACCENT_PURPLE hwg_ColorRGB2N(139, 92, 246)
+
+STATIC s_Db  // db handle used by nav callbacks
+
 PROCEDURE Main()
-   LOCAL oDlg
-   LOCAL db, cLang
-   LOCAL oFntTitle, oFntSub, oFntSec, oFntBtn, oFntBtnDesc
+   LOCAL oDlg, cLang
+   LOCAL oFntLogo, oFntBrand, oFntSmall
+   LOCAL oFntSec, oFntNav
+   LOCAL oFntPgTitle, oFntCardTitle, oFntCardDesc, oFntBtn
+   LOCAL nCardW, nCardH, nGap, nCX, nCX2, nCY1, nCY2, nCY3
 
    InicializarBaseDatos()
-   db := AbrirBaseDatos()
+   s_Db := AbrirBaseDatos()
 
    IF !EnsureDbReady()
       LogInfo("Main: no se pudo asegurar integridad BD")
    ENDIF
    HacerBackup()
    LocalizationNew()
-   cLang := ObtenerConfiguracion(db, "Language")
+   cLang := ObtenerConfiguracion(s_Db, "Language")
    IF cLang != NIL
       LocalizationSetLang(cLang)
    ENDIF
 
-   PREPARE FONT oFntTitle NAME "Arial" WIDTH 0 HEIGHT -28 WEIGHT 700
-   PREPARE FONT oFntSub NAME "Arial" WIDTH 0 HEIGHT -11 WEIGHT 400
-   PREPARE FONT oFntSec NAME "Arial" WIDTH 0 HEIGHT -12 WEIGHT 700
+   PREPARE FONT oFntLogo NAME "Arial" WIDTH 0 HEIGHT -36 WEIGHT 700
+   PREPARE FONT oFntBrand NAME "Arial" WIDTH 0 HEIGHT -20 WEIGHT 700
+   PREPARE FONT oFntSmall NAME "Arial" WIDTH 0 HEIGHT -11 WEIGHT 400
+   PREPARE FONT oFntSec NAME "Arial" WIDTH 0 HEIGHT -9 WEIGHT 700
+   PREPARE FONT oFntNav NAME "Arial" WIDTH 0 HEIGHT -11 WEIGHT 400
+   PREPARE FONT oFntPgTitle NAME "Arial" WIDTH 0 HEIGHT -22 WEIGHT 700
+   PREPARE FONT oFntCardTitle NAME "Arial" WIDTH 0 HEIGHT -13 WEIGHT 700
+   PREPARE FONT oFntCardDesc NAME "Arial" WIDTH 0 HEIGHT -10 WEIGHT 400
    PREPARE FONT oFntBtn NAME "Arial" WIDTH 0 HEIGHT -10 WEIGHT 700
-   PREPARE FONT oFntBtnDesc NAME "Arial" WIDTH 0 HEIGHT -9 WEIGHT 400
 
    INIT DIALOG oDlg ;
       TITLE "Facturas-Harbour" ;
       AT 0, 0 ;
-      SIZE 1024, 700 ;
+      SIZE 1200, 720 ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    MENU OF oDlg
       MENU TITLE L("MenuMaestros")
-         MENUITEM L("MenuPaises") ACTION {|| PaisesView(db)}
-         MENUITEM L("MenuTiposIva") ACTION {|| TiposIvaView(db)}
-         MENUITEM L("MenuTiposIdent") ACTION {|| TiposIdentificacionView(db)}
+         MENUITEM L("MenuPaises") ACTION {|| PaisesView(s_Db)}
+         MENUITEM L("MenuTiposIva") ACTION {|| TiposIvaView(s_Db)}
+         MENUITEM L("MenuTiposIdent") ACTION {|| TiposIdentificacionView(s_Db)}
          SEPARATOR
-         MENUITEM L("MenuClientes") ACTION {|| ClientesView(db)}
-         MENUITEM L("MenuArticulos") ACTION {|| ArticulosView(db)}
+         MENUITEM L("MenuClientes") ACTION {|| ClientesView(s_Db)}
+         MENUITEM L("MenuArticulos") ACTION {|| ArticulosView(s_Db)}
          SEPARATOR
-         MENUITEM L("MenuProveedores") ACTION {|| ProveedoresView(db)}
-         MENUITEM L("MenuCategoriasGasto") ACTION {|| CategoriasGastoView(db)}
-         MENUITEM L("MenuBienesInversion") ACTION {|| BienesInversionView(db)}
+         MENUITEM L("MenuProveedores") ACTION {|| ProveedoresView(s_Db)}
+         MENUITEM L("MenuCategoriasGasto") ACTION {|| CategoriasGastoView(s_Db)}
+         MENUITEM L("MenuBienesInversion") ACTION {|| BienesInversionView(s_Db)}
       ENDMENU
       MENU TITLE L("MenuEmpresa")
-         MENUITEM L("MenuConfiguracion") ACTION {|| EmpresaView(db)}
+         MENUITEM L("MenuConfiguracion") ACTION {|| EmpresaView(s_Db)}
       ENDMENU
       MENU TITLE L("MenuFacturas")
-         MENUITEM L("MenuListado") ACTION {|| FacturasView(db)}
+         MENUITEM L("MenuListado") ACTION {|| FacturasView(s_Db)}
       ENDMENU
       MENU TITLE L("MenuGastos")
-         MENUITEM L("MenuListado") ACTION {|| GastosView(db)}
+         MENUITEM L("MenuListado") ACTION {|| GastosView(s_Db)}
       ENDMENU
       MENU TITLE L("MenuValidacion")
-         MENUITEM L("MenuNifAeat") ACTION {|| ValidacionView(db)}
+         MENUITEM L("MenuNifAeat") ACTION {|| ValidacionView(s_Db)}
          SEPARATOR
-         MENUITEM L("MenuVatVies") ACTION {|| ViesView(db)}
+         MENUITEM L("MenuVatVies") ACTION {|| ViesView(s_Db)}
       ENDMENU
       MENU TITLE "AEAT"
-         MENUITEM L("MenuModelosAeat") ACTION {|| ModelosAeatView(db)}
+         MENUITEM L("MenuModelosAeat") ACTION {|| ModelosAeatView(s_Db)}
       ENDMENU
       MENU TITLE L("MenuExportar")
-         MENUITEM L("MenuRegistrosXml") ACTION {|| ExportarRegAeat(db)}
-         MENUITEM L("MenuEventosXml") ACTION {|| ExportarEventosXml(db)}
+         MENUITEM L("MenuRegistrosXml") ACTION {|| ExportarRegAeat(s_Db)}
+         MENUITEM L("MenuEventosXml") ACTION {|| ExportarEventosXml(s_Db)}
          SEPARATOR
-         MENUITEM L("MenuGastosCsv") ACTION {|| ExportarGastosCsv(db)}
+         MENUITEM L("MenuGastosCsv") ACTION {|| ExportarGastosCsv(s_Db)}
       ENDMENU
    ENDMENU
 
-   @ 0, 0 SAY "" SIZE 1024, 80 BACKCOLOR hwg_ColorRGB2N(30, 60, 114)
+   // =====================================================================
+   //  SIDEBAR — dark panel, full height
+   // =====================================================================
+   @ 0, 0 SAY "" SIZE SIDEBAR_W, 720 BACKCOLOR SIDEBAR_BG
 
-   @ 20, 12 SAY L("AppTitle") SIZE 600, 34 ;
-      COLOR hwg_ColorRGB2N(255, 255, 255) FONT oFntTitle TRANSPARENT
+   // Logo circle "F"
+   @ 20, 18 SAY "F" SIZE 44, 44 COLOR hwg_ColorRGB2N(255, 255, 255) BACKCOLOR ACCENT_BLUE FONT oFntLogo TRANSPARENT
 
-   @ 20, 52 SAY L("AppSubtitle") SIZE 600, 20 ;
-      COLOR hwg_ColorRGB2N(189, 210, 224) FONT oFntSub TRANSPARENT
+   @ 72, 22 SAY "Facturas" SIZE 170, 26 COLOR hwg_ColorRGB2N(241, 245, 249) FONT oFntBrand TRANSPARENT
 
-   @ 20, 96 SAY L("DashboardTitle") SIZE 400, 22 ;
-      COLOR hwg_ColorRGB2N(52, 73, 94) FONT oFntSec
+   @ 100, 24 SAY "VERI*FACTU" SIZE 170, 16 COLOR hwg_ColorRGB2N(148, 163, 184) FONT oFntSmall TRANSPARENT
 
-   @ 20, 115 LINE LENGTH 980
+   // Divider
+   @ 120, 12 LINE LENGTH 195
 
-   @ 40, 125 SAY L("DashFacturas") SIZE 200, 20 ;
-      COLOR hwg_ColorRGB2N(41, 128, 185) FONT oFntSec
+   // ---------------------------------------------------------------
+   //  PRINCIPAL section
+   // ---------------------------------------------------------------
+   @ 132, 15 SAY L("MainSidebarPrincipal") SIZE 180, 14 COLOR SIDEBAR_SEC FONT oFntSec TRANSPARENT
 
-   @ 40, 150 SAY L("DashClientesDesc") SIZE 200, 16 FONT oFntBtnDesc ;
-      COLOR hwg_ColorRGB2N(127, 140, 141)
-   @ 260, 148 BUTTON "Clientes" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| ClientesView(db)}
-   @ 360, 148 BUTTON "Artículos" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| ArticulosView(db)}
-   @ 460, 148 BUTTON "Facturas" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| FacturasView(db)}
+   @ 148, 12 BUTTON L("MenuFacturas")        SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| FacturasView(s_Db)}
+   @ 176, 12 BUTTON L("MenuClientes")        SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ClientesView(s_Db)}
+   @ 204, 12 BUTTON L("MenuArticulos")       SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ArticulosView(s_Db)}
+   @ 232, 12 BUTTON L("MenuProveedores")     SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ProveedoresView(s_Db)}
+   @ 260, 12 BUTTON L("MenuGastos")          SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| GastosView(s_Db)}
+   @ 288, 12 BUTTON L("MenuBienesInversion") SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| BienesInversionView(s_Db)}
 
-   @ 40, 185 SAY L("DashArticulosDesc") SIZE 200, 16 FONT oFntBtnDesc ;
-      COLOR hwg_ColorRGB2N(127, 140, 141)
-   @ 260, 183 BUTTON "Países" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| PaisesView(db)}
-   @ 360, 183 BUTTON "Tipos IVA" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| TiposIvaView(db)}
-   @ 460, 183 BUTTON "Identif." SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| TiposIdentificacionView(db)}
+   @ 318, 12 LINE LENGTH 195
 
-   @ 20, 225 LINE LENGTH 980
+   @ 328, 15 SAY L("MainSidebarConfig") SIZE 180, 14 COLOR SIDEBAR_SEC FONT oFntSec TRANSPARENT
 
-   @ 40, 235 SAY L("DashGastosLabel") SIZE 200, 20 ;
-      COLOR hwg_ColorRGB2N(39, 174, 96) FONT oFntSec
+   @ 348, 12 BUTTON L("ConfigMenuEmpresa")        SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| EmpresaView(s_Db)}
+   @ 376, 12 BUTTON L("ConfigMenuTiposIva")       SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| TiposIvaView(s_Db)}
+   @ 404, 12 BUTTON L("MenuPaises")               SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| PaisesView(s_Db)}
+   @ 432, 12 BUTTON L("ConfigMenuIdentificacion") SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| TiposIdentificacionView(s_Db)}
+   @ 460, 12 BUTTON L("ConfigMenuCategoriasGasto") SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| CategoriasGastoView(s_Db)}
 
-   @ 40, 260 SAY L("DashProveedoresDesc") SIZE 200, 16 FONT oFntBtnDesc ;
-      COLOR hwg_ColorRGB2N(127, 140, 141)
-   @ 260, 258 BUTTON "Proveedores" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| ProveedoresView(db)}
-   @ 360, 258 BUTTON "Categorías" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| CategoriasGastoView(db)}
-   @ 460, 258 BUTTON "B. Inversión" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| BienesInversionView(db)}
+   @ 490, 12 LINE LENGTH 195
 
-   @ 40, 295 SAY L("DashGastosDesc") SIZE 200, 16 FONT oFntBtnDesc ;
-      COLOR hwg_ColorRGB2N(127, 140, 141)
-   @ 260, 293 BUTTON "Gastos" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| GastosView(db)}
-   @ 360, 293 BUTTON "Modelos AEAT" SIZE 100, 24 FONT oFntBtn ;
-      ON CLICK {|| ModelosAeatView(db)}
+   @ 500, 15 SAY "UTILIDADES" SIZE 180, 14 COLOR SIDEBAR_SEC FONT oFntSec TRANSPARENT
 
-   @ 20, 335 LINE LENGTH 980
+   @ 520, 12 BUTTON L("DashValidacion")     SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ValidacionView(s_Db)}
+   @ 548, 12 BUTTON "VIES"                  SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ViesView(s_Db)}
+   @ 576, 12 BUTTON L("UtilMenuModelosAeat") SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| ModelosAeatView(s_Db)}
+   @ 604, 12 BUTTON L("MenuExportar")       SIZE 195, 26 COLOR SIDEBAR_TEXT FONT oFntNav ON CLICK {|| MenuExportar()}
 
-   @ 40, 345 SAY L("DashConfigLabel") SIZE 200, 20 ;
-      COLOR hwg_ColorRGB2N(142, 68, 173) FONT oFntSec
+   // Version footer
+   @ 640, 55 SAY "v1.0 — Harbour + HWGUI" SIZE 180, 14 COLOR hwg_ColorRGB2N(71, 85, 105) FONT oFntSmall TRANSPARENT
 
-   @ 40, 370 SAY L("DashEmpresaDesc") SIZE 200, 16 FONT oFntBtnDesc ;
-      COLOR hwg_ColorRGB2N(127, 140, 141)
-   @ 260, 368 BUTTON "Empresa" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| EmpresaView(db)}
-   @ 360, 368 BUTTON "Validación" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| ValidacionView(db)}
-   @ 460, 368 BUTTON "VIES" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| ViesView(db)}
+   @ 0, SIDEBAR_W SAY "" SIZE 985, 720 BACKCOLOR PAGE_BG
 
-   @ 40, 405 SAY "Exportación de datos" SIZE 200, 16 FONT oFntBtnDesc ;
-      COLOR hwg_ColorRGB2N(127, 140, 141)
-   @ 260, 403 BUTTON "XML AEAT" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| ExportarRegAeat(db)}
-   @ 360, 403 BUTTON "Eventos XML" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| ExportarEventosXml(db)}
-   @ 460, 403 BUTTON "Gastos CSV" SIZE 90, 24 FONT oFntBtn ;
-      ON CLICK {|| ExportarGastosCsv(db)}
+   @ 24, 244 SAY L("DashboardTitle") SIZE 400, 30 COLOR TEXT_DARK FONT oFntPgTitle TRANSPARENT
 
-   @ 880, 660 BUTTON L("DashSalir") SIZE 100, 30 ON CLICK {|| oDlg:Close()}
+   // ---------------------------------------------------------------
+   //  CARD 1 — Facturación
+   // ---------------------------------------------------------------
+   nCardW := 300; nCardH := 230; nGap := 18
+   nCX := SIDEBAR_W + 14; nCY1 := 68
 
+   @ nCY1, nCX SAY "" SIZE nCardW, nCardH BACKCOLOR CARD_BG
+
+   @ nCY1, nCX     SAY "" SIZE nCardW, 4 BACKCOLOR ACCENT_BLUE
+   @ nCY1 + 14, nCX + 14 SAY "Facturación" SIZE 270, 20 COLOR TEXT_DARK FONT oFntCardTitle TRANSPARENT
+   @ nCY1 + 36, nCX + 14 SAY "Gestión de clientes, artículos y facturación VERI*FACTU" SIZE 270, 28 COLOR TEXT_MUTED FONT oFntCardDesc TRANSPARENT
+
+   @ nCY1 + 76,  nCX + 14 BUTTON "Facturas"  SIZE 130, 26 FONT oFntBtn ON CLICK {|| FacturasView(s_Db)}
+   @ nCY1 + 76,  nCX + 156 BUTTON "Clientes" SIZE 130, 26 FONT oFntBtn ON CLICK {|| ClientesView(s_Db)}
+
+   @ nCY1 + 108, nCX + 14 BUTTON "Artículos" SIZE 130, 26 FONT oFntBtn ON CLICK {|| ArticulosView(s_Db)}
+   @ nCY1 + 108, nCX + 156 BUTTON "Maestros" SIZE 130, 26 FONT oFntBtn ON CLICK {|| MaestrosView()}
+
+   @ nCY1 + 150, nCX + 14 BUTTON "Modelos AEAT" SIZE 272, 26 FONT oFntBtn ON CLICK {|| ModelosAeatView(s_Db)}
+
+   // ---------------------------------------------------------------
+   //  CARD 2 — Gastos
+   // ---------------------------------------------------------------
+   nCY2 := nCY1 + nCardH + nGap
+
+   @ nCY2, nCX SAY "" SIZE nCardW, nCardH BACKCOLOR CARD_BG
+
+   @ nCY2, nCX     SAY "" SIZE nCardW, 4 BACKCOLOR ACCENT_GREEN
+   @ nCY2 + 14, nCX + 14 SAY "Compras y Gastos" SIZE 270, 20 COLOR TEXT_DARK FONT oFntCardTitle TRANSPARENT
+   @ nCY2 + 36, nCX + 14 SAY "Proveedores, gastos y bienes de inversión" SIZE 270, 28 COLOR TEXT_MUTED FONT oFntCardDesc TRANSPARENT
+
+   @ nCY2 + 76,  nCX + 14 BUTTON "Gastos"      SIZE 130, 26 FONT oFntBtn ON CLICK {|| GastosView(s_Db)}
+   @ nCY2 + 76,  nCX + 156 BUTTON "Proveedores" SIZE 130, 26 FONT oFntBtn ON CLICK {|| ProveedoresView(s_Db)}
+
+   @ nCY2 + 108, nCX + 14 BUTTON "Categorías"  SIZE 130, 26 FONT oFntBtn ON CLICK {|| CategoriasGastoView(s_Db)}
+   @ nCY2 + 108, nCX + 156 BUTTON "B. Inversión" SIZE 130, 26 FONT oFntBtn ON CLICK {|| BienesInversionView(s_Db)}
+
+   @ nCY2 + 150, nCX + 14 BUTTON "Exportar Gastos CSV" SIZE 272, 26 FONT oFntBtn ON CLICK {|| ExportarGastosCsv(s_Db)}
+
+   // ---------------------------------------------------------------
+   //  CARD 3 — Configuración & Utilidades
+   // ---------------------------------------------------------------
+   nCX2 := nCX + nCardW + nGap; nCY3 := nCY1
+
+   @ nCY3, nCX2 SAY "" SIZE nCardW, nCardH BACKCOLOR CARD_BG
+
+   @ nCY3, nCX2     SAY "" SIZE nCardW, 4 BACKCOLOR ACCENT_PURPLE
+   @ nCY3 + 14, nCX2 + 14 SAY "Configuración" SIZE 270, 20 COLOR TEXT_DARK FONT oFntCardTitle TRANSPARENT
+   @ nCY3 + 36, nCX2 + 14 SAY "Empresa, validación NIF y herramientas AEAT" SIZE 270, 28 COLOR TEXT_MUTED FONT oFntCardDesc TRANSPARENT
+
+   @ nCY3 + 76,  nCX2 + 14 BUTTON "Empresa"     SIZE 130, 26 FONT oFntBtn ON CLICK {|| EmpresaView(s_Db)}
+   @ nCY3 + 76,  nCX2 + 156 BUTTON "Validación" SIZE 130, 26 FONT oFntBtn ON CLICK {|| ValidacionView(s_Db)}
+
+   @ nCY3 + 108, nCX2 + 14 BUTTON "VIES"        SIZE 130, 26 FONT oFntBtn ON CLICK {|| ViesView(s_Db)}
+   @ nCY3 + 108, nCX2 + 156 BUTTON "Exportar"   SIZE 130, 26 FONT oFntBtn ON CLICK {|| MenuExportar()}
+
+   @ nCY3 + 150, nCX2 + 14 BUTTON "Tipos IVA"   SIZE 130, 26 FONT oFntBtn ON CLICK {|| TiposIvaView(s_Db)}
+   @ nCY3 + 150, nCX2 + 156 BUTTON "Países"     SIZE 130, 26 FONT oFntBtn ON CLICK {|| PaisesView(s_Db)}
+
+   // =====================================================================
+   //  STATUS BAR
+   // =====================================================================
    ADD STATUS TO oDlg PARTS 400, 300
 
    ACTIVATE DIALOG oDlg CENTER
 
-   db := NIL
+   s_Db := NIL
 RETURN
 
-FUNCTION ObtenerTextoInfo(db)
+// =====================================================================
+//  Dialogs emergentes
+// =====================================================================
+
+STATIC FUNCTION MaestrosView()
+   LOCAL oDlg
+   INIT DIALOG oDlg TITLE "Maestros" AT 0, 0 SIZE 260, 160 ;
+      STYLE WS_DLGFRAME + DS_CENTER
+   @ 15, 15 BUTTON "Países"                SIZE 230, 28 ;
+      ON CLICK {|| PaisesView(s_Db), oDlg:Close()}
+   @ 48, 15 BUTTON "Tipos IVA"             SIZE 230, 28 ;
+      ON CLICK {|| TiposIvaView(s_Db), oDlg:Close()}
+   @ 81, 15 BUTTON "Tipos Identificación"  SIZE 230, 28 ;
+      ON CLICK {|| TiposIdentificacionView(s_Db), oDlg:Close()}
+   @ 120, 95 BUTTON "Cancelar" SIZE 80, 26 ;
+      ON CLICK {|| oDlg:Close()}
+   ACTIVATE DIALOG oDlg
+RETURN NIL
+
+STATIC FUNCTION MenuExportar()
+   LOCAL oDlg
+   INIT DIALOG oDlg TITLE "Exportación" AT 0, 0 SIZE 260, 170 ;
+      STYLE WS_DLGFRAME + DS_CENTER
+   @ 15, 15 BUTTON "Registros AEAT (XML)" SIZE 230, 28 ;
+      ON CLICK {|| ExportarRegAeat(), oDlg:Close()}
+   @ 48, 15 BUTTON "Eventos (XML)"        SIZE 230, 28 ;
+      ON CLICK {|| ExportarEventosXml(), oDlg:Close()}
+   @ 81, 15 BUTTON "Gastos (CSV)"         SIZE 230, 28 ;
+      ON CLICK {|| ExportarGastosCsv(), oDlg:Close()}
+   @ 128, 100 BUTTON "Cancelar" SIZE 80, 26 ;
+      ON CLICK {|| oDlg:Close()}
+   ACTIVATE DIALOG oDlg
+RETURN NIL
+
+FUNCTION ObtenerTextoInfo()
    RETURN "BD: " + ObtenerDbPath()
 RETURN NIL
 
-STATIC FUNCTION ExportarRegAeat(db)
-   LOCAL cPath := GuardarXmlRegistros(db)
+STATIC FUNCTION ExportarRegAeat()
+   LOCAL cPath := GuardarXmlRegistros(s_Db)
    hwg_MsgInfo("Registros AEAT exportados: " + cPath, "Exportación")
 RETURN NIL
 
-STATIC FUNCTION ExportarEventosXml(db)
-   LOCAL cPath := GuardarXmlEventos(db)
+STATIC FUNCTION ExportarEventosXml()
+   LOCAL cPath := GuardarXmlEventos(s_Db)
    hwg_MsgInfo("Eventos exportados: " + cPath, "Exportación")
 RETURN NIL
 
-STATIC FUNCTION ExportarGastosCsv(db)
+STATIC FUNCTION ExportarGastosCsv()
    LOCAL cYear := hwg_MsgGet("Año", "Introduzca año:", hb_ntos(Year(Date())))
    LOCAL nYear, cPath
    IF Empty(cYear); RETURN; ENDIF
    nYear := Val(cYear)
    IF nYear < 2000 .OR. nYear > 2100; hwg_MsgInfo("Año no válido", "Error"); RETURN; ENDIF
-   cPath := GuardarCsvGastos(db, nYear)
+   cPath := GuardarCsvGastos(s_Db, nYear)
    hwg_MsgInfo("Gastos exportados: " + cPath, "Exportación")
 RETURN NIL
