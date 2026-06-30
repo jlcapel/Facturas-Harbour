@@ -9,7 +9,7 @@ FUNCTION ViesView(db)
    INIT DIALOG oDlg TITLE "Validación VAT (VIES)" AT 0,0 SIZE 500, 200 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    @ 20, 20 SAY L("ClientesPais") SIZE 80, 22
-   @ 110, 18 COMBOBOX nPaisSel ITEMS ListaPaisUENombres(aPaisesUE) SIZE 150, 200
+   @ 110, 18 GET COMBOBOX nPaisSel ITEMS ListaPaisUENombres(aPaisesUE) SIZE 150, 200
 
    @ 20, 55 SAY "Nº VAT:" SIZE 80, 22
    @ 110, 53 GET cVat SIZE 150, 26

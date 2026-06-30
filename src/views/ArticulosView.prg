@@ -105,7 +105,7 @@ STATIC FUNCTION ArticuloEditDialog(db, nId)
    @ 110, 123 GET cUnidad SIZE 60, 26
 
    @ 20, 160 SAY L("ArticulosTipoIva") SIZE 80, 22
-   @ 110, 158 COMBOBOX nTipoIvaSel ITEMS ListaIvaNombres(aTiposIva) SIZE 200, 200
+   @ 110, 158 GET COMBOBOX nTipoIvaSel ITEMS ListaIvaNombres(aTiposIva) SIZE 200, 200
 
    @ 110, 230 BUTTON L("ArticulosGuardar") SIZE 90, 30 ON CLICK {|| oDlg:Close()}
    @ 240, 230 BUTTON L("ArticulosCancelar") SIZE 90, 30 ON CLICK {|| lCancel := .T., oDlg:Close()}

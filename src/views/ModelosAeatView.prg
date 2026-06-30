@@ -5,12 +5,13 @@ REQUEST HB_RUN
 FUNCTION ModelosAeatView(db)
    LOCAL oDlg, nModelo := 1, cSum := ""
    LOCAL nAnio := Year(Date()), aAnios := {}, nI
-   LOCAL nTrim := 1
+   LOCAL nAnioIdx := 1, nTrim := 1
    LOCAL oCbAnio, oCbTrim, oTexto
 
    FOR nI := nAnio - 5 TO nAnio
       AAdd(aAnios, nI)
    NEXT
+   nAnioIdx := Len(aAnios)
 
    INIT DIALOG oDlg TITLE L("ModelosAeatTitle") AT 0,0 SIZE 700, 500 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
@@ -25,17 +26,13 @@ FUNCTION ModelosAeatView(db)
    @ 20, 155 BUTTON L("Modelo349Title") SIZE 220, 28 ON CLICK {|| nModelo := 7}
 
    @ 20, 200 SAY L("M111Ejercicio") SIZE 80, 22
-   @ 100, 197 COMBOBOX oCbAnio ITEMS aAnios SIZE 100, 200
-   oCbAnio:value := Len(aAnios)
+   @ 100, 197 GET COMBOBOX oCbAnio VAR nAnioIdx ITEMS aAnios SIZE 100, 200
 
    @ 220, 200 SAY L("M111Trimestre") SIZE 80, 22
-   @ 300, 197 COMBOBOX oCbTrim ITEMS {1, 2, 3, 4} SIZE 80, 200
-   oCbTrim:value := 1
+   @ 300, 197 GET COMBOBOX oCbTrim VAR nTrim ITEMS {1, 2, 3, 4} SIZE 80, 200
 
    @ 20, 240 BUTTON L("CommonGenerar") SIZE 100, 30 ON CLICK {|| ;
-      nAnio := aAnios[oCbAnio:value], ;
-      nTrim := oCbTrim:value, ;
-      GenerarModeloAeat(db, nModelo, nAnio, nTrim) }
+      GenerarModeloAeat(db, nModelo, aAnios[nAnioIdx], nTrim) }
 
    @ 140, 240 BUTTON "Abrir Carpeta" SIZE 100, 30 ON CLICK {|| AbrirCarpetaModelo(nModelo) }
 

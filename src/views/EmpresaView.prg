@@ -36,15 +36,15 @@ RETURN NIL
 STATIC FUNCTION EmpresaControls(db, oDlg)
    LOCAL cNif, cNombre, cDireccion, cPoblacion, cProvincia, cCp, cTelefono, cEmail, cWeb
 
-   cNif := ObtenerConfiguracion(db, "Empresa.Nif")
-   cNombre := ObtenerConfiguracion(db, "Empresa.Nombre")
-   cDireccion := ObtenerConfiguracion(db, "Empresa.Direccion")
-   cPoblacion := ObtenerConfiguracion(db, "Empresa.Poblacion")
-   cProvincia := ObtenerConfiguracion(db, "Empresa.Provincia")
-   cCp := ObtenerConfiguracion(db, "Empresa.CodigoPostal")
-   cTelefono := ObtenerConfiguracion(db, "Empresa.Telefono")
-   cEmail := ObtenerConfiguracion(db, "Empresa.Email")
-   cWeb := ObtenerConfiguracion(db, "Empresa.Web")
+   cNif := ObtenerConfiguracionStr(db, "Empresa.Nif")
+   cNombre := ObtenerConfiguracionStr(db, "Empresa.Nombre")
+   cDireccion := ObtenerConfiguracionStr(db, "Empresa.Direccion")
+   cPoblacion := ObtenerConfiguracionStr(db, "Empresa.Poblacion")
+   cProvincia := ObtenerConfiguracionStr(db, "Empresa.Provincia")
+   cCp := ObtenerConfiguracionStr(db, "Empresa.CodigoPostal")
+   cTelefono := ObtenerConfiguracionStr(db, "Empresa.Telefono")
+   cEmail := ObtenerConfiguracionStr(db, "Empresa.Email")
+   cWeb := ObtenerConfiguracionStr(db, "Empresa.Web")
 
    @ 30, 40 SAY "NIF:" SIZE 80, 22 OF oDlg
    @ 120, 38 GET cNif SIZE 150, 26 OF oDlg
@@ -80,11 +80,11 @@ STATIC FUNCTION VerifactuControls(db, oDlg)
    LOCAL cNif, cIdEmisor, cSoftware, cVersion
    LOCAL cAmbiente, nAmbiente
 
-   cNif := ObtenerConfiguracion(db, "VeriFactu.Nif")
-   cIdEmisor := ObtenerConfiguracion(db, "VeriFactu.IdEmisor")
-   cSoftware := ObtenerConfiguracion(db, "VeriFactu.NombreSoftware")
-   cVersion := ObtenerConfiguracion(db, "VeriFactu.VersionSoftware")
-   cAmbiente := ObtenerConfiguracion(db, "VeriFactu.Ambiente")
+   cNif := ObtenerConfiguracionStr(db, "VeriFactu.Nif")
+   cIdEmisor := ObtenerConfiguracionStr(db, "VeriFactu.IdEmisor")
+   cSoftware := ObtenerConfiguracionStr(db, "VeriFactu.NombreSoftware")
+   cVersion := ObtenerConfiguracionStr(db, "VeriFactu.VersionSoftware")
+   cAmbiente := ObtenerConfiguracionStr(db, "VeriFactu.Ambiente")
    nAmbiente := Val(cAmbiente)
    IF nAmbiente < 1 .OR. nAmbiente > 2
       nAmbiente := 1
@@ -100,7 +100,7 @@ STATIC FUNCTION VerifactuControls(db, oDlg)
    @ 140, 348 GET cVersion SIZE 100, 26 OF oDlg
 
    @ 30, 375 SAY "Entorno:" SIZE 100, 22 OF oDlg
-   @ 140, 373 COMBOBOX nAmbiente ITEMS {"Producción", "Pruebas"} SIZE 120, 200 OF oDlg
+   @ 140, 373 GET COMBOBOX nAmbiente ITEMS {"Producción", "Pruebas"} SIZE 120, 200 OF oDlg
 
    @ 400, 375 BUTTON "Guardar Veri*Factu" SIZE 110, 22 OF oDlg ON CLICK {;
       EstablecerConfiguracion(db, "VeriFactu.Nif", AllTrim(cNif)), ;
@@ -114,8 +114,8 @@ RETURN NIL
 STATIC FUNCTION CertificadoControls(db, oDlg)
    LOCAL cRuta, cPass
 
-   cRuta := ObtenerConfiguracion(db, "VeriFactu.CertificadoRuta")
-   cPass := ObtenerConfiguracion(db, "VeriFactu.CertificadoPassword")
+   cRuta := ObtenerConfiguracionStr(db, "VeriFactu.CertificadoRuta")
+   cPass := ObtenerConfiguracionStr(db, "VeriFactu.CertificadoPassword")
 
    @ 30, 430 SAY "Certificado PKCS#12:" SIZE 130, 22 OF oDlg
    @ 170, 428 GET cRuta SIZE 300, 26 OF oDlg
@@ -130,9 +130,9 @@ RETURN NIL
 STATIC FUNCTION IvaControls(db, oDlg)
    LOCAL cGral, cRed, cSuper
 
-   cGral := ObtenerConfiguracion(db, "IVA.General")
-   cRed := ObtenerConfiguracion(db, "IVA.Reducido")
-   cSuper := ObtenerConfiguracion(db, "IVA.Superreducido")
+   cGral := ObtenerConfiguracionStr(db, "IVA.General")
+   cRed := ObtenerConfiguracionStr(db, "IVA.Reducido")
+   cSuper := ObtenerConfiguracionStr(db, "IVA.Superreducido")
    IF Empty(cGral); cGral := "21.00"; ENDIF
    IF Empty(cRed); cRed := "10.00"; ENDIF
    IF Empty(cSuper); cSuper := "4.00"; ENDIF
@@ -154,7 +154,7 @@ RETURN NIL
 STATIC FUNCTION IrpfControls(db, oDlg)
    LOCAL cIrpf
 
-   cIrpf := ObtenerConfiguracion(db, "IRPF.Porcentaje")
+   cIrpf := ObtenerConfiguracionStr(db, "IRPF.Porcentaje")
    IF Empty(cIrpf); cIrpf := "15.00"; ENDIF
 
    @ 300, 430 SAY "% Retención IRPF:" SIZE 110, 22 OF oDlg
@@ -172,7 +172,7 @@ STATIC FUNCTION IdiomaControls(db, oDlg)
    LOCAL aIdiomas := {L("LangEspanol"), L("LangEnglish"), L("LangFrancais"), L("LangCatalan"), L("LangEuskera")}
    LOCAL nIdx := 1, cIdioma, oCb
 
-   cIdioma := ObtenerConfiguracion(db, "Language")
+   cIdioma := ObtenerConfiguracionStr(db, "Language")
    SWITCH cIdioma
    CASE "en"; nIdx := 2; EXIT
    CASE "fr"; nIdx := 3; EXIT
@@ -180,10 +180,8 @@ STATIC FUNCTION IdiomaControls(db, oDlg)
    CASE "eu"; nIdx := 5; EXIT
    ENDSWITCH
 
-   @ 90, 555 COMBOBOX oCb ITEMS aIdiomas SIZE 120, 200 OF oDlg
-   oCb:value := nIdx
+   @ 90, 555 GET COMBOBOX oCb VAR nIdx ITEMS aIdiomas SIZE 120, 200 OF oDlg
    @ 220, 555 BUTTON "Aplicar" SIZE 60, 22 OF oDlg ON CLICK {|| ;
-      nIdx := oCb:value, ;
       LocalCambiarIdioma(db, nIdx), ;
       hwg_MsgInfo("Idioma cambiado. Reinicie la aplicación para ver los cambios.", "Idioma") }
 RETURN NIL

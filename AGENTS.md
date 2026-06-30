@@ -234,6 +234,12 @@ Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPU
 6. **@ en múltiples líneas**: cada control `@ x, y` debe ir en su propia línea (no separar con `;`).
 7. **Windows link flags**: `-lws2_32 -lcrypt32 -lbcrypt -lgdi32 -lgdiplus -lwinspool -lwinmm -lole32 -loleaut32 -lcomctl32 -lcomdlg32 -luuid -lsqlite3` + `librddntx.a librddfpt.a librddcdx.a librddnsx.a libgtwin.a libgtgui.a`
 8. **SQLite Windows**: reconstruir con `-DSQLITE_ENABLE_LOAD_EXTENSION=1` y eliminar `-DSQLITE_OMIT_LOAD_EXTENSION` del Makefile generado por configure
+9. **hbsqlit3.ch**: todo `.prg` que use `SQLITE_ROW`, `SQLITE_DONE` o constantes SQLite debe incluir `#require "hbsqlit3"` + `#include "hbsqlit3.ch"` al inicio
+10. **fileio.ch**: `FO_APPEND` NO existe en Harbour. Para append usar `FO_WRITE` + `FSeek(hFile, 0, FS_END)`. Incluir `#include "fileio.ch"` para `FO_WRITE`, `FS_END`, etc.
+11. **COMBOBOX HWGUI**: `@ x,y COMBOBOX nVar ITEMS ...` crea objeto HComboBox (NO bindea variable). Usar `@ x,y GET COMBOBOX nVar ITEMS ...` para vincular variable numérica.
+12. **ObtenerConfiguracion**: devuelve NIL si la clave no existe. Para campos de texto en HWGUI GET, usar `ObtenerConfiguracionStr` (devuelve `""` si no existe).
+13. **LocalizationNew()**: llamar antes de `LocalizationSetLang()` — crea el hash `oLoc` PUBLIC.
+14. **hb_DirScan**: devuelve array de arrays `{ {name, size, date, attr}, ... }`. Acceder al nombre con `[1]`.
 
 ## Next Steps
 

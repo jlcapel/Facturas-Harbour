@@ -1,3 +1,4 @@
+#include "hbsqlit3.ch"
 FUNCTION ExportarRegistrosAEAT(db)
    LOCAL stmt, aRegistros := {}, cXml, nI, aReg
 

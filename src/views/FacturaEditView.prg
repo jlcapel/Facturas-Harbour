@@ -53,13 +53,13 @@ FUNCTION FacturaCrearDialog(db, nFacturaId)
    @ 340, 13 GET dFecha SIZE 110, 26
 
    @ 20, 50 SAY "Cliente:" SIZE 80, 22
-   @ 110, 48 COMBOBOX nClienteSel ITEMS ListaNombresClientes(aClientes) SIZE 300, 200
+   @ 110, 48 GET COMBOBOX nClienteSel ITEMS ListaNombresClientes(aClientes) SIZE 300, 200
 
    @ 20, 85 SAY L("ArticulosDescripcionLabel") SIZE 80, 22
    @ 110, 83 GET cDescripcion SIZE 500, 26
 
    @ 20, 120 SAY "Tipo:" SIZE 50, 22
-   @ 80, 118 COMBOBOX nTipoFactura ITEMS aTiposFactura SIZE 130, 200
+   @ 80, 118 GET COMBOBOX nTipoFactura ITEMS aTiposFactura SIZE 130, 200
 
    @ 20, 155 GROUPBOX "Líneas" SIZE 730, 280
 
@@ -148,7 +148,7 @@ STATIC FUNCTION LineaEditDialog(db, aArticulos, aTiposIva, aLinea)
       AT 0,0 SIZE 480, 300 STYLE DS_CENTER
 
    @ 20, 20 SAY "Artículo:" SIZE 80, 22
-   @ 110, 18 COMBOBOX nArtSel ITEMS ListaNombresArticulos(aArticulos) SIZE 250, 200 ;
+   @ 110, 18 GET COMBOBOX nArtSel ITEMS ListaNombresArticulos(aArticulos) SIZE 250, 200 ;
       ON CHANGE {|| ActualizarDatosLinea(aArticulos, @cDescripcion, @cPrecio, @nIvaSel, ;
          aTiposIva, nArtSel, @nIvaPct)}
 
@@ -162,7 +162,7 @@ STATIC FUNCTION LineaEditDialog(db, aArticulos, aTiposIva, aLinea)
    @ 310, 98 GET cPrecio SIZE 120, 26 PICTURE "999999.99"
 
    @ 20, 140 SAY L("ArticulosTipoIva") SIZE 80, 22
-   @ 110, 138 COMBOBOX nIvaSel ITEMS ListaNombresIva(aTiposIva) SIZE 200, 200
+   @ 110, 138 GET COMBOBOX nIvaSel ITEMS ListaNombresIva(aTiposIva) SIZE 200, 200
 
    @ 150, 210 BUTTON "Aceptar" SIZE 90, 30 ON CLICK {|| oDlg:Close()}
    @ 280, 210 BUTTON L("CommonCancelar") SIZE 90, 30 ON CLICK {|| lCancel := .T., oDlg:Close()}

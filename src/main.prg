@@ -29,6 +29,7 @@
  */
 
 #include "hwgui.ch"
+#include "hbsqlit3.ch"
 
 PROCEDURE Main()
    LOCAL oDlg
@@ -41,8 +42,9 @@ PROCEDURE Main()
    IF !EnsureDbReady()
       LogInfo("Main: no se pudo asegurar integridad BD")
    ENDIF
-   HacerBackup()
-   cLang := ObtenerConfiguracion(db, "Language")
+    HacerBackup()
+    LocalizationNew()
+    cLang := ObtenerConfiguracion(db, "Language")
    IF cLang != NIL
       LocalizationSetLang(cLang)
    ENDIF

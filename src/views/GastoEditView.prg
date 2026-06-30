@@ -63,15 +63,15 @@ FUNCTION GastoEditDialog(db, nGastoId)
    @ 20, 15 SAY L("GastoEditNumFactura") SIZE 80, 22
    @ 110, 13 GET cNumero SIZE 150, 26
    @ 300, 15 SAY "Tipo doc.:" SIZE 80, 22
-   @ 380, 13 COMBOBOX nTipoDoc ITEMS aTiposDoc SIZE 160, 200
+   @ 380, 13 GET COMBOBOX nTipoDoc ITEMS aTiposDoc SIZE 160, 200
    @ 20, 48 SAY L("GastoEditFechaEmision") SIZE 100, 22
    @ 130, 46 GET dFechaEmi SIZE 110, 26
    @ 300, 48 SAY L("GastoEditFechaRecepcion") SIZE 110, 22
    @ 420, 46 GET dFechaRec SIZE 110, 26
    @ 20, 81 SAY L("GastoEditProveedor") SIZE 80, 22
-   @ 110, 79 COMBOBOX nProveedorSel ITEMS ListaProvNombres(aProveedores) SIZE 300, 200
+   @ 110, 79 GET COMBOBOX nProveedorSel ITEMS ListaProvNombres(aProveedores) SIZE 300, 200
    @ 20, 114 SAY L("GastoEditCategoria") SIZE 80, 22
-   @ 110, 112 COMBOBOX nCategoriaSel ITEMS ListaCatNombres(aCategorias) SIZE 250, 200
+   @ 110, 112 GET COMBOBOX nCategoriaSel ITEMS ListaCatNombres(aCategorias) SIZE 250, 200
    @ 20, 147 SAY L("GastoEditDescripcion") SIZE 80, 22
    @ 110, 145 GET cDescripcion SIZE 500, 26
    @ 20, 180 GROUPBOX "Importes" SIZE 680, 170
@@ -90,7 +90,7 @@ FUNCTION GastoEditDialog(db, nGastoId)
    @ 310, 299 SAY "Gasto deducible IRPF:" SIZE 130, 22
    @ 450, 297 SAY Str(nGastoDeducible, 12, 2) SIZE 110, 26
    @ 30, 355 SAY L("GastoEditMedioPago") SIZE 80, 22
-   @ 130, 353 COMBOBOX nMedioPago ITEMS aMediosPago SIZE 160, 200
+   @ 130, 353 GET COMBOBOX nMedioPago ITEMS aMediosPago SIZE 160, 200
    @ 330, 355 CHECKBOX lPagado CAPTION L("GastosPagado") SIZE 80, 26
    @ 30, 388 SAY L("GastoEditObservaciones") SIZE 100, 22
    @ 140, 386 GET cObservaciones SIZE 480, 26

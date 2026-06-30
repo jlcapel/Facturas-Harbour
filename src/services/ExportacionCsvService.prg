@@ -1,3 +1,4 @@
+#include "hbsqlit3.ch"
 FUNCTION GenerarCsvGastos(db, nYear)
    LOCAL stmt, aGastos := {}, cCsv, nI, aG
    LOCAL cNifProv, cNomProv, cCat, cPagado, cNFactura

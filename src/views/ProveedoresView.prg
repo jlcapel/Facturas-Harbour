@@ -76,9 +76,9 @@ STATIC FUNCTION ProvEditDialog(db, nId)
    @ 20, 81 SAY "NIF IVA:" SIZE 80, 22
    @ 110, 79 GET cNifIva SIZE 150, 26
    @ 20, 114 SAY "ID Fiscal:" SIZE 80, 22
-   @ 110, 112 COMBOBOX nTipoIdSel ITEMS ListaProvTiposId(aTiposId) SIZE 200, 200
+   @ 110, 112 GET COMBOBOX nTipoIdSel ITEMS ListaProvTiposId(aTiposId) SIZE 200, 200
    @ 20, 147 SAY L("ProveedoresPais") SIZE 80, 22
-   @ 110, 145 COMBOBOX nPaisSel ITEMS ListaProvPaises(aPaises) SIZE 200, 200
+   @ 110, 145 GET COMBOBOX nPaisSel ITEMS ListaProvPaises(aPaises) SIZE 200, 200
    @ 20, 180 SAY L("ProveedoresDireccion") SIZE 80, 22
    @ 110, 178 GET cDireccion SIZE 370, 26
    @ 20, 213 SAY L("ProveedoresPoblacionLabel") SIZE 80, 22

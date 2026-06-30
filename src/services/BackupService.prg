@@ -1,3 +1,4 @@
+#include "hbsqlit3.ch"
 FUNCTION HacerBackup()
    LOCAL cDbPath := ObtenerDbPath(), cTimestamp, cBakName
    LOCAL cDir1 := hb_GetEnv("HOME") + "/Facturas/backups"
@@ -47,10 +48,10 @@ FUNCTION EncontrarBackup()
    LOCAL nD, aFiles := {}, nF, cFile
    FOR nD := 1 TO Len(aDirs)
       IF hb_DirExists(aDirs[nD])
-         aFiles := hb_DirScan(aDirs[nD], "facturas_*.db")
-         IF !Empty(aFiles)
-            ASort(aFiles)
-            cFile := aDirs[nD] + "/" + aFiles[Len(aFiles)]
+          aFiles := hb_DirScan(aDirs[nD], "facturas_*.db")
+          IF !Empty(aFiles)
+             ASort(aFiles,,, {|x,y| x[1] < y[1]})
+             cFile := aDirs[nD] + "/" + aFiles[Len(aFiles)][1]
             IF hb_FileExists(cFile)
                RETURN cFile
             ENDIF

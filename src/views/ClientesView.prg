@@ -112,13 +112,13 @@ STATIC FUNCTION ClienteEditDialog(db, nId)
    @ 110, 13 GET cNombre SIZE 370, 26
 
    @ 20, 48 SAY "Tipo:" SIZE 80, 22
-   @ 110, 46 COMBOBOX nTipoClienteSel ITEMS aTipoCliente SIZE 150, 200
+   @ 110, 46 GET COMBOBOX nTipoClienteSel ITEMS aTipoCliente SIZE 150, 200
 
    @ 20, 81 SAY L("ClientesPais") SIZE 80, 22
-   @ 110, 79 COMBOBOX nPaisSel ITEMS ListaPaisesNombres(aPaises) SIZE 200, 200
+   @ 110, 79 GET COMBOBOX nPaisSel ITEMS ListaPaisesNombres(aPaises) SIZE 200, 200
 
    @ 20, 114 SAY "ID Fiscal:" SIZE 80, 22
-   @ 110, 112 COMBOBOX nTipoIdSel ITEMS ListaTiposIdNombres(aTiposId) SIZE 200, 200
+   @ 110, 112 GET COMBOBOX nTipoIdSel ITEMS ListaTiposIdNombres(aTiposId) SIZE 200, 200
 
    @ 20, 147 SAY "NIF:" SIZE 80, 22
    @ 110, 145 GET cNif SIZE 150, 26

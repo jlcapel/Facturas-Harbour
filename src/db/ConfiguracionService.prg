@@ -11,6 +11,13 @@ FUNCTION ObtenerConfiguracion(db, cClave)
    sqlite3_finalize(stmt)
    RETURN cValor
 
+FUNCTION ObtenerConfiguracionStr(db, cClave)
+   LOCAL cValor := ObtenerConfiguracion(db, cClave)
+   IF cValor == NIL
+      RETURN ""
+   ENDIF
+   RETURN cValor
+
 FUNCTION EstablecerConfiguracion(db, cClave, cValor)
    LOCAL stmt, nRes
    stmt := sqlite3_prepare(db, ;

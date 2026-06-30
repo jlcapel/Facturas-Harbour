@@ -1,5 +1,6 @@
 #require "hbcurl"
 #include "hbcurl.ch"
+#include "hbsqlit3.ch"
 
 #define SOAP_NS_SOAP     'xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"'
 #define SOAP_NS_LR       'xmlns:sfLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroLR.xsd"'
