@@ -11,7 +11,7 @@ STATIC s_Db
 
 PROCEDURE Main()
    LOCAL oDlg, cLang, oTitleFnt
-   LOCAL nBx := 16, nBw := 150, nBy
+   LOCAL nBx := 16, nBw := 150
 
    InicializarBaseDatos()
    s_Db := AbrirBaseDatos()
@@ -73,41 +73,24 @@ PROCEDURE Main()
    ENDMENU
 
    // === SIDEBAR: botones verticales alineados ===
-   nBy := 16
 
-   @ nBy, nBx BUTTON "Facturas"     SIZE nBw, 26 ON CLICK {|| FacturasView(s_Db)}
-   nBy += 34
-   @ nBy, nBx BUTTON "Clientes"     SIZE nBw, 26 ON CLICK {|| ClientesView(s_Db)}
-   nBy += 34
-   @ nBy, nBx BUTTON "Artículos"    SIZE nBw, 26 ON CLICK {|| ArticulosView(s_Db)}
-   nBy += 34
-   @ nBy, nBx BUTTON "Proveedores"  SIZE nBw, 26 ON CLICK {|| ProveedoresView(s_Db)}
-   nBy += 34
-   @ nBy, nBx BUTTON "Gastos"       SIZE nBw, 26 ON CLICK {|| GastosView(s_Db)}
-   nBy += 34
-   @ nBy, nBx BUTTON "B. Inversión" SIZE nBw, 26 ON CLICK {|| BienesInversionView(s_Db)}
-   nBy += 34
-   @ nBy, nBx LINE LENGTH nBw
-   nBy += 16
-   @ nBy, nBx BUTTON "Empresa"      SIZE nBw, 26 ON CLICK {|| EmpresaView(s_Db)}
-   nBy += 34
-   @ nBy, nBx BUTTON "Tipos IVA"    SIZE nBw, 26 ON CLICK {|| TiposIvaView(s_Db)}
-   nBy += 34
-   @ nBy, nBx BUTTON "Países"       SIZE nBw, 26 ON CLICK {|| PaisesView(s_Db)}
-   nBy += 34
-   @ nBy, nBx BUTTON "Identific."   SIZE nBw, 26 ON CLICK {|| TiposIdentificacionView(s_Db)}
-   nBy += 34
-   @ nBy, nBx BUTTON "Categ. Gasto" SIZE nBw, 26 ON CLICK {|| CategoriasGastoView(s_Db)}
-   nBy += 34
-   @ nBy, nBx LINE LENGTH nBw
-   nBy += 16
-   @ nBy, nBx BUTTON "Validación"   SIZE nBw, 26 ON CLICK {|| ValidacionView(s_Db)}
-   nBy += 34
-   @ nBy, nBx BUTTON "VIES"         SIZE nBw, 26 ON CLICK {|| ViesView(s_Db)}
-   nBy += 34
-   @ nBy, nBx BUTTON "Modelos AEAT" SIZE nBw, 26 ON CLICK {|| ModelosAeatView(s_Db)}
-   nBy += 34
-   @ nBy, nBx BUTTON "Exportación"  SIZE nBw, 26 ON CLICK {|| MenuExportar()}
+   @ 16, 16 BUTTON "Facturas"     SIZE 150, 26 ON CLICK {|| FacturasView(s_Db)}
+   @ 50, 16 BUTTON "Clientes"     SIZE 150, 26 ON CLICK {|| ClientesView(s_Db)}
+   @ 84, 16 BUTTON "Artículos"    SIZE 150, 26 ON CLICK {|| ArticulosView(s_Db)}
+   @ 118, 16 BUTTON "Proveedores" SIZE 150, 26 ON CLICK {|| ProveedoresView(s_Db)}
+   @ 152, 16 BUTTON "Gastos"      SIZE 150, 26 ON CLICK {|| GastosView(s_Db)}
+   @ 186, 16 BUTTON "B. Inversión" SIZE 150, 26 ON CLICK {|| BienesInversionView(s_Db)}
+   @ 222, 16 LINE LENGTH 150
+   @ 240, 16 BUTTON "Empresa"     SIZE 150, 26 ON CLICK {|| EmpresaView(s_Db)}
+   @ 274, 16 BUTTON "Tipos IVA"   SIZE 150, 26 ON CLICK {|| TiposIvaView(s_Db)}
+   @ 308, 16 BUTTON "Países"      SIZE 150, 26 ON CLICK {|| PaisesView(s_Db)}
+   @ 342, 16 BUTTON "Identific."  SIZE 150, 26 ON CLICK {|| TiposIdentificacionView(s_Db)}
+   @ 376, 16 BUTTON "Categ. Gasto" SIZE 150, 26 ON CLICK {|| CategoriasGastoView(s_Db)}
+   @ 412, 16 LINE LENGTH 150
+   @ 430, 16 BUTTON "Validación"  SIZE 150, 26 ON CLICK {|| ValidacionView(s_Db)}
+   @ 464, 16 BUTTON "VIES"        SIZE 150, 26 ON CLICK {|| ViesView(s_Db)}
+   @ 498, 16 BUTTON "Modelos AEAT" SIZE 150, 26 ON CLICK {|| ModelosAeatView(s_Db)}
+   @ 532, 16 BUTTON "Exportación" SIZE 150, 26 ON CLICK {|| MenuExportar()}
 
    // === CONTENT AREA: bienvenida ===
    @ 20, 190 SAY "Facturas - VERI*FACTU" SIZE 400, 28 ;
