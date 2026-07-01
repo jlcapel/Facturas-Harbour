@@ -75,28 +75,28 @@ PROCEDURE Main()
    // === SIDEBAR: botones verticales alineados ===
 
    @ 16, 16 BUTTON "Facturas"     SIZE 150, 26 ON CLICK {|| FacturasView(s_Db)}
-   @ 50, 16 BUTTON "Clientes"     SIZE 150, 26 ON CLICK {|| ClientesView(s_Db)}
-   @ 84, 16 BUTTON "Artículos"    SIZE 150, 26 ON CLICK {|| ArticulosView(s_Db)}
-   @ 118, 16 BUTTON "Proveedores" SIZE 150, 26 ON CLICK {|| ProveedoresView(s_Db)}
-   @ 152, 16 BUTTON "Gastos"      SIZE 150, 26 ON CLICK {|| GastosView(s_Db)}
-   @ 186, 16 BUTTON "B. Inversión" SIZE 150, 26 ON CLICK {|| BienesInversionView(s_Db)}
-   @ 222, 16 LINE LENGTH 150
-   @ 240, 16 BUTTON "Empresa"     SIZE 150, 26 ON CLICK {|| EmpresaView(s_Db)}
-   @ 274, 16 BUTTON "Tipos IVA"   SIZE 150, 26 ON CLICK {|| TiposIvaView(s_Db)}
-   @ 308, 16 BUTTON "Países"      SIZE 150, 26 ON CLICK {|| PaisesView(s_Db)}
-   @ 342, 16 BUTTON "Identific."  SIZE 150, 26 ON CLICK {|| TiposIdentificacionView(s_Db)}
-   @ 376, 16 BUTTON "Categ. Gasto" SIZE 150, 26 ON CLICK {|| CategoriasGastoView(s_Db)}
-   @ 412, 16 LINE LENGTH 150
-   @ 430, 16 BUTTON "Validación"  SIZE 150, 26 ON CLICK {|| ValidacionView(s_Db)}
-   @ 464, 16 BUTTON "VIES"        SIZE 150, 26 ON CLICK {|| ViesView(s_Db)}
-   @ 498, 16 BUTTON "Modelos AEAT" SIZE 150, 26 ON CLICK {|| ModelosAeatView(s_Db)}
-   @ 532, 16 BUTTON "Exportación" SIZE 150, 26 ON CLICK {|| MenuExportar()}
+   @ 16, 50 BUTTON "Clientes"     SIZE 150, 26 ON CLICK {|| ClientesView(s_Db)}
+   @ 16, 84 BUTTON "Artículos"    SIZE 150, 26 ON CLICK {|| ArticulosView(s_Db)}
+   @ 16, 118 BUTTON "Proveedores" SIZE 150, 26 ON CLICK {|| ProveedoresView(s_Db)}
+   @ 16, 152 BUTTON "Gastos"      SIZE 150, 26 ON CLICK {|| GastosView(s_Db)}
+   @ 16, 186 BUTTON "B. Inversión" SIZE 150, 26 ON CLICK {|| BienesInversionView(s_Db)}
+   @ 16, 222 LINE LENGTH 150
+   @ 16, 240 BUTTON "Empresa"     SIZE 150, 26 ON CLICK {|| EmpresaView(s_Db)}
+   @ 16, 274 BUTTON "Tipos IVA"   SIZE 150, 26 ON CLICK {|| TiposIvaView(s_Db)}
+   @ 16, 308 BUTTON "Países"      SIZE 150, 26 ON CLICK {|| PaisesView(s_Db)}
+   @ 16, 342 BUTTON "Identific."  SIZE 150, 26 ON CLICK {|| TiposIdentificacionView(s_Db)}
+   @ 16, 376 BUTTON "Categ. Gasto" SIZE 150, 26 ON CLICK {|| CategoriasGastoView(s_Db)}
+   @ 16, 412 LINE LENGTH 150
+   @ 16, 430 BUTTON "Validación"  SIZE 150, 26 ON CLICK {|| ValidacionView(s_Db)}
+   @ 16, 464 BUTTON "VIES"        SIZE 150, 26 ON CLICK {|| ViesView(s_Db)}
+   @ 16, 498 BUTTON "Modelos AEAT" SIZE 150, 26 ON CLICK {|| ModelosAeatView(s_Db)}
+   @ 16, 532 BUTTON "Exportación" SIZE 150, 26 ON CLICK {|| MenuExportar()}
 
    // === CONTENT AREA: bienvenida ===
-   @ 20, 190 SAY "Facturas - VERI*FACTU" SIZE 400, 28 ;
+   @ 190, 20 SAY "Facturas - VERI*FACTU" SIZE 400, 28 ;
       COLOR hwg_ColorRGB2N(30, 64, 114) FONT oTitleFnt
 
-   @ 52, 190 SAY "Seleccione una opción en el panel izquierdo" SIZE 400, 18 ;
+   @ 190, 52 SAY "Seleccione una opción en el panel izquierdo" SIZE 400, 18 ;
       COLOR hwg_ColorRGB2N(100, 116, 139)
 
    ADD STATUS TO oDlg PARTS 400, 200
