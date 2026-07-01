@@ -196,7 +196,7 @@ Total = BaseImponible + IvaImporte − IrpfImporte
 | Tipos Identificación | `src/views/TiposIdentificacionView.prg` | Crear, editar, desactivar + PDF |
 | Clientes | `src/views/ClientesView.prg` | Crear, editar (con combos país/tipo ID), eliminar + PDF |
 | Artículos | `src/views/ArticulosView.prg` | Crear, editar (con combo tipo IVA), eliminar + PDF |
-| Empresa/Configuración | `src/views/EmpresaView.prg` | Empresa, Veri*Factu, IVA, IRPF + selector idioma |
+| Empresa/Configuración | `src/views/EmpresaView.prg` | Datos Emisor, VERI*FACTU+IRPF, Certificado, Sistema Informático, Idioma |
 | Facturas | `src/views/FacturasView.prg` | Listado + imprimir PDF + anular |
 | Factura (edición) | `src/views/FacturaEditView.prg` | Cabecera + líneas editables + totales |
 | Proveedores | `src/views/ProveedoresView.prg` | Crear, editar (con combos país/tipo ID), eliminar + PDF |
@@ -208,7 +208,7 @@ Total = BaseImponible + IvaImporte − IrpfImporte
 | Validación VAT | `src/views/ViesView.prg` | Consulta VAT intracomunitario vía VIES |
 | Modelos AEAT | `src/views/ModelosAeatView.prg` | Launcher 7 modelos (303/390/130/347/111/115/349) |
 
-Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPUP` — no funciona con Cinnamon).
+Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPUP` — no funciona con Cinnamon). Sin sidebar — solo menú superior + área de bienvenida.
 
 ## Estado del proyecto
 
@@ -223,6 +223,7 @@ Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPU
 | Hito 7 | ✅ | Validación NIF: NifValService (SOAP AEAT) + ValidacionIdentificacionService (DNI/NIE/CIF/27 VAT) + certificado en Empresa + vista |
 | Hito 8 | ✅ | Modelos AEAT completos (303/390/130/347/111/115/349) + helper + vista lanzador |
 | Hito 9 | ✅ | i18n multilingüe (es/en/fr/ca/eu) + selector idioma en EmpresaView |
+| Hito 10 | ✅ | UI rediseñada: sidebar eliminado, ventana principal solo menú superior. EmpresaView reorganizada (5 secciones, sin solapamientos, añadido Sistema Informático, IRPF dentro de VERI*FACTU) |
 
 ## Problemas conocidos (del proyecto .NET)
 
@@ -244,5 +245,7 @@ Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPU
 ## Next Steps
 
 1. ✅ Windows build completado (`./build.sh win` produce `Facturas.exe`)
-2. Pruebas completas Linux + Windows (PDF, SOAP, modelos AEAT, i18n, CRUD)
-3. Compilar hbssl/hbssls para Windows con OpenSSL MinGW (opcional; hbcurl maneja HTTPS internamente)
+2. ✅ Pruebas completas Linux + Windows (PDF, SOAP, modelos AEAT, i18n, CRUD)
+3. ✅ UI rediseñada (sin sidebar, EmpresaView reorganizada)
+4. Refactorizar vistas modales a panel de contenido único en ventana principal
+5. Compilar hbssl/hbssls para Windows con OpenSSL MinGW (opcional; hbcurl maneja HTTPS internamente)

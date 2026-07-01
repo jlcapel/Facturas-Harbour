@@ -23,6 +23,7 @@ FUNCTION LoadStrings_fr()
    h["CommonNuevo"] := "Nouveau"
    h["CommonEditar"] := "Modifier"
    h["CommonGuardar"] := "Enregistrer"
+   h["CommonGuardado"] := "Enregistré"
    h["CommonCancelar"] := "Annuler"
    h["CommonVolver"] := "Retour"
    h["CommonEliminar"] := "Supprimer"

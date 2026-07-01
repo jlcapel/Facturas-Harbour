@@ -11,7 +11,6 @@ STATIC s_Db
 
 PROCEDURE Main()
    LOCAL oDlg, cLang, oTitleFnt
-   LOCAL nBx := 16, nBw := 150
 
    InicializarBaseDatos()
    s_Db := AbrirBaseDatos()
@@ -31,7 +30,7 @@ PROCEDURE Main()
    INIT DIALOG oDlg ;
       TITLE "Facturas-Harbour" ;
       AT 0, 0 ;
-      SIZE 960, 640 ;
+      SIZE 860, 540 ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    MENU OF oDlg
@@ -72,31 +71,11 @@ PROCEDURE Main()
       ENDMENU
    ENDMENU
 
-   // === SIDEBAR: botones verticales alineados ===
-
-   @ 16, 16 BUTTON "Facturas"     SIZE 150, 26 ON CLICK {|| FacturasView(s_Db)}
-   @ 16, 50 BUTTON "Clientes"     SIZE 150, 26 ON CLICK {|| ClientesView(s_Db)}
-   @ 16, 84 BUTTON "Artículos"    SIZE 150, 26 ON CLICK {|| ArticulosView(s_Db)}
-   @ 16, 118 BUTTON "Proveedores" SIZE 150, 26 ON CLICK {|| ProveedoresView(s_Db)}
-   @ 16, 152 BUTTON "Gastos"      SIZE 150, 26 ON CLICK {|| GastosView(s_Db)}
-   @ 16, 186 BUTTON "B. Inversión" SIZE 150, 26 ON CLICK {|| BienesInversionView(s_Db)}
-   @ 16, 222 LINE LENGTH 150
-   @ 16, 240 BUTTON "Empresa"     SIZE 150, 26 ON CLICK {|| EmpresaView(s_Db)}
-   @ 16, 274 BUTTON "Tipos IVA"   SIZE 150, 26 ON CLICK {|| TiposIvaView(s_Db)}
-   @ 16, 308 BUTTON "Países"      SIZE 150, 26 ON CLICK {|| PaisesView(s_Db)}
-   @ 16, 342 BUTTON "Identific."  SIZE 150, 26 ON CLICK {|| TiposIdentificacionView(s_Db)}
-   @ 16, 376 BUTTON "Categ. Gasto" SIZE 150, 26 ON CLICK {|| CategoriasGastoView(s_Db)}
-   @ 16, 412 LINE LENGTH 150
-   @ 16, 430 BUTTON "Validación"  SIZE 150, 26 ON CLICK {|| ValidacionView(s_Db)}
-   @ 16, 464 BUTTON "VIES"        SIZE 150, 26 ON CLICK {|| ViesView(s_Db)}
-   @ 16, 498 BUTTON "Modelos AEAT" SIZE 150, 26 ON CLICK {|| ModelosAeatView(s_Db)}
-   @ 16, 532 BUTTON "Exportación" SIZE 150, 26 ON CLICK {|| MenuExportar()}
-
-   // === CONTENT AREA: bienvenida ===
-   @ 190, 20 SAY "Facturas - VERI*FACTU" SIZE 400, 28 ;
+   // Bienvenida
+   @ 90, 30 SAY "Facturas - VERI*FACTU" SIZE 500, 28 ;
       COLOR hwg_ColorRGB2N(30, 64, 114) FONT oTitleFnt
 
-   @ 190, 52 SAY "Seleccione una opción en el panel izquierdo" SIZE 400, 18 ;
+   @ 130, 32 SAY "Seleccione una opción en el menú superior" SIZE 400, 18 ;
       COLOR hwg_ColorRGB2N(100, 116, 139)
 
    ADD STATUS TO oDlg PARTS 400, 200
@@ -105,8 +84,6 @@ PROCEDURE Main()
 
    s_Db := NIL
 RETURN
-
-// === Diálogos auxiliares ===
 
 STATIC FUNCTION MaestrosView()
    LOCAL oDlg

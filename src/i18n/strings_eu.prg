@@ -23,6 +23,7 @@ FUNCTION LoadStrings_eu()
    h["CommonNuevo"] := "Berria"
    h["CommonEditar"] := "Editatu"
    h["CommonGuardar"] := "Gorde"
+   h["CommonGuardado"] := "Gordeta"
    h["CommonCancelar"] := "Utzi"
    h["CommonVolver"] := "Itzuli"
    h["CommonEliminar"] := "Ezabatu"

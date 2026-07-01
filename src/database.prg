@@ -398,6 +398,10 @@ STATIC FUNCTION SembrarConfiguracion(db)
       { "VeriFactu.NombreSistemaInformatico", "Facturas" }, ;
       { "VeriFactu.NifDesarrollo", "" }, ;
       { "VeriFactu.VersionSIF", "1.0.0" }, ;
+      { "VeriFactu.NumeroInstalacion", "1" }, ;
+      { "VeriFactu.SoloVerifactu", "S" }, ;
+      { "VeriFactu.MultiOTPosible", "N" }, ;
+      { "VeriFactu.IndicadorMultiplesOT", "N" }, ;
       { "UltimoNumeroFactura", "0" } }
 
    LOCAL stmt := sqlite3_prepare(db, "INSERT INTO Configuracion(Clave, Valor) VALUES(?, ?)")

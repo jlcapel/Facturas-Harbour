@@ -23,6 +23,7 @@ FUNCTION LoadStrings_ca()
    h["CommonNuevo"] := "Nou"
    h["CommonEditar"] := "Editar"
    h["CommonGuardar"] := "Guardar"
+   h["CommonGuardado"] := "Guardat"
    h["CommonCancelar"] := "Cancel·lar"
    h["CommonVolver"] := "Tornar"
    h["CommonEliminar"] := "Eliminar"
