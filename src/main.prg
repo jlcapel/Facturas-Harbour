@@ -10,10 +10,8 @@
 STATIC s_Db
 
 PROCEDURE Main()
-   LOCAL oDlg, cLang
-   LOCAL oFntBtn
-   LOCAL nSx := 14, nSw := 160, nDw := 1050
-   LOCAL ny, nCx, nGw, nGh
+   LOCAL oDlg, cLang, oTitleFnt
+   LOCAL nBx := 16, nBw := 150, nBy
 
    InicializarBaseDatos()
    s_Db := AbrirBaseDatos()
@@ -28,12 +26,12 @@ PROCEDURE Main()
       LocalizationSetLang(cLang)
    ENDIF
 
-   PREPARE FONT oFntBtn NAME "Arial" WIDTH 0 HEIGHT -10 WEIGHT 400
+   PREPARE FONT oTitleFnt NAME "Arial" WIDTH 0 HEIGHT -20 WEIGHT 700
 
    INIT DIALOG oDlg ;
       TITLE "Facturas-Harbour" ;
       AT 0, 0 ;
-      SIZE nDw, 660 ;
+      SIZE 960, 640 ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    MENU OF oDlg
@@ -74,73 +72,49 @@ PROCEDURE Main()
       ENDMENU
    ENDMENU
 
-   // ================================================================
-   //  SIDEBAR — botones verticales
-   // ================================================================
-   ny := 16
+   // === SIDEBAR: botones verticales alineados ===
+   nBy := 16
 
-   @ ny, nSx BUTTON "Facturas"        SIZE nSw, 26 FONT oFntBtn ON CLICK {|| FacturasView(s_Db)}
-   ny += 32
-   @ ny, nSx BUTTON "Clientes"        SIZE nSw, 26 FONT oFntBtn ON CLICK {|| ClientesView(s_Db)}
-   ny += 32
-   @ ny, nSx BUTTON "Artículos"       SIZE nSw, 26 FONT oFntBtn ON CLICK {|| ArticulosView(s_Db)}
-   ny += 32
-   @ ny, nSx BUTTON "Proveedores"     SIZE nSw, 26 FONT oFntBtn ON CLICK {|| ProveedoresView(s_Db)}
-   ny += 32
-   @ ny, nSx BUTTON "Gastos"          SIZE nSw, 26 FONT oFntBtn ON CLICK {|| GastosView(s_Db)}
-   ny += 32
-   @ ny, nSx BUTTON "B. Inversión"    SIZE nSw, 26 FONT oFntBtn ON CLICK {|| BienesInversionView(s_Db)}
-   ny += 38
-   @ ny, nSx LINE LENGTH nSw
-   ny += 14
-   @ ny, nSx BUTTON "Empresa"         SIZE nSw, 26 FONT oFntBtn ON CLICK {|| EmpresaView(s_Db)}
-   ny += 32
-   @ ny, nSx BUTTON "Tipos IVA"       SIZE nSw, 26 FONT oFntBtn ON CLICK {|| TiposIvaView(s_Db)}
-   ny += 32
-   @ ny, nSx BUTTON "Países"          SIZE nSw, 26 FONT oFntBtn ON CLICK {|| PaisesView(s_Db)}
-   ny += 32
-   @ ny, nSx BUTTON "Identificación"  SIZE nSw, 26 FONT oFntBtn ON CLICK {|| TiposIdentificacionView(s_Db)}
-   ny += 32
-   @ ny, nSx BUTTON "Categorías Gasto" SIZE nSw, 26 FONT oFntBtn ON CLICK {|| CategoriasGastoView(s_Db)}
-   ny += 38
-   @ ny, nSx LINE LENGTH nSw
-   ny += 14
-   @ ny, nSx BUTTON "Validación NIF"  SIZE nSw, 26 FONT oFntBtn ON CLICK {|| ValidacionView(s_Db)}
-   ny += 32
-   @ ny, nSx BUTTON "VIES"            SIZE nSw, 26 FONT oFntBtn ON CLICK {|| ViesView(s_Db)}
-   ny += 32
-   @ ny, nSx BUTTON "Modelos AEAT"    SIZE nSw, 26 FONT oFntBtn ON CLICK {|| ModelosAeatView(s_Db)}
-   ny += 32
-   @ ny, nSx BUTTON "Exportar"        SIZE nSw, 26 FONT oFntBtn ON CLICK {|| MenuExportar()}
+   @ nBy, nBx BUTTON "Facturas"     SIZE nBw, 26 ON CLICK {|| FacturasView(s_Db)}
+   nBy += 34
+   @ nBy, nBx BUTTON "Clientes"     SIZE nBw, 26 ON CLICK {|| ClientesView(s_Db)}
+   nBy += 34
+   @ nBy, nBx BUTTON "Artículos"    SIZE nBw, 26 ON CLICK {|| ArticulosView(s_Db)}
+   nBy += 34
+   @ nBy, nBx BUTTON "Proveedores"  SIZE nBw, 26 ON CLICK {|| ProveedoresView(s_Db)}
+   nBy += 34
+   @ nBy, nBx BUTTON "Gastos"       SIZE nBw, 26 ON CLICK {|| GastosView(s_Db)}
+   nBy += 34
+   @ nBy, nBx BUTTON "B. Inversión" SIZE nBw, 26 ON CLICK {|| BienesInversionView(s_Db)}
+   nBy += 34
+   @ nBy, nBx LINE LENGTH nBw
+   nBy += 16
+   @ nBy, nBx BUTTON "Empresa"      SIZE nBw, 26 ON CLICK {|| EmpresaView(s_Db)}
+   nBy += 34
+   @ nBy, nBx BUTTON "Tipos IVA"    SIZE nBw, 26 ON CLICK {|| TiposIvaView(s_Db)}
+   nBy += 34
+   @ nBy, nBx BUTTON "Países"       SIZE nBw, 26 ON CLICK {|| PaisesView(s_Db)}
+   nBy += 34
+   @ nBy, nBx BUTTON "Identific."   SIZE nBw, 26 ON CLICK {|| TiposIdentificacionView(s_Db)}
+   nBy += 34
+   @ nBy, nBx BUTTON "Categ. Gasto" SIZE nBw, 26 ON CLICK {|| CategoriasGastoView(s_Db)}
+   nBy += 34
+   @ nBy, nBx LINE LENGTH nBw
+   nBy += 16
+   @ nBy, nBx BUTTON "Validación"   SIZE nBw, 26 ON CLICK {|| ValidacionView(s_Db)}
+   nBy += 34
+   @ nBy, nBx BUTTON "VIES"         SIZE nBw, 26 ON CLICK {|| ViesView(s_Db)}
+   nBy += 34
+   @ nBy, nBx BUTTON "Modelos AEAT" SIZE nBw, 26 ON CLICK {|| ModelosAeatView(s_Db)}
+   nBy += 34
+   @ nBy, nBx BUTTON "Exportación"  SIZE nBw, 26 ON CLICK {|| MenuExportar()}
 
-   // ================================================================
-   //  CONTENT AREA — GROUP boxes
-   // ================================================================
-   nCx := 190; nGw := 270; nGh := 190
+   // === CONTENT AREA: bienvenida ===
+   @ 20, 190 SAY "Facturas - VERI*FACTU" SIZE 400, 28 ;
+      COLOR hwg_ColorRGB2N(30, 64, 114) FONT oTitleFnt
 
-   @ 16, nCx GROUPBOX "Facturación" SIZE nGw, nGh
-   @ 40, nCx + 18 BUTTON "Facturas"  SIZE 110, 26 FONT oFntBtn ON CLICK {|| FacturasView(s_Db)}
-   @ 40, nCx + 142 BUTTON "Clientes" SIZE 110, 26 FONT oFntBtn ON CLICK {|| ClientesView(s_Db)}
-   @ 72, nCx + 18 BUTTON "Artículos" SIZE 110, 26 FONT oFntBtn ON CLICK {|| ArticulosView(s_Db)}
-   @ 72, nCx + 142 BUTTON "Maestros" SIZE 110, 26 FONT oFntBtn ON CLICK {|| MaestrosView()}
-   @ 104, nCx + 18 BUTTON "Modelos AEAT" SIZE 234, 26 FONT oFntBtn ON CLICK {|| ModelosAeatView(s_Db)}
-
-   @ 16, nCx + nGw + 18 GROUPBOX "Compras y Gastos" SIZE nGw, nGh
-   @ 40, nCx + nGw + 36 BUTTON "Gastos"      SIZE 110, 26 FONT oFntBtn ON CLICK {|| GastosView(s_Db)}
-   @ 40, nCx + nGw + 160 BUTTON "Proveedores" SIZE 110, 26 FONT oFntBtn ON CLICK {|| ProveedoresView(s_Db)}
-   @ 72, nCx + nGw + 36 BUTTON "Categorías"  SIZE 110, 26 FONT oFntBtn ON CLICK {|| CategoriasGastoView(s_Db)}
-   @ 72, nCx + nGw + 160 BUTTON "B. Inversión" SIZE 110, 26 FONT oFntBtn ON CLICK {|| BienesInversionView(s_Db)}
-   @ 104, nCx + nGw + 36 BUTTON "Exportar CSV" SIZE 234, 26 FONT oFntBtn ON CLICK {|| ExportarGastosCsv()}
-
-   @ 16, nCx + nGw * 2 + 36 GROUPBOX "Configuración" SIZE nGw, nGh
-   @ 40, nCx + nGw * 2 + 54 BUTTON "Empresa"    SIZE 110, 26 FONT oFntBtn ON CLICK {|| EmpresaView(s_Db)}
-   @ 40, nCx + nGw * 2 + 178 BUTTON "Validación" SIZE 110, 26 FONT oFntBtn ON CLICK {|| ValidacionView(s_Db)}
-   @ 72, nCx + nGw * 2 + 54 BUTTON "VIES"       SIZE 110, 26 FONT oFntBtn ON CLICK {|| ViesView(s_Db)}
-   @ 72, nCx + nGw * 2 + 178 BUTTON "Exportar"  SIZE 110, 26 FONT oFntBtn ON CLICK {|| MenuExportar()}
-   @ 104, nCx + nGw * 2 + 54 BUTTON "Tipos IVA" SIZE 110, 26 FONT oFntBtn ON CLICK {|| TiposIvaView(s_Db)}
-   @ 104, nCx + nGw * 2 + 178 BUTTON "Países"   SIZE 110, 26 FONT oFntBtn ON CLICK {|| PaisesView(s_Db)}
-
-   @ 600, 30 BUTTON "Salir" SIZE 60, 22 ON CLICK {|| oDlg:Close()}
+   @ 52, 190 SAY "Seleccione una opción en el panel izquierdo" SIZE 400, 18 ;
+      COLOR hwg_ColorRGB2N(100, 116, 139)
 
    ADD STATUS TO oDlg PARTS 400, 200
 
@@ -149,7 +123,8 @@ PROCEDURE Main()
    s_Db := NIL
 RETURN
 
-// ================================================================
+// === Diálogos auxiliares ===
+
 STATIC FUNCTION MaestrosView()
    LOCAL oDlg
    INIT DIALOG oDlg TITLE "Maestros" AT 0, 0 SIZE 260, 160 ;
