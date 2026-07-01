@@ -1,10 +1,9 @@
 #include "hwgui.ch"
 
-FUNCTION GastosView(db)
-   LOCAL oDlg, oBrw, aData
+FUNCTION GastosView(db, oParent, nX, nY, nW, nH)
+   LOCAL oBrw, aData
    aData := ObtenerGastos(db)
-   INIT DIALOG oDlg TITLE L("GastosTitle") AT 0,0 SIZE 900, 520 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
-   @ 20, 20 BROWSE oBrw ARRAY SIZE 750, 410 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
+   @ nX+20, nY+20 BROWSE oBrw ARRAY SIZE nW-40, nH-90 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL OF oParent
    oBrw:aArray := aData
    oBrw:AddColumn(HColumn():New(L("GastosNumFactura"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 14, 0))
    oBrw:AddColumn(HColumn():New(L("GastosFecha"), {|v,o| (v), DToC(o:aArray[o:nCurrent, 3])}, "D", 12, 0, .F., DT_CENTER))
@@ -13,13 +12,11 @@ FUNCTION GastosView(db)
    oBrw:AddColumn(HColumn():New(L("GastosBase"), {|v,o| (v), Str(o:aArray[o:nCurrent, 6], 10, 2)}, "N", 10, 0, .F., DT_RIGHT))
    oBrw:AddColumn(HColumn():New(L("GastosTotal"), {|v,o| (v), Str(o:aArray[o:nCurrent, 7], 10, 2)}, "N", 10, 0, .F., DT_RIGHT))
    oBrw:AddColumn(HColumn():New(L("GastosPagado"), {|v,o| (v), Iif(o:aArray[o:nCurrent, 8], L("CommonSi"), L("CommonNo"))}, "C", 8, 0, .F., DT_CENTER))
-   @ 30, 450 BUTTON L("GastosNuevo") SIZE 70, 28 ON CLICK {|| GastoNuevo(db, @aData, oBrw)}
-   @ 110, 450 BUTTON L("GastosEditar") SIZE 70, 28 ON CLICK {|| GastoEditar(db, @aData, oBrw, oBrw:nCurrent)}
-   @ 190, 450 BUTTON L("GastosEliminar") SIZE 70, 28 ON CLICK {|| GastoEliminar(db, @aData, oBrw)}
-   @ 270, 450 BUTTON "Pagado/No" SIZE 80, 28 ON CLICK {|| GastoTogglePago(db, @aData, oBrw)}
-   @ 370, 450 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfGastos(db, aData)}
-   @ 660, 450 BUTTON L("GastosVolver") SIZE 70, 28 ON CLICK {|| oDlg:Close()}
-   ACTIVATE DIALOG oDlg CENTER
+   @ nX+30, nY+nH-55 BUTTON L("GastosNuevo") SIZE 70, 28 OF oParent ON CLICK {|| GastoNuevo(db, @aData, oBrw)}
+   @ nX+110, nY+nH-55 BUTTON L("GastosEditar") SIZE 70, 28 OF oParent ON CLICK {|| GastoEditar(db, @aData, oBrw, oBrw:nCurrent)}
+   @ nX+190, nY+nH-55 BUTTON L("GastosEliminar") SIZE 70, 28 OF oParent ON CLICK {|| GastoEliminar(db, @aData, oBrw)}
+   @ nX+270, nY+nH-55 BUTTON "Pagado/No" SIZE 80, 28 OF oParent ON CLICK {|| GastoTogglePago(db, @aData, oBrw)}
+   @ nX+370, nY+nH-55 BUTTON "PDF" SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfGastos(db, aData)}
 RETURN NIL
 
 STATIC FUNCTION GastoNuevo(db, aData, oBrw)

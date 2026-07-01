@@ -1,30 +1,21 @@
 #include "hwgui.ch"
 
-FUNCTION TiposIdentificacionView(db)
-   LOCAL oDlg, oBrw, aData
+FUNCTION TiposIdentificacionView(db, oParent, nX, nY, nW, nH)
+   LOCAL oBrw, aData
 
    aData := ObtenerTiposIdentificacion(db)
 
-   INIT DIALOG oDlg ;
-      TITLE "Tipos de identificación" ;
-      AT 0, 0 ;
-      SIZE 600, 400 ;
-      STYLE WS_POPUP + WS_CAPTION + WS_SYSMENU + WS_SIZEBOX + DS_CENTER
-
-   @ 20, 20 BROWSE oBrw ARRAY SIZE 400, 300 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
+   @ nX+20, nY+20 BROWSE oBrw ARRAY SIZE nW-40, nH-90 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL OF oParent
 
    oBrw:aArray := aData
    oBrw:AddColumn(HColumn():New(L("IdentifCodigoAeat"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 14, 0))
    oBrw:AddColumn(HColumn():New(L("IdentifNombre"), {|v,o| (v), o:aArray[o:nCurrent, 3]}, "C", 40, 0))
    oBrw:AddColumn(HColumn():New(L("CommonActivo"), {|v,o| (v), iif(o:aArray[o:nCurrent, 4], L("CommonSi"), L("CommonNo"))}, "C", 8, 0, .F., DT_CENTER))
 
-   @ 30, 350 BUTTON L("IdentifNuevo") SIZE 70, 28 ON CLICK {|| TipoIdentNuevo(db, @aData, oBrw)}
-   @ 110, 350 BUTTON L("IdentifEditar") SIZE 70, 28 ON CLICK {|| TipoIdentEditar(db, @aData, oBrw, oBrw:nCurrent)}
-   @ 190, 350 BUTTON L("IdentifEliminar") SIZE 70, 28 ON CLICK {|| TipoIdentEliminar(db, @aData, oBrw)}
-   @ 270, 350 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfTiposIdent(db, aData)}
-   @ 460, 350 BUTTON L("IdentifVolver") SIZE 70, 28 ON CLICK {|| oDlg:Close()}
-
-   ACTIVATE DIALOG oDlg CENTER
+   @ nX+30, nY+nH-55 BUTTON L("IdentifNuevo") SIZE 70, 28 OF oParent ON CLICK {|| TipoIdentNuevo(db, @aData, oBrw)}
+   @ nX+110, nY+nH-55 BUTTON L("IdentifEditar") SIZE 70, 28 OF oParent ON CLICK {|| TipoIdentEditar(db, @aData, oBrw, oBrw:nCurrent)}
+   @ nX+190, nY+nH-55 BUTTON L("IdentifEliminar") SIZE 70, 28 OF oParent ON CLICK {|| TipoIdentEliminar(db, @aData, oBrw)}
+   @ nX+270, nY+nH-55 BUTTON "PDF" SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfTiposIdent(db, aData)}
 RETURN NIL
 
 STATIC FUNCTION TipoIdentNuevo(db, aData, oBrw)

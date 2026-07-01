@@ -191,22 +191,22 @@ Total = BaseImponible + IvaImporte − IrpfImporte
 
 | Vista | Archivo | CRUD |
 |---|---|---|---|
-| Países | `src/views/PaisesView.prg` | Crear, editar, desactivar + PDF |
-| Tipos IVA | `src/views/TiposIvaView.prg` | Crear, editar, eliminar + PDF |
-| Tipos Identificación | `src/views/TiposIdentificacionView.prg` | Crear, editar, desactivar + PDF |
-| Clientes | `src/views/ClientesView.prg` | Crear, editar (con combos país/tipo ID), eliminar + PDF |
-| Artículos | `src/views/ArticulosView.prg` | Crear, editar (con combo tipo IVA), eliminar + PDF |
-| Empresa/Configuración | `src/views/EmpresaView.prg` | Datos Emisor, VERI*FACTU+IRPF, Certificado, Sistema Informático, Idioma |
-| Facturas | `src/views/FacturasView.prg` | Listado + imprimir PDF + anular |
-| Factura (edición) | `src/views/FacturaEditView.prg` | Cabecera + líneas editables + totales |
-| Proveedores | `src/views/ProveedoresView.prg` | Crear, editar (con combos país/tipo ID), eliminar + PDF |
-| Categorías Gasto | `src/views/CategoriasGastoView.prg` | Crear, editar, eliminar + PDF |
-| Bienes Inversión | `src/views/BienesInversionView.prg` | Crear, editar, eliminar + PDF |
-| Gastos | `src/views/GastosView.prg` | Listado + marcar pagado/no pagado + PDF |
-| Gasto (edición) | `src/views/GastoEditView.prg` | Proveedor, categoría, importes, IVA/retención |
-| Validación NIF | `src/views/ValidacionView.prg` | Consulta NIF contra AEAT VNifV2 |
-| Validación VAT | `src/views/ViesView.prg` | Consulta VAT intracomunitario vía VIES |
-| Modelos AEAT | `src/views/ModelosAeatView.prg` | Launcher 7 modelos (303/390/130/347/111/115/349) |
+| Países | `src/views/PaisesView.prg` | Crear, editar, desactivar + PDF (embebido) |
+| Tipos IVA | `src/views/TiposIvaView.prg` | Crear, editar, eliminar + PDF (embebido) |
+| Tipos Identificación | `src/views/TiposIdentificacionView.prg` | Crear, editar, desactivar + PDF (embebido) |
+| Clientes | `src/views/ClientesView.prg` | Crear, editar (con combos país/tipo ID), eliminar + PDF (embebido) |
+| Artículos | `src/views/ArticulosView.prg` | Crear, editar (con combo tipo IVA), eliminar + PDF (embebido) |
+| Empresa/Configuración | `src/views/EmpresaView.prg` | Datos Emisor, VERI*FACTU+IRPF, Certificado, Sistema Informático, Idioma (modal) |
+| Proveedores | `src/views/ProveedoresView.prg` | Crear, editar (con combos país/tipo ID), eliminar + PDF (embebido) |
+| Categorías Gasto | `src/views/CategoriasGastoView.prg` | Crear, editar, eliminar + PDF (embebido) |
+| Bienes Inversión | `src/views/BienesInversionView.prg` | Crear, editar, eliminar + PDF (embebido) |
+| Validación NIF | `src/views/ValidacionView.prg` | Consulta NIF contra AEAT VNifV2 (embebido) |
+| Validación VAT | `src/views/ViesView.prg` | Consulta VAT intracomunitario vía VIES (embebido) |
+| Modelos AEAT | `src/views/ModelosAeatView.prg` | Launcher 7 modelos (303/390/130/347/111/115/349) (embebido) |
+| Facturas | `src/views/FacturasView.prg` | Listado + imprimir PDF + anular (embebido) |
+| Factura (edición) | `src/views/FacturaEditView.prg` | Cabecera + líneas editables + totales (modal) |
+| Gastos | `src/views/GastosView.prg` | Listado + marcar pagado/no pagado + PDF (embebido) |
+| Gasto (edición) | `src/views/GastoEditView.prg` | Proveedor, categoría, importes, IVA/retención (modal) |
 
 Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPUP` — no funciona con Cinnamon). Sin sidebar — solo menú superior + área de bienvenida.
 
@@ -247,5 +247,5 @@ Estilo de ventana principal: `WS_DLGFRAME + WS_SYSMENU + DS_CENTER` (no `WS_POPU
 1. ✅ Windows build completado (`./build.sh win` produce `Facturas.exe`)
 2. ✅ Pruebas completas Linux + Windows (PDF, SOAP, modelos AEAT, i18n, CRUD)
 3. ✅ UI rediseñada (sin sidebar, EmpresaView reorganizada)
-4. Refactorizar vistas modales a panel de contenido único en ventana principal
+4. ✅ Refactorizadas vistas a panel de contenido único (modeless dialogs embebidos). EmpresaView modal por su tamaño.
 5. Compilar hbssl/hbssls para Windows con OpenSSL MinGW (opcional; hbcurl maneja HTTPS internamente)

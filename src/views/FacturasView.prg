@@ -1,17 +1,11 @@
 #include "hwgui.ch"
 
-FUNCTION FacturasView(db)
-   LOCAL oDlg, oBrw, aData
+FUNCTION FacturasView(db, oParent, nX, nY, nW, nH)
+   LOCAL oBrw, aData
 
    aData := ObtenerFacturas(db)
 
-   INIT DIALOG oDlg ;
-      TITLE L("FacturasTitle") ;
-      AT 0, 0 ;
-      SIZE 850, 520 ;
-      STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
-
-   @ 20, 20 BROWSE oBrw ARRAY SIZE 700, 400 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
+   @ nX+20, nY+20 BROWSE oBrw ARRAY SIZE nW-40, nH-90 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL OF oParent
 
    oBrw:aArray := aData
    oBrw:AddColumn(HColumn():New(L("FacturasNroFacturaHead"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 14, 0))
@@ -22,13 +16,10 @@ FUNCTION FacturasView(db)
    oBrw:AddColumn(HColumn():New(L("FacturasTotalLinea"), {|v,o| (v), Str(o:aArray[o:nCurrent, 7], 10, 2)}, "C", 10, 0, .F., DT_RIGHT))
    oBrw:AddColumn(HColumn():New(L("FacturasEstadoHead"), {|v,o| (v), Iif(o:aArray[o:nCurrent, 8] == 0, "Emitida", "Anulada")}, "C", 10, 0, .F., DT_CENTER))
 
-   @ 30, 450 BUTTON "Nueva" SIZE 70, 28 ON CLICK {|| FacturaNueva(db, @aData, oBrw)}
-   @ 110, 450 BUTTON L("CommonEditar") SIZE 70, 28 ON CLICK {|| FacturaEditar(db, @aData, oBrw)}
-   @ 190, 450 BUTTON L("FacturasImprimir") SIZE 70, 28 ON CLICK {|| FacturaImprimir(db, aData, oBrw)}
-   @ 270, 450 BUTTON L("FacturasAnular") SIZE 70, 28 ON CLICK {|| FacturaAnular(db, @aData, oBrw)}
-   @ 700, 450 BUTTON L("FacturasVolver") SIZE 70, 28 ON CLICK {|| oDlg:Close()}
-
-   ACTIVATE DIALOG oDlg CENTER
+   @ nX+30, nY+nH-55 BUTTON "Nueva" SIZE 70, 28 OF oParent ON CLICK {|| FacturaNueva(db, @aData, oBrw)}
+   @ nX+110, nY+nH-55 BUTTON L("CommonEditar") SIZE 70, 28 OF oParent ON CLICK {|| FacturaEditar(db, @aData, oBrw)}
+   @ nX+190, nY+nH-55 BUTTON L("FacturasImprimir") SIZE 70, 28 OF oParent ON CLICK {|| FacturaImprimir(db, aData, oBrw)}
+   @ nX+270, nY+nH-55 BUTTON L("FacturasAnular") SIZE 70, 28 OF oParent ON CLICK {|| FacturaAnular(db, @aData, oBrw)}
 RETURN NIL
 
 STATIC FUNCTION FacturaNueva(db, aData, oBrw)

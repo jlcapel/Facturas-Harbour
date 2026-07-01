@@ -1,17 +1,11 @@
 #include "hwgui.ch"
 
-FUNCTION TiposIvaView(db)
-   LOCAL oDlg, oBrw, aData
+FUNCTION TiposIvaView(db, oParent, nX, nY, nW, nH)
+   LOCAL oBrw, aData
 
    aData := ObtenerTiposIva(db)
 
-   INIT DIALOG oDlg ;
-      TITLE L("TiposIvaTitle") ;
-      AT 0, 0 ;
-      SIZE 600, 400 ;
-      STYLE WS_POPUP + WS_CAPTION + WS_SYSMENU + WS_SIZEBOX + DS_CENTER
-
-   @ 20, 20 BROWSE oBrw ARRAY SIZE 400, 300 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
+   @ nX+20, nY+20 BROWSE oBrw ARRAY SIZE nW-40, nH-90 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL OF oParent
 
    oBrw:aArray := aData
    oBrw:AddColumn(HColumn():New(L("TiposIvaNombre"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 25, 0))
@@ -19,13 +13,10 @@ FUNCTION TiposIvaView(db)
    oBrw:AddColumn(HColumn():New(L("TiposIvaActivo"), {|v,o| (v), iif(o:aArray[o:nCurrent, 4], L("CommonSi"), L("CommonNo"))}, "C", 8, 0, .F., DT_CENTER))
    oBrw:AddColumn(HColumn():New(L("TiposIvaDesde"), {|v,o| (v), o:aArray[o:nCurrent, 5]}, "C", 14, 0, .F., DT_CENTER))
 
-   @ 30, 350 BUTTON L("TiposIvaNuevo") SIZE 70, 28 ON CLICK {|| TipoIvaNuevo(db, @aData, oBrw)}
-   @ 110, 350 BUTTON L("TiposIvaEditar") SIZE 70, 28 ON CLICK {|| TipoIvaEditar(db, @aData, oBrw, oBrw:nCurrent)}
-   @ 190, 350 BUTTON L("TiposIvaEliminar") SIZE 70, 28 ON CLICK {|| TipoIvaEliminar(db, @aData, oBrw)}
-   @ 270, 350 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfTiposIva(db, aData)}
-   @ 460, 350 BUTTON L("TiposIvaVolver") SIZE 70, 28 ON CLICK {|| oDlg:Close()}
-
-   ACTIVATE DIALOG oDlg CENTER
+   @ nX+30, nY+nH-55 BUTTON L("TiposIvaNuevo") SIZE 70, 28 OF oParent ON CLICK {|| TipoIvaNuevo(db, @aData, oBrw)}
+   @ nX+110, nY+nH-55 BUTTON L("TiposIvaEditar") SIZE 70, 28 OF oParent ON CLICK {|| TipoIvaEditar(db, @aData, oBrw, oBrw:nCurrent)}
+   @ nX+190, nY+nH-55 BUTTON L("TiposIvaEliminar") SIZE 70, 28 OF oParent ON CLICK {|| TipoIvaEliminar(db, @aData, oBrw)}
+   @ nX+270, nY+nH-55 BUTTON "PDF" SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfTiposIva(db, aData)}
 RETURN NIL
 
 STATIC FUNCTION TipoIvaNuevo(db, aData, oBrw)

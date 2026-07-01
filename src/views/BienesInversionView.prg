@@ -1,10 +1,9 @@
 #include "hwgui.ch"
 
-FUNCTION BienesInversionView(db)
-   LOCAL oDlg, oBrw, aData
+FUNCTION BienesInversionView(db, oParent, nX, nY, nW, nH)
+   LOCAL oBrw, aData
    aData := ObtenerBienesInversion(db)
-   INIT DIALOG oDlg TITLE "Bienes de inversión" AT 0,0 SIZE 900, 500 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
-   @ 20, 20 BROWSE oBrw ARRAY SIZE 700, 400 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
+   @ nX+20, nY+20 BROWSE oBrw ARRAY SIZE nW-40, nH-90 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL OF oParent
    oBrw:aArray := aData
    oBrw:AddColumn(HColumn():New(L("BienesNombre"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 22, 0))
    oBrw:AddColumn(HColumn():New(L("BienesFechaAdq"), {|v,o| (v), DToC(o:aArray[o:nCurrent, 3])}, "D", 12, 0, .F., DT_CENTER))
@@ -14,12 +13,10 @@ FUNCTION BienesInversionView(db)
    oBrw:AddColumn(HColumn():New("V.Amortizado", {|v,o| (v), Str(o:aArray[o:nCurrent, 7], 10, 2)}, "N", 12, 0, .F., DT_RIGHT))
    oBrw:AddColumn(HColumn():New("V.Neto", {|v,o| (v), Str(o:aArray[o:nCurrent, 8], 10, 2)}, "N", 10, 0, .F., DT_RIGHT))
    oBrw:AddColumn(HColumn():New("En uso", {|v,o| (v), Iif(o:aArray[o:nCurrent, 11], L("CommonSi"), L("CommonNo"))}, "C", 8, 0, .F., DT_CENTER))
-   @ 30, 440 BUTTON L("BienesNuevo") SIZE 70, 28 ON CLICK {|| BienNuevo(db, @aData, oBrw)}
-   @ 110, 440 BUTTON L("BienesEditar") SIZE 70, 28 ON CLICK {|| BienEditar(db, @aData, oBrw, oBrw:nCurrent)}
-   @ 190, 440 BUTTON L("CommonEliminar") SIZE 70, 28 ON CLICK {|| BienEliminar(db, @aData, oBrw)}
-   @ 270, 440 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfBienes(db, aData)}
-   @ 740, 440 BUTTON L("BienesVolver") SIZE 70, 28 ON CLICK {|| oDlg:Close()}
-   ACTIVATE DIALOG oDlg CENTER
+   @ nX+30, nY+nH-55 BUTTON L("BienesNuevo") SIZE 70, 28 OF oParent ON CLICK {|| BienNuevo(db, @aData, oBrw)}
+   @ nX+110, nY+nH-55 BUTTON L("BienesEditar") SIZE 70, 28 OF oParent ON CLICK {|| BienEditar(db, @aData, oBrw, oBrw:nCurrent)}
+   @ nX+190, nY+nH-55 BUTTON L("CommonEliminar") SIZE 70, 28 OF oParent ON CLICK {|| BienEliminar(db, @aData, oBrw)}
+   @ nX+270, nY+nH-55 BUTTON "PDF" SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfBienes(db, aData)}
 RETURN NIL
 
 STATIC FUNCTION BienNuevo(db, aData, oBrw)

@@ -1,22 +1,19 @@
 #include "hwgui.ch"
 
-FUNCTION CategoriasGastoView(db)
-   LOCAL oDlg, oBrw, aData
+FUNCTION CategoriasGastoView(db, oParent, nX, nY, nW, nH)
+   LOCAL oBrw, aData
    aData := ObtenerCategoriasGasto(db)
-   INIT DIALOG oDlg TITLE "Categorías de gasto" AT 0,0 SIZE 650, 500 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
-   @ 20, 20 BROWSE oBrw ARRAY SIZE 480, 400 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
+   @ nX+20, nY+20 BROWSE oBrw ARRAY SIZE nW-40, nH-90 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL OF oParent
    oBrw:aArray := aData
    oBrw:AddColumn(HColumn():New(L("CategoriasNombre"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 28, 0))
    oBrw:AddColumn(HColumn():New(L("CategoriasDeducibleIrpf"), {|v,o| (v), o:aArray[o:nCurrent, 3]}, "C", 16, 0, .F., DT_RIGHT))
    oBrw:AddColumn(HColumn():New(L("CategoriasIvaDeducible"), {|v,o| (v), Iif(o:aArray[o:nCurrent, 4], L("CommonSi"), L("CommonNo"))}, "C", 12, 0, .F., DT_CENTER))
    oBrw:AddColumn(HColumn():New("Orden", {|v,o| (v), o:aArray[o:nCurrent, 5]}, "N", 6, 0, .F., DT_RIGHT))
    oBrw:AddColumn(HColumn():New(L("CommonActivo"), {|v,o| (v), Iif(o:aArray[o:nCurrent, 6], L("CommonSi"), L("CommonNo"))}, "C", 8, 0, .F., DT_CENTER))
-   @ 30, 440 BUTTON L("CategoriasNuevo") SIZE 70, 28 ON CLICK {|| CatNuevo(db, @aData, oBrw)}
-   @ 110, 440 BUTTON L("CategoriasEditar") SIZE 70, 28 ON CLICK {|| CatEditar(db, @aData, oBrw, oBrw:nCurrent)}
-   @ 190, 440 BUTTON L("CategoriasEliminar") SIZE 70, 28 ON CLICK {|| CatEliminar(db, @aData, oBrw)}
-   @ 270, 440 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfCategorias(db, aData)}
-   @ 520, 440 BUTTON L("CategoriasVolver") SIZE 70, 28 ON CLICK {|| oDlg:Close()}
-   ACTIVATE DIALOG oDlg CENTER
+   @ nX+30, nY+nH-55 BUTTON L("CategoriasNuevo") SIZE 70, 28 OF oParent ON CLICK {|| CatNuevo(db, @aData, oBrw)}
+   @ nX+110, nY+nH-55 BUTTON L("CategoriasEditar") SIZE 70, 28 OF oParent ON CLICK {|| CatEditar(db, @aData, oBrw, oBrw:nCurrent)}
+   @ nX+190, nY+nH-55 BUTTON L("CategoriasEliminar") SIZE 70, 28 OF oParent ON CLICK {|| CatEliminar(db, @aData, oBrw)}
+   @ nX+270, nY+nH-55 BUTTON "PDF" SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfCategorias(db, aData)}
 RETURN NIL
 
 STATIC FUNCTION CatNuevo(db, aData, oBrw)

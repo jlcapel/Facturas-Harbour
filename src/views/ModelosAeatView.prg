@@ -2,43 +2,37 @@ REQUEST HB_RUN
 
 #include "hwgui.ch"
 
-FUNCTION ModelosAeatView(db)
-   LOCAL oDlg, nModelo := 1, cSum := ""
+FUNCTION ModelosAeatView(db, oParent, nX, nY, nW, nH)
+   LOCAL nModelo := 1, cSum := ""
    LOCAL nAnio := Year(Date()), aAnios := {}, nI
    LOCAL nAnioIdx := 1, nTrim := 1
-   LOCAL oCbAnio, oCbTrim, oTexto
+   LOCAL oCbAnio, oCbTrim
 
    FOR nI := nAnio - 5 TO nAnio
       AAdd(aAnios, nI)
    NEXT
    nAnioIdx := Len(aAnios)
 
-   INIT DIALOG oDlg TITLE L("ModelosAeatTitle") AT 0,0 SIZE 700, 500 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
+   @ nX+20, nY+20 SAY "Modelos AEAT - Seleccione modelo:" SIZE 300, 22 OF oParent
 
-   @ 20, 20 SAY "Modelos AEAT - Seleccione modelo:" SIZE 300, 22
+   @ nX+20, nY+50 BUTTON L("Modelo303Title") SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 1}
+   @ nX+250, nY+50 BUTTON "Modelo 390 - IVA Resumen Anual" SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 2}
+   @ nX+20, nY+85 BUTTON "Modelo 130 - IRPF Estimación Directa" SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 3}
+   @ nX+250, nY+85 BUTTON "Modelo 347 - Operaciones Terceros" SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 4}
+   @ nX+20, nY+120 BUTTON "Modelo 111 - IRPF Retenciones" SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 5}
+   @ nX+250, nY+120 BUTTON "Modelo 115 - IRPF Alquiler" SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 6}
+   @ nX+20, nY+155 BUTTON L("Modelo349Title") SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 7}
 
-   @ 20, 50 BUTTON L("Modelo303Title") SIZE 220, 28 ON CLICK {|| nModelo := 1}
-   @ 250, 50 BUTTON "Modelo 390 - IVA Resumen Anual" SIZE 220, 28 ON CLICK {|| nModelo := 2}
-   @ 20, 85 BUTTON "Modelo 130 - IRPF Estimación Directa" SIZE 220, 28 ON CLICK {|| nModelo := 3}
-   @ 250, 85 BUTTON "Modelo 347 - Operaciones Terceros" SIZE 220, 28 ON CLICK {|| nModelo := 4}
-   @ 20, 120 BUTTON "Modelo 111 - IRPF Retenciones" SIZE 220, 28 ON CLICK {|| nModelo := 5}
-   @ 250, 120 BUTTON "Modelo 115 - IRPF Alquiler" SIZE 220, 28 ON CLICK {|| nModelo := 6}
-   @ 20, 155 BUTTON L("Modelo349Title") SIZE 220, 28 ON CLICK {|| nModelo := 7}
+   @ nX+20, nY+200 SAY L("M111Ejercicio") SIZE 80, 22 OF oParent
+   @ nX+100, nY+197 GET COMBOBOX oCbAnio VAR nAnioIdx ITEMS aAnios SIZE 100, 200 OF oParent
 
-   @ 20, 200 SAY L("M111Ejercicio") SIZE 80, 22
-   @ 100, 197 GET COMBOBOX oCbAnio VAR nAnioIdx ITEMS aAnios SIZE 100, 200
+   @ nX+220, nY+200 SAY L("M111Trimestre") SIZE 80, 22 OF oParent
+   @ nX+300, nY+197 GET COMBOBOX oCbTrim VAR nTrim ITEMS {1, 2, 3, 4} SIZE 80, 200 OF oParent
 
-   @ 220, 200 SAY L("M111Trimestre") SIZE 80, 22
-   @ 300, 197 GET COMBOBOX oCbTrim VAR nTrim ITEMS {1, 2, 3, 4} SIZE 80, 200
-
-   @ 20, 240 BUTTON L("CommonGenerar") SIZE 100, 30 ON CLICK {|| ;
+   @ nX+20, nY+240 BUTTON L("CommonGenerar") SIZE 100, 30 OF oParent ON CLICK {|| ;
       GenerarModeloAeat(db, nModelo, aAnios[nAnioIdx], nTrim) }
 
-   @ 140, 240 BUTTON "Abrir Carpeta" SIZE 100, 30 ON CLICK {|| AbrirCarpetaModelo(nModelo) }
-
-   @ 600, 440 BUTTON L("ModelosAeatVolver") SIZE 70, 28 ON CLICK {|| oDlg:Close()}
-
-   ACTIVATE DIALOG oDlg CENTER
+   @ nX+140, nY+240 BUTTON "Abrir Carpeta" SIZE 100, 30 OF oParent ON CLICK {|| AbrirCarpetaModelo(nModelo) }
 RETURN NIL
 
 STATIC FUNCTION GenerarModeloAeat(db, nModelo, nAnio, nTrim)

@@ -1,13 +1,8 @@
-/*
- * Facturas-Harbour — App de facturación VERI*FACTU (España)
- * Copyright (c) 2025-2026 José L. Capel — jlcapel@hotmail.com
- * Licensed under GPLv3. Commercial license available.
- */
-
 #include "hwgui.ch"
 #include "hbsqlit3.ch"
 
 STATIC s_Db
+STATIC s_oViewChild := NIL
 
 PROCEDURE Main()
    LOCAL oDlg, cLang, oTitleFnt
@@ -30,38 +25,38 @@ PROCEDURE Main()
    INIT DIALOG oDlg ;
       TITLE "Facturas-Harbour" ;
       AT 0, 0 ;
-      SIZE 860, 540 ;
+      SIZE 860, 580 ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    MENU OF oDlg
       MENU TITLE L("MenuMaestros")
-         MENUITEM L("MenuPaises") ACTION {|| PaisesView(s_Db)}
-         MENUITEM L("MenuTiposIva") ACTION {|| TiposIvaView(s_Db)}
-         MENUITEM L("MenuTiposIdent") ACTION {|| TiposIdentificacionView(s_Db)}
+         MENUITEM L("MenuPaises") ACTION {|| AbrirVista("Paises", oDlg)}
+         MENUITEM L("MenuTiposIva") ACTION {|| AbrirVista("TiposIva", oDlg)}
+         MENUITEM L("MenuTiposIdent") ACTION {|| AbrirVista("TiposIdent", oDlg)}
          SEPARATOR
-         MENUITEM L("MenuClientes") ACTION {|| ClientesView(s_Db)}
-         MENUITEM L("MenuArticulos") ACTION {|| ArticulosView(s_Db)}
+         MENUITEM L("MenuClientes") ACTION {|| AbrirVista("Clientes", oDlg)}
+         MENUITEM L("MenuArticulos") ACTION {|| AbrirVista("Articulos", oDlg)}
          SEPARATOR
-         MENUITEM L("MenuProveedores") ACTION {|| ProveedoresView(s_Db)}
-         MENUITEM L("MenuCategoriasGasto") ACTION {|| CategoriasGastoView(s_Db)}
-         MENUITEM L("MenuBienesInversion") ACTION {|| BienesInversionView(s_Db)}
+         MENUITEM L("MenuProveedores") ACTION {|| AbrirVista("Proveedores", oDlg)}
+         MENUITEM L("MenuCategoriasGasto") ACTION {|| AbrirVista("CategoriasGasto", oDlg)}
+         MENUITEM L("MenuBienesInversion") ACTION {|| AbrirVista("BienesInversion", oDlg)}
       ENDMENU
       MENU TITLE L("MenuEmpresa")
-         MENUITEM L("MenuConfiguracion") ACTION {|| EmpresaView(s_Db)}
+         MENUITEM L("MenuConfiguracion") ACTION {|| AbrirVista("Empresa", oDlg)}
       ENDMENU
       MENU TITLE L("MenuFacturas")
-         MENUITEM L("MenuListado") ACTION {|| FacturasView(s_Db)}
+         MENUITEM L("MenuListado") ACTION {|| AbrirVista("Facturas", oDlg)}
       ENDMENU
       MENU TITLE L("MenuGastos")
-         MENUITEM L("MenuListado") ACTION {|| GastosView(s_Db)}
+         MENUITEM L("MenuListado") ACTION {|| AbrirVista("Gastos", oDlg)}
       ENDMENU
       MENU TITLE L("MenuValidacion")
-         MENUITEM L("MenuNifAeat") ACTION {|| ValidacionView(s_Db)}
+         MENUITEM L("MenuNifAeat") ACTION {|| AbrirVista("ValidacionNif", oDlg)}
          SEPARATOR
-         MENUITEM L("MenuVatVies") ACTION {|| ViesView(s_Db)}
+         MENUITEM L("MenuVatVies") ACTION {|| AbrirVista("Vies", oDlg)}
       ENDMENU
       MENU TITLE "AEAT"
-         MENUITEM L("MenuModelosAeat") ACTION {|| ModelosAeatView(s_Db)}
+         MENUITEM L("MenuModelosAeat") ACTION {|| AbrirVista("ModelosAeat", oDlg)}
       ENDMENU
       MENU TITLE L("MenuExportar")
          MENUITEM L("MenuRegistrosXml") ACTION {|| ExportarRegAeat()}
@@ -71,13 +66,6 @@ PROCEDURE Main()
       ENDMENU
    ENDMENU
 
-   // Bienvenida
-   @ 90, 30 SAY "Facturas - VERI*FACTU" SIZE 500, 28 ;
-      COLOR hwg_ColorRGB2N(30, 64, 114) FONT oTitleFnt
-
-   @ 130, 32 SAY "Seleccione una opción en el menú superior" SIZE 400, 18 ;
-      COLOR hwg_ColorRGB2N(100, 116, 139)
-
    ADD STATUS TO oDlg PARTS 400, 200
 
    ACTIVATE DIALOG oDlg CENTER
@@ -85,38 +73,56 @@ PROCEDURE Main()
    s_Db := NIL
 RETURN
 
-STATIC FUNCTION MaestrosView()
-   LOCAL oDlg
-   INIT DIALOG oDlg TITLE "Maestros" AT 0, 0 SIZE 260, 160 ;
-      STYLE WS_DLGFRAME + DS_CENTER
-   @ 15, 15 BUTTON "Países"                SIZE 230, 28 ;
-      ON CLICK {|| PaisesView(s_Db), oDlg:Close()}
-   @ 48, 15 BUTTON "Tipos IVA"             SIZE 230, 28 ;
-      ON CLICK {|| TiposIvaView(s_Db), oDlg:Close()}
-   @ 81, 15 BUTTON "Tipos Identificación"  SIZE 230, 28 ;
-      ON CLICK {|| TiposIdentificacionView(s_Db), oDlg:Close()}
-   @ 120, 95 BUTTON "Cancelar" SIZE 80, 26 ;
-      ON CLICK {|| oDlg:Close()}
-   ACTIVATE DIALOG oDlg
+STATIC FUNCTION AbrirVista(cVista, oParent)
+   LOCAL nX := 10, nY := 5, nW := 640, nH := 510
+
+   IF cVista == "Empresa"
+      CerrarVista()
+      EmpresaView(s_Db)
+      RETURN NIL
+   ENDIF
+
+   CerrarVista()
+
+   INIT DIALOG s_oViewChild AT nX, nY SIZE nW, nH STYLE WS_POPUP + WS_BORDER
+
+   DO CASE
+   CASE cVista == "Paises"
+      PaisesView(s_Db, s_oViewChild, 0, 0, nW, nH)
+   CASE cVista == "Clientes"
+      ClientesView(s_Db, s_oViewChild, 0, 0, nW, nH)
+   CASE cVista == "Facturas"
+      FacturasView(s_Db, s_oViewChild, 0, 0, nW, nH)
+   CASE cVista == "TiposIva"
+      TiposIvaView(s_Db, s_oViewChild, 0, 0, nW, nH)
+   CASE cVista == "TiposIdent"
+      TiposIdentificacionView(s_Db, s_oViewChild, 0, 0, nW, nH)
+   CASE cVista == "Articulos"
+      ArticulosView(s_Db, s_oViewChild, 0, 0, nW, nH)
+   CASE cVista == "Proveedores"
+      ProveedoresView(s_Db, s_oViewChild, 0, 0, nW, nH)
+   CASE cVista == "CategoriasGasto"
+      CategoriasGastoView(s_Db, s_oViewChild, 0, 0, nW, nH)
+   CASE cVista == "BienesInversion"
+      BienesInversionView(s_Db, s_oViewChild, 0, 0, nW, nH)
+   CASE cVista == "Gastos"
+      GastosView(s_Db, s_oViewChild, 0, 0, nW, nH)
+   CASE cVista == "ValidacionNif"
+      ValidacionView(s_Db, s_oViewChild, 0, 0, nW, nH)
+   CASE cVista == "Vies"
+      ViesView(s_Db, s_oViewChild, 0, 0, nW, nH)
+   CASE cVista == "ModelosAeat"
+      ModelosAeatView(s_Db, s_oViewChild, 0, 0, nW, nH)
+   ENDCASE
+
+   ACTIVATE DIALOG s_oViewChild NOMODAL
 RETURN NIL
 
-STATIC FUNCTION MenuExportar()
-   LOCAL oDlg
-   INIT DIALOG oDlg TITLE "Exportación" AT 0, 0 SIZE 260, 170 ;
-      STYLE WS_DLGFRAME + DS_CENTER
-   @ 15, 15 BUTTON "Registros AEAT (XML)" SIZE 230, 28 ;
-      ON CLICK {|| ExportarRegAeat(), oDlg:Close()}
-   @ 48, 15 BUTTON "Eventos (XML)"        SIZE 230, 28 ;
-      ON CLICK {|| ExportarEventosXml(), oDlg:Close()}
-   @ 81, 15 BUTTON "Gastos (CSV)"         SIZE 230, 28 ;
-      ON CLICK {|| ExportarGastosCsv(), oDlg:Close()}
-   @ 128, 100 BUTTON "Cancelar" SIZE 80, 26 ;
-      ON CLICK {|| oDlg:Close()}
-   ACTIVATE DIALOG oDlg
-RETURN NIL
-
-FUNCTION ObtenerTextoInfo()
-   RETURN "BD: " + ObtenerDbPath()
+STATIC FUNCTION CerrarVista()
+   IF s_oViewChild != NIL
+      s_oViewChild:Close()
+      s_oViewChild := NIL
+   ENDIF
 RETURN NIL
 
 STATIC FUNCTION ExportarRegAeat()

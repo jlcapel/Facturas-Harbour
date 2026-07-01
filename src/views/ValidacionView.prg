@@ -1,25 +1,18 @@
 #include "hwgui.ch"
 
-FUNCTION ValidacionView(db)
-   LOCAL oDlg
+FUNCTION ValidacionView(db, oParent, nX, nY, nW, nH)
    LOCAL cNif := Space(15), cNombre := Space(50), aResult
 
-   INIT DIALOG oDlg TITLE "Validación NIF (AEAT VNifV2)" AT 0,0 SIZE 500, 200 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
+   @ nX+20, nY+20 SAY "NIF a consultar:" SIZE 120, 22 OF oParent
+   @ nX+150, nY+18 GET cNif SIZE 150, 26 OF oParent
 
-   @ 20, 20 SAY "NIF a consultar:" SIZE 120, 22
-   @ 150, 18 GET cNif SIZE 150, 26
+   @ nX+20, nY+55 SAY "Nombre (opcional):" SIZE 120, 22 OF oParent
+   @ nX+150, nY+53 GET cNombre SIZE 250, 26 OF oParent
 
-   @ 20, 55 SAY "Nombre (opcional):" SIZE 120, 22
-   @ 150, 53 GET cNombre SIZE 250, 26
-
-   @ 150, 120 BUTTON "Consultar" SIZE 90, 28 ON CLICK {;
+   @ nX+150, nY+120 BUTTON "Consultar" SIZE 90, 28 OF oParent ON CLICK {;
       aResult := ComprobarNif(db, AllTrim(cNif), AllTrim(cNombre)), ;
       Iif(aResult[1], ;
          hwg_MsgInfo("VÁLIDO: " + aResult[2], "Resultado AEAT"), ;
          hwg_MsgInfo("ERROR: " + aResult[4], "Resultado AEAT")) ;
    }
-
-   @ 280, 120 BUTTON L("CommonCerrar") SIZE 90, 28 ON CLICK {|| oDlg:Close()}
-
-   ACTIVATE DIALOG oDlg CENTER
 RETURN NIL

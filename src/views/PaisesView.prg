@@ -1,18 +1,11 @@
 #include "hwgui.ch"
 
-FUNCTION PaisesView(db)
-   LOCAL oDlg, oBrw, aData
-   LOCAL lSalir := .F.
+FUNCTION PaisesView(db, oParent, nX, nY, nW, nH)
+   LOCAL oBrw, aData
 
    aData := ObtenerPaises(db)
 
-   INIT DIALOG oDlg ;
-      TITLE L("PaisesTitle") ;
-      AT 0, 0 ;
-      SIZE 650, 450 ;
-      STYLE WS_POPUP + WS_CAPTION + WS_SYSMENU + WS_SIZEBOX + DS_CENTER
-
-   @ 20, 20 BROWSE oBrw ARRAY SIZE 450, 350 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
+   @ nX+20, nY+20 BROWSE oBrw ARRAY SIZE nW-40, nH-90 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL OF oParent
 
    oBrw:aArray := aData
    oBrw:AddColumn(HColumn():New(L("PaisesCodigo"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 8, 0, .F., DT_CENTER))
@@ -20,13 +13,10 @@ FUNCTION PaisesView(db)
    oBrw:AddColumn(HColumn():New(L("PaisesNacionalidad"), {|v,o| (v), o:aArray[o:nCurrent, 4]}, "C", 20, 0))
    oBrw:AddColumn(HColumn():New(L("PaisesUe"), {|v,o| (v), iif(o:aArray[o:nCurrent, 5], L("CommonSi"), L("CommonNo"))}, "C", 6, 0, .F., DT_CENTER))
 
-   @ 30, 400 BUTTON L("PaisesNuevo") SIZE 70, 28 ON CLICK {|| PaisNuevo(db, @aData, oBrw)}
-   @ 110, 400 BUTTON L("PaisesEditar") SIZE 70, 28 ON CLICK {|| PaisEditar(db, @aData, oBrw, oBrw:nCurrent)}
-   @ 190, 400 BUTTON L("PaisesEliminar") SIZE 70, 28 ON CLICK {|| PaisEliminar(db, @aData, oBrw)}
-   @ 270, 400 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfPaises(db, aData)}
-   @ 520, 400 BUTTON L("PaisesVolver") SIZE 70, 28 ON CLICK {|| oDlg:Close()}
-
-   ACTIVATE DIALOG oDlg CENTER
+   @ nX+30, nY+nH-55 BUTTON L("PaisesNuevo") SIZE 70, 28 OF oParent ON CLICK {|| PaisNuevo(db, @aData, oBrw)}
+   @ nX+110, nY+nH-55 BUTTON L("PaisesEditar") SIZE 70, 28 OF oParent ON CLICK {|| PaisEditar(db, @aData, oBrw, oBrw:nCurrent)}
+   @ nX+190, nY+nH-55 BUTTON L("PaisesEliminar") SIZE 70, 28 OF oParent ON CLICK {|| PaisEliminar(db, @aData, oBrw)}
+   @ nX+270, nY+nH-55 BUTTON "PDF" SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfPaises(db, aData)}
 RETURN NIL
 
 STATIC FUNCTION PaisNuevo(db, aData, oBrw)

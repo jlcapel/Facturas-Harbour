@@ -1,22 +1,19 @@
 #include "hwgui.ch"
 
-FUNCTION ProveedoresView(db)
-   LOCAL oDlg, oBrw, aData
+FUNCTION ProveedoresView(db, oParent, nX, nY, nW, nH)
+   LOCAL oBrw, aData
    aData := ObtenerProveedores(db)
-   INIT DIALOG oDlg TITLE L("ProveedoresTitle") AT 0,0 SIZE 800, 500 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
-   @ 20, 20 BROWSE oBrw ARRAY SIZE 600, 400 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
+   @ nX+20, nY+20 BROWSE oBrw ARRAY SIZE nW-40, nH-90 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL OF oParent
    oBrw:aArray := aData
    oBrw:AddColumn(HColumn():New(L("ProveedoresNombre"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 25, 0))
    oBrw:AddColumn(HColumn():New(L("ProveedoresNif"), {|v,o| (v), o:aArray[o:nCurrent, 3]}, "C", 14, 0))
    oBrw:AddColumn(HColumn():New(L("ProveedoresPoblacion"), {|v,o| (v), o:aArray[o:nCurrent, 5]}, "C", 15, 0))
    oBrw:AddColumn(HColumn():New(L("ProveedoresTelefono"), {|v,o| (v), o:aArray[o:nCurrent, 7]}, "C", 14, 0))
    oBrw:AddColumn(HColumn():New(L("CommonActivo"), {|v,o| (v), Iif(o:aArray[o:nCurrent, 10], L("CommonSi"), L("CommonNo"))}, "C", 8, 0, .F., DT_CENTER))
-   @ 30, 440 BUTTON L("ProveedoresNuevo") SIZE 70, 28 ON CLICK {|| ProvNuevo(db, @aData, oBrw)}
-   @ 110, 440 BUTTON L("ProveedoresEditar") SIZE 70, 28 ON CLICK {|| ProvEditar(db, @aData, oBrw, oBrw:nCurrent)}
-   @ 190, 440 BUTTON L("ProveedoresEliminar") SIZE 70, 28 ON CLICK {|| ProvEliminar(db, @aData, oBrw)}
-   @ 270, 440 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfProveedores(db, aData)}
-   @ 650, 440 BUTTON L("ProveedoresVolver") SIZE 70, 28 ON CLICK {|| oDlg:Close()}
-   ACTIVATE DIALOG oDlg CENTER
+   @ nX+30, nY+nH-55 BUTTON L("ProveedoresNuevo") SIZE 70, 28 OF oParent ON CLICK {|| ProvNuevo(db, @aData, oBrw)}
+   @ nX+110, nY+nH-55 BUTTON L("ProveedoresEditar") SIZE 70, 28 OF oParent ON CLICK {|| ProvEditar(db, @aData, oBrw, oBrw:nCurrent)}
+   @ nX+190, nY+nH-55 BUTTON L("ProveedoresEliminar") SIZE 70, 28 OF oParent ON CLICK {|| ProvEliminar(db, @aData, oBrw)}
+   @ nX+270, nY+nH-55 BUTTON "PDF" SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfProveedores(db, aData)}
 RETURN NIL
 
 STATIC FUNCTION ProvNuevo(db, aData, oBrw)

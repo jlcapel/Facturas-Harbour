@@ -1,17 +1,11 @@
 #include "hwgui.ch"
 
-FUNCTION ArticulosView(db)
-   LOCAL oDlg, oBrw, aData
+FUNCTION ArticulosView(db, oParent, nX, nY, nW, nH)
+   LOCAL oBrw, aData
 
    aData := ObtenerArticulos(db)
 
-   INIT DIALOG oDlg ;
-      TITLE L("ArticulosTitle") ;
-      AT 0, 0 ;
-      SIZE 750, 500 ;
-      STYLE WS_POPUP + WS_CAPTION + WS_SYSMENU + WS_SIZEBOX + DS_CENTER
-
-   @ 20, 20 BROWSE oBrw ARRAY SIZE 550, 400 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
+   @ nX+20, nY+20 BROWSE oBrw ARRAY SIZE nW-40, nH-90 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL OF oParent
 
    oBrw:aArray := aData
    oBrw:AddColumn(HColumn():New(L("ArticulosCodigo"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 12, 0))
@@ -20,13 +14,10 @@ FUNCTION ArticulosView(db)
    oBrw:AddColumn(HColumn():New(L("ArticulosUd"), {|v,o| (v), o:aArray[o:nCurrent, 5]}, "C", 8, 0, .F., DT_CENTER))
    oBrw:AddColumn(HColumn():New(L("CommonActivo"), {|v,o| (v), iif(o:aArray[o:nCurrent, 6], L("CommonSi"), L("CommonNo"))}, "C", 8, 0, .F., DT_CENTER))
 
-   @ 30, 440 BUTTON L("ArticulosNuevo") SIZE 70, 28 ON CLICK {|| ArticuloNuevo(db, @aData, oBrw)}
-   @ 110, 440 BUTTON L("ArticulosEditar") SIZE 70, 28 ON CLICK {|| ArticuloEditar(db, @aData, oBrw, oBrw:nCurrent)}
-   @ 190, 440 BUTTON L("ArticulosEliminar") SIZE 70, 28 ON CLICK {|| ArticuloEliminar(db, @aData, oBrw)}
-   @ 270, 440 BUTTON "PDF" SIZE 50, 28 ON CLICK {|| ExportPdfArticulos(db, aData)}
-   @ 600, 440 BUTTON L("ArticulosVolver") SIZE 70, 28 ON CLICK {|| oDlg:Close()}
-
-   ACTIVATE DIALOG oDlg CENTER
+   @ nX+30, nY+nH-55 BUTTON L("ArticulosNuevo") SIZE 70, 28 OF oParent ON CLICK {|| ArticuloNuevo(db, @aData, oBrw)}
+   @ nX+110, nY+nH-55 BUTTON L("ArticulosEditar") SIZE 70, 28 OF oParent ON CLICK {|| ArticuloEditar(db, @aData, oBrw, oBrw:nCurrent)}
+   @ nX+190, nY+nH-55 BUTTON L("ArticulosEliminar") SIZE 70, 28 OF oParent ON CLICK {|| ArticuloEliminar(db, @aData, oBrw)}
+   @ nX+270, nY+nH-55 BUTTON "PDF" SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfArticulos(db, aData)}
 RETURN NIL
 
 STATIC FUNCTION ArticuloNuevo(db, aData, oBrw)

@@ -1,29 +1,22 @@
 #include "hwgui.ch"
 
-FUNCTION ViesView(db)
-   LOCAL oDlg
+FUNCTION ViesView(db, oParent, nX, nY, nW, nH)
    LOCAL cCodPais := "ES", cVat := Space(15), aResult
    LOCAL aPaisesUE := ObtenerPaisesUE(db)
    LOCAL nPaisSel := 1
 
-   INIT DIALOG oDlg TITLE "Validación VAT (VIES)" AT 0,0 SIZE 500, 200 STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
+   @ nX+20, nY+20 SAY L("ClientesPais") SIZE 80, 22 OF oParent
+   @ nX+110, nY+18 GET COMBOBOX nPaisSel ITEMS ListaPaisUENombres(aPaisesUE) SIZE 150, 200 OF oParent
 
-   @ 20, 20 SAY L("ClientesPais") SIZE 80, 22
-   @ 110, 18 GET COMBOBOX nPaisSel ITEMS ListaPaisUENombres(aPaisesUE) SIZE 150, 200
+   @ nX+20, nY+55 SAY "Nº VAT:" SIZE 80, 22 OF oParent
+   @ nX+110, nY+53 GET cVat SIZE 150, 26 OF oParent
 
-   @ 20, 55 SAY "Nº VAT:" SIZE 80, 22
-   @ 110, 53 GET cVat SIZE 150, 26
-
-   @ 150, 120 BUTTON "Consultar" SIZE 90, 28 ON CLICK {;
+   @ nX+150, nY+120 BUTTON "Consultar" SIZE 90, 28 OF oParent ON CLICK {;
       aResult := ComprobarVat(aPaisesUE[nPaisSel][2], AllTrim(cVat)), ;
       Iif(aResult[1], ;
          hwg_MsgInfo("VÁLIDO" + Iif(!Empty(aResult[3]), hb_eol() + "Nombre: " + aResult[3], "") + Iif(!Empty(aResult[4]), hb_eol() + "Dirección: " + aResult[4], ""), "Resultado VIES"), ;
          hwg_MsgInfo("NO VÁLIDO" + Iif(!Empty(aResult[5]), hb_eol() + aResult[5], ""), "Resultado VIES")) ;
    }
-
-   @ 280, 120 BUTTON L("CommonCerrar") SIZE 90, 28 ON CLICK {|| oDlg:Close()}
-
-   ACTIVATE DIALOG oDlg CENTER
 RETURN NIL
 
 STATIC FUNCTION ListaPaisUENombres(aPaises)
