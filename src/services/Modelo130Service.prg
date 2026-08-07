@@ -15,7 +15,7 @@ FUNCTION GenerarModelo130(db, nEjercicio, nTrimestre)
    sqlite3_bind_text(stmt, 1, cFechaIni)
    sqlite3_bind_text(stmt, 2, cFechaFin)
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
-      nIngresos := nIngresos + Val(sqlite3_column_text(stmt, 0))
+      nIngresos := nIngresos + Val(sqlite3_column_text(stmt, 1))
    ENDDO
    sqlite3_finalize(stmt)
    nIngresos := RoundFiscal(nIngresos)
@@ -27,7 +27,7 @@ FUNCTION GenerarModelo130(db, nEjercicio, nTrimestre)
    sqlite3_bind_text(stmt, 1, cFechaIni)
    sqlite3_bind_text(stmt, 2, cFechaFin)
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
-      nGastos := nGastos + Val(sqlite3_column_text(stmt, 0)) * Val(sqlite3_column_text(stmt, 1)) / 100
+      nGastos := nGastos + Val(sqlite3_column_text(stmt, 1)) * Val(sqlite3_column_text(stmt, 2)) / 100
    ENDDO
    sqlite3_finalize(stmt)
    nGastos := RoundFiscal(nGastos)

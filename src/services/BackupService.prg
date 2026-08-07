@@ -67,7 +67,7 @@ FUNCTION VerificarIntegridad()
    ENDIF
    stmt := sqlite3_prepare(db, "PRAGMA integrity_check")
    IF sqlite3_step(stmt) == SQLITE_ROW
-      cResult := sqlite3_column_text(stmt, 0)
+      cResult := sqlite3_column_text(stmt, 1)
    ENDIF
    sqlite3_finalize(stmt)
    IF cResult != "ok"
@@ -87,7 +87,7 @@ FUNCTION VerificarIntegridadRuta(cDbPath)
    ENDIF
    stmt := sqlite3_prepare(db, "PRAGMA integrity_check")
    IF sqlite3_step(stmt) == SQLITE_ROW
-      cResult := sqlite3_column_text(stmt, 0)
+      cResult := sqlite3_column_text(stmt, 1)
    ENDIF
    sqlite3_finalize(stmt)
    RETURN cResult == "ok"

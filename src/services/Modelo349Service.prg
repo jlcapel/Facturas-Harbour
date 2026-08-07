@@ -16,12 +16,12 @@ FUNCTION GenerarModelo349(db, nEjercicio)
       "AND f.Estado != 'Anulada' AND c.TipoCliente = 1")
    sqlite3_bind_int(stmt, 1, nEjercicio)
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
-      cNifOp := sqlite3_column_text(stmt, 0)
+      cNifOp := sqlite3_column_text(stmt, 1)
       IF Empty(cNifOp); cNifOp := "00000000Z"; ENDIF
-      nTotal := Val(sqlite3_column_text(stmt, 2))
+      nTotal := Val(sqlite3_column_text(stmt, 3))
       oOp := BuscarOp349(aEntregas, cNifOp)
       IF oOp == NIL
-         oOp := { cNifOp, sqlite3_column_text(stmt, 1), 0 }
+         oOp := { cNifOp, sqlite3_column_text(stmt, 2), 0 }
          AAdd(aEntregas, oOp)
       ENDIF
       oOp[3] := oOp[3] + nTotal
@@ -35,12 +35,12 @@ FUNCTION GenerarModelo349(db, nEjercicio)
       "WHERE CAST(SUBSTR(g.FechaEmision, 1, 4) AS INTEGER) = ? AND pa.EsUE = 1")
    sqlite3_bind_int(stmt, 1, nEjercicio)
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
-      cNifOp := sqlite3_column_text(stmt, 0)
+      cNifOp := sqlite3_column_text(stmt, 1)
       IF Empty(cNifOp); cNifOp := "00000000Z"; ENDIF
-      nTotal := Val(sqlite3_column_text(stmt, 2))
+      nTotal := Val(sqlite3_column_text(stmt, 3))
       oOp := BuscarOp349(aAdquis, cNifOp)
       IF oOp == NIL
-         oOp := { cNifOp, sqlite3_column_text(stmt, 1), 0 }
+         oOp := { cNifOp, sqlite3_column_text(stmt, 2), 0 }
          AAdd(aAdquis, oOp)
       ENDIF
       oOp[3] := oOp[3] + nTotal

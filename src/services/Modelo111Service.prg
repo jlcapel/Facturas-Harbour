@@ -17,15 +17,15 @@ FUNCTION GenerarModelo111(db, nEjercicio, nTrimestre)
    sqlite3_bind_text(stmt, 1, cFechaIni)
    sqlite3_bind_text(stmt, 2, cFechaFin)
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
-      cNifProv := sqlite3_column_text(stmt, 3)
+      cNifProv := sqlite3_column_text(stmt, 4)
       IF Empty(cNifProv); cNifProv := "00000000Z"; ENDIF
       oPer := BuscarPerceptor111(aPerceptores, cNifProv)
       IF oPer == NIL
-         oPer := { cNifProv, sqlite3_column_text(stmt, 4), 0, 0 }
+         oPer := { cNifProv, sqlite3_column_text(stmt, 5), 0, 0 }
          AAdd(aPerceptores, oPer)
       ENDIF
-      oPer[3] := oPer[3] + Val(sqlite3_column_text(stmt, 0))
-      oPer[4] := oPer[4] + Val(sqlite3_column_text(stmt, 1))
+      oPer[3] := oPer[3] + Val(sqlite3_column_text(stmt, 1))
+      oPer[4] := oPer[4] + Val(sqlite3_column_text(stmt, 2))
    ENDDO
    sqlite3_finalize(stmt)
 

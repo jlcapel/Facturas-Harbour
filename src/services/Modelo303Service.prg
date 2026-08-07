@@ -17,8 +17,8 @@ FUNCTION GenerarModelo303(db, nEjercicio, nTrimestre)
    sqlite3_bind_text(stmt, 1, cFechaIni)
    sqlite3_bind_text(stmt, 2, cFechaFin)
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
-      nImp := Val(sqlite3_column_text(stmt, 0))
-      nPct := Val(sqlite3_column_text(stmt, 1))
+      nImp := Val(sqlite3_column_text(stmt, 1))
+      nPct := Val(sqlite3_column_text(stmt, 2))
       IF Abs(nPct - 21) < 0.01
          nB21 := nB21 + nImp; nC21 := nC21 + nImp * nPct / 100
       ELSEIF Abs(nPct - 10) < 0.01
@@ -41,8 +41,8 @@ FUNCTION GenerarModelo303(db, nEjercicio, nTrimestre)
    sqlite3_bind_text(stmt, 1, cFechaIni)
    sqlite3_bind_text(stmt, 2, cFechaFin)
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
-      nBDed := nBDed + Val(sqlite3_column_text(stmt, 0))
-      nCDed := nCDed + Val(sqlite3_column_text(stmt, 1))
+      nBDed := nBDed + Val(sqlite3_column_text(stmt, 1))
+      nCDed := nCDed + Val(sqlite3_column_text(stmt, 2))
    ENDDO
    sqlite3_finalize(stmt)
    nBDed := RoundFiscal(nBDed); nCDed := RoundFiscal(nCDed)

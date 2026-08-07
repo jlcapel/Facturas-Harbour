@@ -11,17 +11,17 @@ FUNCTION ObtenerGastos(db)
    LOCAL aResult := {}
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
       AAdd(aResult, { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
-         SqlDateToDate(sqlite3_column_text(stmt, 2)), ;
-         sqlite3_column_int(stmt, 3), ;
-         sqlite3_column_text(stmt, 4), ;
-         Val(sqlite3_column_text(stmt, 5)), ;
+         sqlite3_column_int(stmt, 1), ;
+         sqlite3_column_text(stmt, 2), ;
+         SqlDateToDate(sqlite3_column_text(stmt, 3)), ;
+         sqlite3_column_int(stmt, 4), ;
+         sqlite3_column_text(stmt, 5), ;
          Val(sqlite3_column_text(stmt, 6)), ;
-         sqlite3_column_int(stmt, 7) != 0, ;
-         sqlite3_column_int(stmt, 8), ;
+         Val(sqlite3_column_text(stmt, 7)), ;
+         sqlite3_column_int(stmt, 8) != 0, ;
          sqlite3_column_int(stmt, 9), ;
-         sqlite3_column_int(stmt, 10) })
+         sqlite3_column_int(stmt, 10), ;
+         sqlite3_column_int(stmt, 11) })
    ENDDO
    sqlite3_finalize(stmt)
    RETURN aResult
@@ -45,32 +45,32 @@ FUNCTION ObtenerGastoPorId(db, nId)
    sqlite3_bind_int(stmt, 1, nId)
    IF sqlite3_step(stmt) == SQLITE_ROW
       aResult := { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
-         sqlite3_column_int(stmt, 2), ;
-         SqlDateToDate(sqlite3_column_text(stmt, 3)), ;
+         sqlite3_column_int(stmt, 1), ;
+         sqlite3_column_text(stmt, 2), ;
+         sqlite3_column_int(stmt, 3), ;
          SqlDateToDate(sqlite3_column_text(stmt, 4)), ;
          SqlDateToDate(sqlite3_column_text(stmt, 5)), ;
-         sqlite3_column_int(stmt, 6), ;
+         SqlDateToDate(sqlite3_column_text(stmt, 6)), ;
          sqlite3_column_int(stmt, 7), ;
          sqlite3_column_int(stmt, 8), ;
-         sqlite3_column_text(stmt, 9), ;
-         Val(sqlite3_column_text(stmt, 10)), ;
+         sqlite3_column_int(stmt, 9), ;
+         sqlite3_column_text(stmt, 10), ;
          Val(sqlite3_column_text(stmt, 11)), ;
          Val(sqlite3_column_text(stmt, 12)), ;
          Val(sqlite3_column_text(stmt, 13)), ;
          Val(sqlite3_column_text(stmt, 14)), ;
          Val(sqlite3_column_text(stmt, 15)), ;
-         sqlite3_column_text(stmt, 16), ;
-         sqlite3_column_int(stmt, 17), ;
-         sqlite3_column_int(stmt, 18) != 0, ;
-         sqlite3_column_text(stmt, 19), ;
+         Val(sqlite3_column_text(stmt, 16)), ;
+         sqlite3_column_text(stmt, 17), ;
+         sqlite3_column_int(stmt, 18), ;
+         sqlite3_column_int(stmt, 19) != 0, ;
          sqlite3_column_text(stmt, 20), ;
          sqlite3_column_text(stmt, 21), ;
-         sqlite3_column_int(stmt, 22) != 0, ;
-         sqlite3_column_int(stmt, 23), ;
-         sqlite3_column_text(stmt, 24), ;
-         sqlite3_column_text(stmt, 25) }
+         sqlite3_column_text(stmt, 22), ;
+         sqlite3_column_int(stmt, 23) != 0, ;
+         sqlite3_column_int(stmt, 24), ;
+         sqlite3_column_text(stmt, 25), ;
+         sqlite3_column_text(stmt, 26) }
    ENDIF
    sqlite3_finalize(stmt)
    RETURN aResult
@@ -181,8 +181,8 @@ FUNCTION MarcarGastoPagado(db, nId, lPagado)
 FUNCTION GenerarNumeroRecepcion(db)
    LOCAL stmt := sqlite3_prepare(db, "SELECT MAX(NumeroRecepcion) FROM Gastos")
    LOCAL nNum := 1
-   IF sqlite3_step(stmt) == SQLITE_ROW .AND. sqlite3_column_int(stmt, 0) > 0
-      nNum := sqlite3_column_int(stmt, 0) + 1
+   IF sqlite3_step(stmt) == SQLITE_ROW .AND. sqlite3_column_int(stmt, 1) > 0
+      nNum := sqlite3_column_int(stmt, 1) + 1
    ENDIF
    sqlite3_finalize(stmt)
    RETURN nNum

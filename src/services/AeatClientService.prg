@@ -8,7 +8,7 @@
 
 FUNCTION EnviarRegistroAlta(db, nRegistroId)
    LOCAL aReg, cEndpoint, cSoap, nResult, cResponse, cCsv, cError
-   LOCAL nFacturaId
+   LOCAL nFacturaId, cXmlPath
 
    aReg := ObtenerRegistroPorId(db, nRegistroId)
    IF aReg == NIL
@@ -17,6 +17,12 @@ FUNCTION EnviarRegistroAlta(db, nRegistroId)
 
    cEndpoint := ObtenerEndpoint(db)
    cSoap := ConstruirSoapAlta(aReg)
+
+   // Auto-export XML antes de envío
+   cXmlPath := ExportarRegistrosAEAT(db)
+   IF !Empty(cXmlPath)
+      LogInfo("XML de envío generado: " + cXmlPath)
+   ENDIF
 
    nResult := LlamarSoap(cEndpoint, cSoap, db, @cResponse)
    IF nResult != 0
@@ -27,14 +33,14 @@ FUNCTION EnviarRegistroAlta(db, nRegistroId)
    IF !Empty(cCsv)
       ActualizarRegistroEnviado(db, nRegistroId, cCsv, cResponse)
       nFacturaId := aReg[2]
-      RegistrarEvento(db, 1, "Factura enviada a AEAT. CSV: " + cCsv, NIL)
+      RegistrarEvento(db, "EnvioAEAT", "Factura enviada a AEAT. CSV: " + cCsv)
       RETURN { .T., cCsv, "Registro enviado correctamente" }
    ENDIF
 
    cError := ExtraerErroresXml(cResponse)
    IF !Empty(cError)
       GuardarRespuestaAEAT(db, nRegistroId, cResponse)
-      RegistrarEvento(db, 7, "Error envío AEAT: " + Left(cError, 200), NIL)
+      RegistrarEvento(db, "ErrorEnvioAEAT", "Error envío AEAT: " + Left(cError, 200))
       RETURN { .F., "", cError }
    ENDIF
 
@@ -42,7 +48,7 @@ FUNCTION EnviarRegistroAlta(db, nRegistroId)
    RETURN { .F., "", "Respuesta sin CSV ni errores reconocibles" }
 
 FUNCTION EnviarRegistroAnulacion(db, nRegistroId)
-   LOCAL aReg, cEndpoint, cSoap, nResult, cResponse, cCsv, cError
+   LOCAL aReg, cEndpoint, cSoap, nResult, cResponse, cCsv, cError, cXmlPath
 
    aReg := ObtenerRegistroPorId(db, nRegistroId)
    IF aReg == NIL
@@ -52,6 +58,12 @@ FUNCTION EnviarRegistroAnulacion(db, nRegistroId)
    cEndpoint := ObtenerEndpoint(db)
    cSoap := ConstruirSoapAnulacion(aReg)
 
+   // Auto-export XML antes de envío
+   cXmlPath := ExportarRegistrosAEAT(db)
+   IF !Empty(cXmlPath)
+      LogInfo("XML de envío generado: " + cXmlPath)
+   ENDIF
+
    nResult := LlamarSoap(cEndpoint, cSoap, db, @cResponse)
    IF nResult != 0
       RETURN { .F., "", "Error HTTP: " + hb_ntos(nResult) }
@@ -60,7 +72,7 @@ FUNCTION EnviarRegistroAnulacion(db, nRegistroId)
    cCsv := ExtraerValorXml(cResponse, "CSV")
    IF !Empty(cCsv)
       ActualizarRegistroEnviado(db, nRegistroId, cCsv, cResponse)
-      RegistrarEvento(db, 1, "Anulación enviada a AEAT. CSV: " + cCsv, NIL)
+      RegistrarEvento(db, "EnvioAEAT", "Anulación enviada a AEAT. CSV: " + cCsv)
       RETURN { .T., cCsv, "Anulación enviada correctamente" }
    ENDIF
 
@@ -264,46 +276,46 @@ STATIC FUNCTION ObtenerRegistroPorId(db, nId)
    sqlite3_bind_int(stmt, 1, nId)
    IF sqlite3_step(stmt) == SQLITE_ROW
       aResult := Array(40)
-      aResult[1]  := sqlite3_column_int(stmt, 0)
-      aResult[2]  := sqlite3_column_int(stmt, 1)
-      aResult[3]  := sqlite3_column_int(stmt, 2)
-      aResult[4]  := sqlite3_column_text(stmt, 3)
-      aResult[5]  := sqlite3_column_text(stmt, 4)
-      aResult[6]  := sqlite3_column_text(stmt, 5)
-      aResult[7]  := sqlite3_column_text(stmt, 6)
-      aResult[8]  := sqlite3_column_text(stmt, 7)
-      aResult[9]  := sqlite3_column_text(stmt, 8)
-      aResult[10] := sqlite3_column_text(stmt, 9)
-      aResult[11] := sqlite3_column_text(stmt, 10)
-      aResult[12] := sqlite3_column_text(stmt, 11)
-      aResult[13] := sqlite3_column_text(stmt, 12)
-      aResult[14] := sqlite3_column_text(stmt, 13)
-      aResult[15] := sqlite3_column_text(stmt, 14)
-      aResult[16] := sqlite3_column_text(stmt, 15)
-      aResult[17] := sqlite3_column_text(stmt, 16)
-      aResult[18] := sqlite3_column_text(stmt, 17)
-      aResult[19] := sqlite3_column_text(stmt, 18)
-      aResult[20] := sqlite3_column_text(stmt, 19)
-      aResult[21] := sqlite3_column_text(stmt, 20)
-      aResult[22] := sqlite3_column_text(stmt, 21)
-      aResult[23] := sqlite3_column_text(stmt, 22)
-      aResult[24] := sqlite3_column_text(stmt, 23)
-      aResult[25] := sqlite3_column_text(stmt, 24)
-      aResult[26] := sqlite3_column_text(stmt, 25)
-      aResult[27] := sqlite3_column_text(stmt, 26)
-      aResult[28] := sqlite3_column_text(stmt, 27)
-      aResult[29] := sqlite3_column_text(stmt, 28)
-      aResult[30] := sqlite3_column_text(stmt, 29)
-      aResult[31] := sqlite3_column_text(stmt, 30)
-      aResult[32] := sqlite3_column_text(stmt, 31)
-      aResult[33] := sqlite3_column_text(stmt, 32)
-      aResult[34] := sqlite3_column_text(stmt, 33)
-      aResult[35] := sqlite3_column_text(stmt, 34)
-      aResult[36] := sqlite3_column_text(stmt, 35)
-      aResult[37] := sqlite3_column_text(stmt, 36)
-      aResult[38] := sqlite3_column_text(stmt, 37)
-      aResult[39] := sqlite3_column_text(stmt, 38)
-      aResult[40] := sqlite3_column_text(stmt, 39)
+      aResult[1]  := sqlite3_column_int(stmt, 1)
+      aResult[2]  := sqlite3_column_int(stmt, 2)
+      aResult[3]  := sqlite3_column_int(stmt, 3)
+      aResult[4]  := sqlite3_column_text(stmt, 4)
+      aResult[5]  := sqlite3_column_text(stmt, 5)
+      aResult[6]  := sqlite3_column_text(stmt, 6)
+      aResult[7]  := sqlite3_column_text(stmt, 7)
+      aResult[8]  := sqlite3_column_text(stmt, 8)
+      aResult[9]  := sqlite3_column_text(stmt, 9)
+      aResult[10] := sqlite3_column_text(stmt, 10)
+      aResult[11] := sqlite3_column_text(stmt, 11)
+      aResult[12] := sqlite3_column_text(stmt, 12)
+      aResult[13] := sqlite3_column_text(stmt, 13)
+      aResult[14] := sqlite3_column_text(stmt, 14)
+      aResult[15] := sqlite3_column_text(stmt, 15)
+      aResult[16] := sqlite3_column_text(stmt, 16)
+      aResult[17] := sqlite3_column_text(stmt, 17)
+      aResult[18] := sqlite3_column_text(stmt, 18)
+      aResult[19] := sqlite3_column_text(stmt, 19)
+      aResult[20] := sqlite3_column_text(stmt, 20)
+      aResult[21] := sqlite3_column_text(stmt, 21)
+      aResult[22] := sqlite3_column_text(stmt, 22)
+      aResult[23] := sqlite3_column_text(stmt, 23)
+      aResult[24] := sqlite3_column_text(stmt, 24)
+      aResult[25] := sqlite3_column_text(stmt, 25)
+      aResult[26] := sqlite3_column_text(stmt, 26)
+      aResult[27] := sqlite3_column_text(stmt, 27)
+      aResult[28] := sqlite3_column_text(stmt, 28)
+      aResult[29] := sqlite3_column_text(stmt, 29)
+      aResult[30] := sqlite3_column_text(stmt, 30)
+      aResult[31] := sqlite3_column_text(stmt, 31)
+      aResult[32] := sqlite3_column_text(stmt, 32)
+      aResult[33] := sqlite3_column_text(stmt, 33)
+      aResult[34] := sqlite3_column_text(stmt, 34)
+      aResult[35] := sqlite3_column_text(stmt, 35)
+      aResult[36] := sqlite3_column_text(stmt, 36)
+      aResult[37] := sqlite3_column_text(stmt, 37)
+      aResult[38] := sqlite3_column_text(stmt, 38)
+      aResult[39] := sqlite3_column_text(stmt, 39)
+      aResult[40] := sqlite3_column_text(stmt, 40)
    ENDIF
    sqlite3_finalize(stmt)
    RETURN aResult

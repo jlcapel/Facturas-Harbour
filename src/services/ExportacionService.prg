@@ -9,8 +9,7 @@ FUNCTION ExportarRegistrosAEAT(db)
       "FROM RegistrosFacturacion r ORDER BY r.Id")
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
       AAdd(aRegistros, { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
+         sqlite3_column_int(stmt, 1), ;
          sqlite3_column_text(stmt, 2), ;
          sqlite3_column_text(stmt, 3), ;
          sqlite3_column_text(stmt, 4), ;
@@ -20,7 +19,8 @@ FUNCTION ExportarRegistrosAEAT(db)
          sqlite3_column_text(stmt, 8), ;
          sqlite3_column_text(stmt, 9), ;
          sqlite3_column_text(stmt, 10), ;
-         sqlite3_column_text(stmt, 11) })
+         sqlite3_column_text(stmt, 11), ;
+         sqlite3_column_text(stmt, 12) })
    ENDDO
    sqlite3_finalize(stmt)
 
@@ -47,11 +47,13 @@ FUNCTION ExportarRegistrosAEAT(db)
       cXml += '    <FechaRegistro>' + EscaparXml(aReg[12]) + '</FechaRegistro>' + hb_eol()
       cXml += '  </Registro>' + hb_eol()
    NEXT
-   cXml += '</RegistroFacturacion>' + hb_eol()
+cXml += '</RegistroFacturacion>' + hb_eol()
 
-   RegistrarEvento(db, 5, "Exportación registros AEAT (" + hb_ntos(Len(aRegistros)) + ")", NIL)
+    // --- Evento VERI*FACTU: Exportacion ---
+    RegistrarEvento(db, "Exportacion", "Exportación XML registros AEAT (" + hb_ntos(Len(aRegistros)) + " registros)")
+    // --- Fin Evento ---
 
-   RETURN cXml
+    RETURN cXml
 
 FUNCTION ExportarEventos(db)
    LOCAL stmt, aEventos := {}, cXml, nI, aEv
@@ -61,12 +63,12 @@ FUNCTION ExportarEventos(db)
       "FROM RegistrosEvento ORDER BY Id")
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
       AAdd(aEventos, { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
+         sqlite3_column_int(stmt, 1), ;
          sqlite3_column_text(stmt, 2), ;
          sqlite3_column_text(stmt, 3), ;
          sqlite3_column_text(stmt, 4), ;
-         sqlite3_column_text(stmt, 5) })
+         sqlite3_column_text(stmt, 5), ;
+         sqlite3_column_text(stmt, 6) })
    ENDDO
    sqlite3_finalize(stmt)
 

@@ -29,7 +29,7 @@ FUNCTION CrearRegistroAlta(db, nFacturaId, cNifEmisor, cNombreEmisor, cNumFactur
 
    LOCAL cHashAnterior, nIdRegistroAnterior, dNtpTime
    LOCAL cHash, cEncadenamiento, cDestinatarios, cDesglose, cSistemaInfo
-   LOCAL cFacturasRectificadas := NIL, stmt, nRes
+   LOCAL cFacturasRectificadas := NIL, stmt, nRes, nRegistroId
 
    dNtpTime := hb_DateTime()
 
@@ -105,18 +105,27 @@ FUNCTION CrearRegistroAlta(db, nFacturaId, cNifEmisor, cNombreEmisor, cNumFactur
    sqlite3_bind_text(stmt, 22, cDestinatarios)
    sqlite3_bind_text(stmt, 23, cDesglose)
    sqlite3_bind_text(stmt, 24, cSistemaInfo)
-   sqlite3_bind_text(stmt, 25, cEncadenamiento)
+sqlite3_bind_text(stmt, 25, cEncadenamiento)
 
-   nRes := sqlite3_step(stmt)
-   sqlite3_finalize(stmt)
-   RETURN nRes == SQLITE_DONE
+    nRes := sqlite3_step(stmt)
+    sqlite3_finalize(stmt)
+    IF nRes == SQLITE_DONE
+       nRegistroId := 0
+       stmt := sqlite3_prepare(db, "SELECT last_insert_rowid()")
+       IF sqlite3_step(stmt) == SQLITE_ROW
+          nRegistroId := sqlite3_column_int(stmt, 1)
+       ENDIF
+       sqlite3_finalize(stmt)
+       EnviarRegistroAlta(db, nRegistroId)
+    ENDIF
+    RETURN nRes == SQLITE_DONE
 
 FUNCTION CrearRegistroAnulacion(db, nFacturaId, nFacturaOriginalId, cNumFacturaAnulacion, ;
       dFechaAnulacion, cNifEmisor, nBaseAnulacion, nIvaAnulacion, ;
       cNumFacturaOriginal, dFechaOriginal)
 
    LOCAL cHashAnterior, nIdRegistroAnterior, dNtpTime, cHash
-   LOCAL cEncadenamiento, cSistemaInfo, stmt, nRes
+   LOCAL cEncadenamiento, cSistemaInfo, stmt, nRes, nRegistroId
 
    dNtpTime := hb_DateTime()
    cHashAnterior := ObtenerUltimoHashRegistro(db)
@@ -171,9 +180,17 @@ FUNCTION CrearRegistroAnulacion(db, nFacturaId, nFacturaOriginalId, cNumFacturaA
    sqlite3_bind_text(stmt, 22, cSistemaInfo)
    sqlite3_bind_text(stmt, 23, cEncadenamiento)
 
-   nRes := sqlite3_step(stmt)
-   sqlite3_finalize(stmt)
-   RETURN nRes == SQLITE_DONE
+nRes := sqlite3_step(stmt)
+    sqlite3_finalize(stmt)
+    IF nRes == SQLITE_DONE
+       stmt := sqlite3_prepare(db, "SELECT last_insert_rowid()")
+       IF sqlite3_step(stmt) == SQLITE_ROW
+          nRegistroId := sqlite3_column_int(stmt, 1)
+       ENDIF
+       sqlite3_finalize(stmt)
+       EnviarRegistroAnulacion(db, nRegistroId)
+    ENDIF
+    RETURN nRes == SQLITE_DONE
 
 FUNCTION VerificarCadenaRegistros(db)
    LOCAL stmt := sqlite3_prepare(db, ;
@@ -185,22 +202,22 @@ FUNCTION VerificarCadenaRegistros(db)
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
       nI++
       IF nI > 1
-         cHashAnterior := sqlite3_column_text(stmt, 2)
+         cHashAnterior := sqlite3_column_text(stmt, 3)
          IF cHashAnterior != ObtenerHashPorOrden(db, nI - 1)
             sqlite3_finalize(stmt)
             RETURN .F.
          ENDIF
       ENDIF
       cHashEsperado := CalcularHashVeriFactu(;
-         sqlite3_column_text(stmt, 3), ;
          sqlite3_column_text(stmt, 4), ;
-         SqlDateToDate(sqlite3_column_text(stmt, 5)), ;
-         sqlite3_column_text(stmt, 8), ;
-         Val(sqlite3_column_text(stmt, 6)), ;
-         Val(sqlite3_column_text(stmt, 6)) + Val(sqlite3_column_text(stmt, 7)), ;
+         sqlite3_column_text(stmt, 5), ;
+         SqlDateToDate(sqlite3_column_text(stmt, 6)), ;
+         sqlite3_column_text(stmt, 9), ;
+         Val(sqlite3_column_text(stmt, 7)), ;
+         Val(sqlite3_column_text(stmt, 7)) + Val(sqlite3_column_text(stmt, 8)), ;
          Iif(nI > 1, ObtenerHashPorOrden(db, nI - 1), ""), ;
-         SqlDateToDate(sqlite3_column_text(stmt, 9)))
-      IF sqlite3_column_text(stmt, 1) != cHashEsperado
+         SqlDateToDate(sqlite3_column_text(stmt, 10)))
+      IF sqlite3_column_text(stmt, 2) != cHashEsperado
          sqlite3_finalize(stmt)
          RETURN .F.
       ENDIF
@@ -246,7 +263,7 @@ STATIC FUNCTION ObtenerUltimoHashRegistro(db)
    LOCAL stmt := sqlite3_prepare(db, "SELECT Hash FROM RegistrosFacturacion ORDER BY Id DESC LIMIT 1")
    LOCAL cHash := ""
    IF sqlite3_step(stmt) == SQLITE_ROW
-      cHash := sqlite3_column_text(stmt, 0)
+      cHash := sqlite3_column_text(stmt, 1)
    ENDIF
    sqlite3_finalize(stmt)
    RETURN cHash
@@ -255,7 +272,7 @@ STATIC FUNCTION ObtenerUltimoIdRegistro(db)
    LOCAL stmt := sqlite3_prepare(db, "SELECT Id FROM RegistrosFacturacion ORDER BY Id DESC LIMIT 1")
    LOCAL nId := 0
    IF sqlite3_step(stmt) == SQLITE_ROW
-      nId := sqlite3_column_int(stmt, 0)
+      nId := sqlite3_column_int(stmt, 1)
    ENDIF
    sqlite3_finalize(stmt)
    RETURN nId
@@ -265,7 +282,7 @@ STATIC FUNCTION ObtenerHashPorOrden(db, nOrden)
    LOCAL cHash
    sqlite3_bind_int(stmt, 1, nOrden - 1)
    IF sqlite3_step(stmt) == SQLITE_ROW
-      cHash := sqlite3_column_text(stmt, 0)
+      cHash := sqlite3_column_text(stmt, 1)
    ELSE
       cHash := ""
    ENDIF
@@ -325,8 +342,68 @@ STATIC FUNCTION ObtenerFacturaRectificadaData(db, nId)
    sqlite3_bind_int(stmt, 1, nId)
    aData := NIL
    IF sqlite3_step(stmt) == SQLITE_ROW
-      aData := { sqlite3_column_text(stmt, 0), sqlite3_column_text(stmt, 1), ;
-         FechaDDMMYYYY(SqlDateToDate(sqlite3_column_text(stmt, 2))) }
+      aData := { sqlite3_column_text(stmt, 1), sqlite3_column_text(stmt, 2), ;
+         FechaDDMMYYYY(SqlDateToDate(sqlite3_column_text(stmt, 3))) }
    ENDIF
    sqlite3_finalize(stmt)
    RETURN aData
+
+// --- Eventos VERI*FACTU (hash chain) ---
+
+FUNCTION CalcularHashEvento(cTipo, cDesc, cAnt, dHuso)
+   LOCAL cData := cTipo + "|" + cDesc + "|" + Iif(cAnt == NIL, "", cAnt) + "|" + FechaISO8601ConTimeZone(dHuso)
+   RETURN Upper(hb_SHA256(cData, 1))
+
+FUNCTION ObtenerUltimoHashEvento(db)
+   LOCAL stmt := sqlite3_prepare(db, "SELECT Hash FROM RegistrosEvento ORDER BY Id DESC LIMIT 1")
+   LOCAL cHash := NIL
+   IF sqlite3_step(stmt) == SQLITE_ROW
+      cHash := sqlite3_column_text(stmt, 1)
+   ENDIF
+   sqlite3_finalize(stmt)
+   RETURN cHash
+
+FUNCTION RegistrarEvento(db, cTipoEvento, cDescripcion)
+   LOCAL cHashAnterior := ObtenerUltimoHashEvento(db)
+   LOCAL dFechaHuso := hb_DateTime()
+   LOCAL cHash := CalcularHashEvento(cTipoEvento, cDescripcion, cHashAnterior, hb_DateTime())
+   LOCAL stmt, nRes
+
+   stmt := sqlite3_prepare(db, ;
+      "INSERT INTO RegistrosEvento(TipoEvento, Descripcion, Hash, HashAnterior, FechaHora) " + ;
+      "VALUES(?, ?, ?, ?, ?)")
+
+   sqlite3_bind_text(stmt, 1, cTipoEvento)
+   sqlite3_bind_text(stmt, 2, cDescripcion)
+   sqlite3_bind_text(stmt, 3, cHash)
+   IF Empty(cHashAnterior)
+      sqlite3_bind_null(stmt, 4)
+   ELSE
+      sqlite3_bind_text(stmt, 4, cHashAnterior)
+   ENDIF
+   sqlite3_bind_text(stmt, 5, FechaISO8601ConTimeZone(hb_DateTime()))
+
+   nRes := sqlite3_step(stmt)
+   sqlite3_finalize(stmt)
+   RETURN nRes == SQLITE_DONE
+
+FUNCTION VerificarCadenaEventos(db)
+   LOCAL stmt := sqlite3_prepare(db, "SELECT Id, TipoEvento, Descripcion, Hash, HashAnterior, FechaHora FROM RegistrosEvento ORDER BY Id")
+   LOCAL cHashAnterior := NIL, lOk := .T.
+   LOCAL cHash, cHashAnt, cTipo, cDesc, dFecha, cRecalc
+
+   DO WHILE sqlite3_step(stmt) == SQLITE_ROW
+      cHash := sqlite3_column_text(stmt, 4)
+      cHashAnt := sqlite3_column_text(stmt, 5)
+      cTipo := sqlite3_column_text(stmt, 2)
+      cDesc := sqlite3_column_text(stmt, 3)
+      dFecha := sqlite3_column_text(stmt, 6)
+      cRecalc := CalcularHashEvento(cTipo, cDesc, cHashAnt, SqlDateToDate(dFecha))
+      IF cRecalc != cHash
+         lOk := .F.
+         EXIT
+      ENDIF
+      cHashAnterior := cHash
+   ENDDO
+   sqlite3_finalize(stmt)
+   RETURN lOk

@@ -6,12 +6,12 @@ FUNCTION ObtenerPaises(db)
    LOCAL aResult := {}
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
       AAdd(aResult, { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
+         sqlite3_column_int(stmt, 1), ;
          sqlite3_column_text(stmt, 2), ;
          sqlite3_column_text(stmt, 3), ;
-         sqlite3_column_int(stmt, 4) != 0, ;
-         sqlite3_column_int(stmt, 5) != 0 } )
+         sqlite3_column_text(stmt, 4), ;
+         sqlite3_column_int(stmt, 5) != 0, ;
+         sqlite3_column_int(stmt, 6) != 0 } )
    ENDDO
    sqlite3_finalize(stmt)
    RETURN aResult
@@ -22,12 +22,12 @@ FUNCTION ObtenerPaisPorId(db, nId)
    sqlite3_bind_int(stmt, 1, nId)
    IF sqlite3_step(stmt) == SQLITE_ROW
       aResult := { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
+         sqlite3_column_int(stmt, 1), ;
          sqlite3_column_text(stmt, 2), ;
          sqlite3_column_text(stmt, 3), ;
-         sqlite3_column_int(stmt, 4) != 0, ;
-         sqlite3_column_int(stmt, 5) != 0 }
+         sqlite3_column_text(stmt, 4), ;
+         sqlite3_column_int(stmt, 5) != 0, ;
+         sqlite3_column_int(stmt, 6) != 0 }
    ENDIF
    sqlite3_finalize(stmt)
    RETURN aResult
@@ -38,12 +38,12 @@ FUNCTION ObtenerPaisPorCodigo(db, cCodigo)
    sqlite3_bind_text(stmt, 1, cCodigo)
    IF sqlite3_step(stmt) == SQLITE_ROW
       aResult := { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
+         sqlite3_column_int(stmt, 1), ;
          sqlite3_column_text(stmt, 2), ;
          sqlite3_column_text(stmt, 3), ;
-         sqlite3_column_int(stmt, 4) != 0, ;
-         sqlite3_column_int(stmt, 5) != 0 }
+         sqlite3_column_text(stmt, 4), ;
+         sqlite3_column_int(stmt, 5) != 0, ;
+         sqlite3_column_int(stmt, 6) != 0 }
    ENDIF
    sqlite3_finalize(stmt)
    RETURN aResult
@@ -53,9 +53,9 @@ FUNCTION ObtenerPaisesUE(db)
    LOCAL aResult := {}
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
       AAdd(aResult, { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
-         sqlite3_column_text(stmt, 2) } )
+         sqlite3_column_int(stmt, 1), ;
+         sqlite3_column_text(stmt, 2), ;
+         sqlite3_column_text(stmt, 3) } )
    ENDDO
    sqlite3_finalize(stmt)
    RETURN aResult

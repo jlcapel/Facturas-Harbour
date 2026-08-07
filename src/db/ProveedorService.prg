@@ -10,8 +10,7 @@ FUNCTION ObtenerProveedores(db)
    LOCAL aResult := {}
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
       AAdd(aResult, { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
+         sqlite3_column_int(stmt, 1), ;
          sqlite3_column_text(stmt, 2), ;
          sqlite3_column_text(stmt, 3), ;
          sqlite3_column_text(stmt, 4), ;
@@ -19,9 +18,10 @@ FUNCTION ObtenerProveedores(db)
          sqlite3_column_text(stmt, 6), ;
          sqlite3_column_text(stmt, 7), ;
          sqlite3_column_text(stmt, 8), ;
-         sqlite3_column_int(stmt, 9) != 0, ;
-         sqlite3_column_int(stmt, 10), ;
-         sqlite3_column_int(stmt, 11) })
+         sqlite3_column_text(stmt, 9), ;
+         sqlite3_column_int(stmt, 10) != 0, ;
+         sqlite3_column_int(stmt, 11), ;
+         sqlite3_column_int(stmt, 12) })
    ENDDO
    sqlite3_finalize(stmt)
    RETURN aResult
@@ -35,8 +35,7 @@ FUNCTION ObtenerProveedorPorId(db, nId)
    sqlite3_bind_int(stmt, 1, nId)
    IF sqlite3_step(stmt) == SQLITE_ROW
       aResult := { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
+         sqlite3_column_int(stmt, 1), ;
          sqlite3_column_text(stmt, 2), ;
          sqlite3_column_text(stmt, 3), ;
          sqlite3_column_text(stmt, 4), ;
@@ -46,9 +45,10 @@ FUNCTION ObtenerProveedorPorId(db, nId)
          sqlite3_column_text(stmt, 8), ;
          sqlite3_column_text(stmt, 9), ;
          sqlite3_column_text(stmt, 10), ;
-         sqlite3_column_int(stmt, 11) != 0, ;
-         sqlite3_column_int(stmt, 12), ;
-         sqlite3_column_int(stmt, 13) }
+         sqlite3_column_text(stmt, 11), ;
+         sqlite3_column_int(stmt, 12) != 0, ;
+         sqlite3_column_int(stmt, 13), ;
+         sqlite3_column_int(stmt, 14) }
    ENDIF
    sqlite3_finalize(stmt)
    RETURN aResult

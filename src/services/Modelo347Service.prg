@@ -16,19 +16,19 @@ FUNCTION GenerarModelo347(db, nEjercicio)
       "WHERE CAST(SUBSTR(f.FechaEmision, 1, 4) AS INTEGER) = ? AND f.Estado != 'Anulada'")
    sqlite3_bind_int(stmt, 1, nEjercicio)
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
-      cNifOp := sqlite3_column_text(stmt, 0)
+      cNifOp := sqlite3_column_text(stmt, 1)
       IF Empty(cNifOp); cNifOp := "00000000Z"; ENDIF
-      nTotal := Val(sqlite3_column_text(stmt, 2))
+      nTotal := Val(sqlite3_column_text(stmt, 3))
       nT1 := 0; nT2 := 0; nT3 := 0; nT4 := 0
       DO CASE
-      CASE Left(sqlite3_column_text(stmt, 3), 7) >= Str(nEjercicio, 4) + "-04"; nT2 := nTotal
-      CASE Left(sqlite3_column_text(stmt, 3), 7) >= Str(nEjercicio, 4) + "-07"; nT3 := nTotal
-      CASE Left(sqlite3_column_text(stmt, 3), 7) >= Str(nEjercicio, 4) + "-10"; nT4 := nTotal
+      CASE Left(sqlite3_column_text(stmt, 4), 7) >= Str(nEjercicio, 4) + "-04"; nT2 := nTotal
+      CASE Left(sqlite3_column_text(stmt, 4), 7) >= Str(nEjercicio, 4) + "-07"; nT3 := nTotal
+      CASE Left(sqlite3_column_text(stmt, 4), 7) >= Str(nEjercicio, 4) + "-10"; nT4 := nTotal
       OTHERWISE; nT1 := nTotal
       ENDCASE
       oOp := BuscarOperacion(aEntregas, cNifOp)
       IF oOp == NIL
-         oOp := { cNifOp, sqlite3_column_text(stmt, 1), 0, 0, 0, 0, 0 }
+         oOp := { cNifOp, sqlite3_column_text(stmt, 2), 0, 0, 0, 0, 0 }
          AAdd(aEntregas, oOp)
       ENDIF
       oOp[3] := oOp[3] + nTotal; oOp[4] := oOp[4] + nT1; oOp[5] := oOp[5] + nT2
@@ -43,19 +43,19 @@ FUNCTION GenerarModelo347(db, nEjercicio)
       "WHERE CAST(SUBSTR(g.FechaEmision, 1, 4) AS INTEGER) = ?")
    sqlite3_bind_int(stmt, 1, nEjercicio)
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
-      cNifOp := sqlite3_column_text(stmt, 0)
+      cNifOp := sqlite3_column_text(stmt, 1)
       IF Empty(cNifOp); cNifOp := "00000000Z"; ENDIF
-      nTotal := Val(sqlite3_column_text(stmt, 2))
+      nTotal := Val(sqlite3_column_text(stmt, 3))
       nT1 := 0; nT2 := 0; nT3 := 0; nT4 := 0
       DO CASE
-      CASE Left(sqlite3_column_text(stmt, 3), 7) >= Str(nEjercicio, 4) + "-04"; nT2 := nTotal
-      CASE Left(sqlite3_column_text(stmt, 3), 7) >= Str(nEjercicio, 4) + "-07"; nT3 := nTotal
-      CASE Left(sqlite3_column_text(stmt, 3), 7) >= Str(nEjercicio, 4) + "-10"; nT4 := nTotal
+      CASE Left(sqlite3_column_text(stmt, 4), 7) >= Str(nEjercicio, 4) + "-04"; nT2 := nTotal
+      CASE Left(sqlite3_column_text(stmt, 4), 7) >= Str(nEjercicio, 4) + "-07"; nT3 := nTotal
+      CASE Left(sqlite3_column_text(stmt, 4), 7) >= Str(nEjercicio, 4) + "-10"; nT4 := nTotal
       OTHERWISE; nT1 := nTotal
       ENDCASE
       oOp := BuscarOperacion(aAdquis, cNifOp)
       IF oOp == NIL
-         oOp := { cNifOp, sqlite3_column_text(stmt, 1), 0, 0, 0, 0, 0 }
+         oOp := { cNifOp, sqlite3_column_text(stmt, 2), 0, 0, 0, 0, 0 }
          AAdd(aAdquis, oOp)
       ENDIF
       oOp[3] := oOp[3] + nTotal; oOp[4] := oOp[4] + nT1; oOp[5] := oOp[5] + nT2

@@ -39,26 +39,27 @@ linux_build() {
   rm -rf "$TMPDIR"
   mkdir -p "$TMPDIR"
 
-  # 1. Compilar todos los .prg -> .c con harbour
-  find "$SRCDIR" -name "*.prg" | while read f; do
-    harbour "$f" -n -q -m -es2 -d___GTK3___ -i"$SRCDIR" -i/usr/local/include/harbour -i/usr/local/share/harbour/contrib/hbsqlit3 -i/usr/local/share/harbour/contrib/hbhpdf -i/usr/local/share/harbour/contrib/hbcurl -o"$TMPDIR"/$(basename "$f" .prg).c
+# 1. Compilar todos los .prg -> .c con harbour
+   find "$SRCDIR" -name "*.prg" | while read f; do
+     harbour "$f" -n -q -m -es2 -d___GTK3___ -i"$SRCDIR" -i/usr/local/include/harbour -i/usr/local/share/harbour/contrib/hbsqlit3 -i/usr/local/share/harbour/contrib/hbhpdf -i/usr/local/share/harbour/contrib/hbcurl -i/usr/local/share/harbour/contrib/hbzebra -o"$TMPDIR"/$(basename "$f" .prg).c
+   done
+
+   # 2. Compilar todos los .c -> .o con gcc
+   GTK_CFLAGS=$(pkg-config --cflags gtk+-3.0)
+   for f in "$TMPDIR"/*.c; do
+     gcc -c -O3 "$f" -o "${f%.c}.o" -I/usr/local/include/harbour -I/usr/local/share/harbour/contrib/hbcurl -I/usr/local/share/harbour/contrib/hbzebra $GTK_CFLAGS -DHWG_USE_POINTER_ITEM
   done
 
-  # 2. Compilar todos los .c -> .o con gcc
-  GTK_CFLAGS=$(pkg-config --cflags gtk+-3.0)
-  for f in "$TMPDIR"/*.c; do
-    gcc -c -O3 "$f" -o "${f%.c}.o" -I/usr/local/include/harbour -I/usr/local/share/harbour/contrib/hbcurl $GTK_CFLAGS -DHWG_USE_POINTER_ITEM
-  done
-
-  # 3. Enlazar
-  GTK_LIBS=$(pkg-config --libs gtk+-3.0)
-  gcc "$TMPDIR"/*.o \
-    -Wl,--start-group \
-    -lhwgui -lprocmisc -lhbxml \
+# 3. Enlazar
+   GTK_LIBS=$(pkg-config --libs gtk+-3.0)
+   gcc "$TMPDIR"/*.o \
+     -Wl,--start-group \
+     -lhwgui -lprocmisc -lhbxml \
      -lhbcplr -lhbdebug -lharbour \
      -lhbsqlit3 -lsqlite3 \
      -lhbcurl -lcurl \
      -lhbhpdf -lhpdf \
+     -lhbzebra \
      $GTK_LIBS -lm \
     -Wl,--end-group \
     -o "$PROJECT" \
@@ -77,19 +78,20 @@ win_build() {
   rm -rf "$TMPDIR"
   mkdir -p "$TMPDIR"
 
-  # 1. Compilar .prg -> .c (same harbour step, just add -d___MINGW___)
-  find "$SRCDIR" -name "*.prg" | while read f; do
-    harbour "$f" -n -q -m -es2 -d___MINGW___ -i"$SRCDIR" -i/usr/local/include/harbour -i/usr/local/share/harbour/contrib/hbsqlit3 -i/usr/local/share/harbour/contrib/hbhpdf -i/usr/local/share/harbour/contrib/hbcurl -o"$TMPDIR"/$(basename "$f" .prg).c
-  done
+# 1. Compilar .prg -> .c (same harbour step, just add -d___MINGW___)
+   find "$SRCDIR" -name "*.prg" | while read f; do
+     harbour "$f" -n -q -m -es2 -d___MINGW___ -i"$SRCDIR" -i/usr/local/include/harbour -i/usr/local/share/harbour/contrib/hbsqlit3 -i/usr/local/share/harbour/contrib/hbhpdf -i/usr/local/share/harbour/contrib/hbcurl -i/usr/local/share/harbour/contrib/hbzebra -o"$TMPDIR"/$(basename "$f" .prg).c
+   done
 
-  # 2. Compilar .c -> .o con MinGW gcc
-  for f in "$TMPDIR"/*.c; do
-    $WIN_CC -c -O3 "$f" -o "${f%.c}.o" \
-      -I/usr/local/include/harbour \
-      -I/usr/local/share/harbour/contrib/hbcurl \
-      -I/usr/local/share/harbour/contrib/hbsqlit3 \
-      -DHWG_USE_POINTER_ITEM
-  done
+   # 2. Compilar .c -> .o con MinGW gcc
+   for f in "$TMPDIR"/*.c; do
+     $WIN_CC -c -O3 "$f" -o "${f%.c}.o" \
+       -I/usr/local/include/harbour \
+       -I/usr/local/share/harbour/contrib/hbcurl \
+       -I/usr/local/share/harbour/contrib/hbsqlit3 \
+       -I/usr/local/share/harbour/contrib/hbzebra \
+       -DHWG_USE_POINTER_ITEM
+   done
 
   # 3. Enlazar con MinGW
   $WIN_CC "$TMPDIR"/*.o \

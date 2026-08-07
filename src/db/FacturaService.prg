@@ -13,18 +13,18 @@ FUNCTION ObtenerFacturas(db)
    LOCAL aResult := {}
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
       AAdd(aResult, { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
-         SqlDateToDate(sqlite3_column_text(stmt, 2)), ;
-         sqlite3_column_text(stmt, 3), ;
+         sqlite3_column_int(stmt, 1), ;
+         sqlite3_column_text(stmt, 2), ;
+         SqlDateToDate(sqlite3_column_text(stmt, 3)), ;
          sqlite3_column_text(stmt, 4), ;
-         Val(sqlite3_column_text(stmt, 5)), ;
+         sqlite3_column_text(stmt, 5), ;
          Val(sqlite3_column_text(stmt, 6)), ;
-         sqlite3_column_int(stmt, 7), ;
-         sqlite3_column_text(stmt, 8), ;
-         sqlite3_column_int(stmt, 9), ;
+         Val(sqlite3_column_text(stmt, 7)), ;
+         sqlite3_column_int(stmt, 8), ;
+         sqlite3_column_text(stmt, 9), ;
          sqlite3_column_int(stmt, 10), ;
-         sqlite3_column_int(stmt, 11) })
+         sqlite3_column_int(stmt, 11), ;
+         sqlite3_column_int(stmt, 12) })
    ENDDO
    sqlite3_finalize(stmt)
    RETURN aResult
@@ -51,37 +51,37 @@ FUNCTION ObtenerFacturaPorId(db, nId)
    sqlite3_bind_int(stmt, 1, nId)
    IF sqlite3_step(stmt) == SQLITE_ROW
       aResult := { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
-         SqlDateToDate(sqlite3_column_text(stmt, 2)), ;
+         sqlite3_column_int(stmt, 1), ;
+         sqlite3_column_text(stmt, 2), ;
          SqlDateToDate(sqlite3_column_text(stmt, 3)), ;
-         sqlite3_column_int(stmt, 4), ;
+         SqlDateToDate(sqlite3_column_text(stmt, 4)), ;
          sqlite3_column_int(stmt, 5), ;
          sqlite3_column_int(stmt, 6), ;
          sqlite3_column_int(stmt, 7), ;
-         sqlite3_column_text(stmt, 8), ;
+         sqlite3_column_int(stmt, 8), ;
          sqlite3_column_text(stmt, 9), ;
          sqlite3_column_text(stmt, 10), ;
-         Val(sqlite3_column_text(stmt, 11)), ;
+         sqlite3_column_text(stmt, 11), ;
          Val(sqlite3_column_text(stmt, 12)), ;
          Val(sqlite3_column_text(stmt, 13)), ;
          Val(sqlite3_column_text(stmt, 14)), ;
          Val(sqlite3_column_text(stmt, 15)), ;
          Val(sqlite3_column_text(stmt, 16)), ;
          Val(sqlite3_column_text(stmt, 17)), ;
-         sqlite3_column_text(stmt, 18), ;
+         Val(sqlite3_column_text(stmt, 18)), ;
          sqlite3_column_text(stmt, 19), ;
-         sqlite3_column_int(stmt, 20), ;
-         sqlite3_column_text(stmt, 21), ;
+         sqlite3_column_text(stmt, 20), ;
+         sqlite3_column_int(stmt, 21), ;
          sqlite3_column_text(stmt, 22), ;
          sqlite3_column_text(stmt, 23), ;
-         sqlite3_column_int(stmt, 24), ;
-         sqlite3_column_text(stmt, 25), ;
+         sqlite3_column_text(stmt, 24), ;
+         sqlite3_column_int(stmt, 25), ;
          sqlite3_column_text(stmt, 26), ;
-         sqlite3_column_int(stmt, 27), ;
-         sqlite3_column_text(stmt, 28), ;
+         sqlite3_column_text(stmt, 27), ;
+         sqlite3_column_int(stmt, 28), ;
          sqlite3_column_text(stmt, 29), ;
-         sqlite3_column_text(stmt, 30) }
+         sqlite3_column_text(stmt, 30), ;
+         sqlite3_column_text(stmt, 31) }
    ENDIF
    sqlite3_finalize(stmt)
 
@@ -93,6 +93,9 @@ FUNCTION ObtenerFacturaPorId(db, nId)
 FUNCTION CrearFactura(db, aFactura, aLineas)
    LOCAL nFacturaId, nI
    LOCAL nBaseImp := 0, nIvaImp := 0, nIrpfPct, nIrpfImp, nTotal
+   LOCAL cNifEmisor, cNombreEmisor, aCliente, cNifCliente, cNombreCliente
+   LOCAL aPais, cCodigoPais, lEsNacional, aTipoId, cCodigoAEAT
+   LOCAL cTipoRectificativa, nFacturaRectificadaId, lRegistro
 
    nIrpfPct := ObtenerIrpfPorcentaje(db)
 
@@ -120,6 +123,35 @@ FUNCTION CrearFactura(db, aFactura, aLineas)
       InsertarLineaFactura(db, aLineas[nI])
    NEXT
 
+   // --- VERI*FACTU: Crear registro de alta ---
+   cNifEmisor := ObtenerConfiguracion(db, "Empresa.Nif")
+   cNombreEmisor := ObtenerConfiguracion(db, "Empresa.Nombre")
+   aCliente := ObtenerClientePorId(db, aFactura[4])
+   cNifCliente := aCliente[4]
+   cNombreCliente := aCliente[2]
+   aPais := ObtenerPaisPorId(db, aCliente[5])
+   cCodigoPais := aPais[2]
+   lEsNacional := aPais[5]
+   aTipoId := ObtenerTipoIdentificacionPorId(db, aCliente[6])
+   cCodigoAEAT := aTipoId[2]
+   cTipoRectificativa := Iif(AeatEsRectificativa(aFactura[9]), aFactura[10], "")
+   nFacturaRectificadaId := aFactura[7]
+
+   lRegistro := CrearRegistroAlta(db, nFacturaId, cNifEmisor, cNombreEmisor, ;
+      aFactura[1], aFactura[2], aFactura[11], aFactura[12], aFactura[15], ;
+      aFactura[9], cTipoRectificativa, nFacturaRectificadaId, aFactura[8], NIL, ;
+      cNifCliente, cNombreCliente, cCodigoPais, cCodigoAEAT, ;
+      aLineas, lEsNacional)
+
+   IF !lRegistro
+      LogInfo("CrearFactura: error al crear registro VERI*FACTU para factura " + aFactura[1])
+   ENDIF
+   // --- Fin VERI*FACTU ---
+
+   // --- Evento VERI*FACTU: CreacionFactura ---
+   RegistrarEvento(db, "CreacionFactura", "Factura " + aFactura[1] + " creada")
+   // --- Fin Evento ---
+
    RETURN nFacturaId
 
 FUNCTION GenerarNumeroFactura(db)
@@ -132,7 +164,7 @@ FUNCTION GenerarNumeroFactura(db)
 
    sqlite3_bind_text(stmt, 1, cPrefijo + "%")
    IF sqlite3_step(stmt) == SQLITE_ROW
-      cUltimo := sqlite3_column_text(stmt, 0)
+      cUltimo := sqlite3_column_text(stmt, 1)
       nGuion := At("-", cUltimo)
       IF nGuion > 0
          nSeq := Val(SubStr(cUltimo, nGuion + 1))
@@ -264,19 +296,19 @@ STATIC FUNCTION ObtenerLineasFactura(db, nFacturaId, aFactura)
    sqlite3_bind_int(stmt, 1, nFacturaId)
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
       AAdd(aLineas, { ;
-         sqlite3_column_int(stmt, 0), ;
          sqlite3_column_int(stmt, 1), ;
          sqlite3_column_int(stmt, 2), ;
-         sqlite3_column_text(stmt, 3), ;
-         Val(sqlite3_column_text(stmt, 4)), ;
+         sqlite3_column_int(stmt, 3), ;
+         sqlite3_column_text(stmt, 4), ;
          Val(sqlite3_column_text(stmt, 5)), ;
          Val(sqlite3_column_text(stmt, 6)), ;
          Val(sqlite3_column_text(stmt, 7)), ;
          Val(sqlite3_column_text(stmt, 8)), ;
          Val(sqlite3_column_text(stmt, 9)), ;
-         sqlite3_column_text(stmt, 10), ;
+         Val(sqlite3_column_text(stmt, 10)), ;
          sqlite3_column_text(stmt, 11), ;
-         sqlite3_column_text(stmt, 12) })
+         sqlite3_column_text(stmt, 12), ;
+         sqlite3_column_text(stmt, 13) })
    ENDDO
    sqlite3_finalize(stmt)
    AAdd(aFactura, aLineas)

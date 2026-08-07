@@ -11,18 +11,18 @@ FUNCTION ObtenerBienesInversion(db)
    LOCAL aResult := {}
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
       AAdd(aResult, { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
-         SqlDateToDate(sqlite3_column_text(stmt, 2)), ;
-         Val(sqlite3_column_text(stmt, 3)), ;
+         sqlite3_column_int(stmt, 1), ;
+         sqlite3_column_text(stmt, 2), ;
+         SqlDateToDate(sqlite3_column_text(stmt, 3)), ;
          Val(sqlite3_column_text(stmt, 4)), ;
          Val(sqlite3_column_text(stmt, 5)), ;
          Val(sqlite3_column_text(stmt, 6)), ;
          Val(sqlite3_column_text(stmt, 7)), ;
-         sqlite3_column_text(stmt, 8), ;
+         Val(sqlite3_column_text(stmt, 8)), ;
          sqlite3_column_text(stmt, 9), ;
-         sqlite3_column_int(stmt, 10) != 0, ;
-         sqlite3_column_text(stmt, 11) })
+         sqlite3_column_text(stmt, 10), ;
+         sqlite3_column_int(stmt, 11) != 0, ;
+         sqlite3_column_text(stmt, 12) })
    ENDDO
    sqlite3_finalize(stmt)
    RETURN aResult
@@ -38,8 +38,7 @@ FUNCTION ObtenerBienInversionPorId(db, nId)
    sqlite3_bind_int(stmt, 1, nId)
    IF sqlite3_step(stmt) == SQLITE_ROW
       aResult := { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
+         sqlite3_column_int(stmt, 1), ;
          sqlite3_column_text(stmt, 2), ;
          sqlite3_column_text(stmt, 3), ;
          sqlite3_column_text(stmt, 4), ;
@@ -48,8 +47,9 @@ FUNCTION ObtenerBienInversionPorId(db, nId)
          sqlite3_column_text(stmt, 7), ;
          sqlite3_column_text(stmt, 8), ;
          sqlite3_column_text(stmt, 9), ;
-         sqlite3_column_int(stmt, 10) != 0, ;
-         sqlite3_column_text(stmt, 11) }
+         sqlite3_column_text(stmt, 10), ;
+         sqlite3_column_int(stmt, 11) != 0, ;
+         sqlite3_column_text(stmt, 12) }
    ENDIF
    sqlite3_finalize(stmt)
    RETURN aResult

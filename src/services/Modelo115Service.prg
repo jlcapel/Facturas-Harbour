@@ -20,17 +20,17 @@ FUNCTION GenerarModelo115(db, nEjercicio, nTrimestre)
    sqlite3_bind_text(stmt, 1, cFechaIni)
    sqlite3_bind_text(stmt, 2, cFechaFin)
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
-      cCatNombre := sqlite3_column_text(stmt, 5)
+      cCatNombre := sqlite3_column_text(stmt, 6)
       IF !Empty(cCatNombre) .AND. "Alquiler" $ Upper(cCatNombre)
-         cNifProv := sqlite3_column_text(stmt, 3)
+         cNifProv := sqlite3_column_text(stmt, 4)
          IF Empty(cNifProv); cNifProv := "00000000Z"; ENDIF
          oArr := BuscarArrendador(aArr, cNifProv)
          IF oArr == NIL
-            oArr := { cNifProv, sqlite3_column_text(stmt, 4), 0, 0 }
+            oArr := { cNifProv, sqlite3_column_text(stmt, 5), 0, 0 }
             AAdd(aArr, oArr)
          ENDIF
-         oArr[3] := oArr[3] + Val(sqlite3_column_text(stmt, 0))
-         oArr[4] := oArr[4] + Val(sqlite3_column_text(stmt, 1))
+         oArr[3] := oArr[3] + Val(sqlite3_column_text(stmt, 1))
+         oArr[4] := oArr[4] + Val(sqlite3_column_text(stmt, 2))
       ENDIF
    ENDDO
    sqlite3_finalize(stmt)

@@ -283,7 +283,7 @@ STATIC FUNCTION TablaVacia(db, cTabla)
    LOCAL stmt := sqlite3_prepare(db, "SELECT COUNT(*) FROM " + cTabla)
    LOCAL nCount := 0
    IF !Empty(stmt) .AND. sqlite3_step(stmt) == SQLITE_ROW
-      nCount := sqlite3_column_int(stmt, 0)
+      nCount := sqlite3_column_int(stmt, 1)
    ENDIF
    sqlite3_finalize(stmt)
    RETURN nCount > 0

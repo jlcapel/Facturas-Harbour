@@ -2,7 +2,7 @@
 #include "hbsqlit3.ch"
 
 STATIC s_Db
-STATIC s_oViewChild := NIL
+STATIC s_oPanel
 
 PROCEDURE Main()
    LOCAL oDlg, cLang, oTitleFnt
@@ -20,12 +20,16 @@ PROCEDURE Main()
       LocalizationSetLang(cLang)
    ENDIF
 
+   // --- Evento VERI*FACTU: Login ---
+   RegistrarEvento(s_Db, "Login", "Inicio de sesión")
+   // --- Fin Evento ---
+
    PREPARE FONT oTitleFnt NAME "Arial" WIDTH 0 HEIGHT -20 WEIGHT 700
 
    INIT DIALOG oDlg ;
       TITLE "Facturas-Harbour" ;
       AT 0, 0 ;
-      SIZE 860, 580 ;
+      SIZE 860, 540 ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    MENU OF oDlg
@@ -66,6 +70,12 @@ PROCEDURE Main()
       ENDMENU
    ENDMENU
 
+   @ 190, 20 SAY "Facturas - VERI*FACTU" SIZE 400, 28 ;
+      COLOR hwg_ColorRGB2N(30, 64, 114) FONT oTitleFnt
+
+   @ 130, 32 SAY "Seleccione una opción en el menú superior" SIZE 400, 18 ;
+      COLOR hwg_ColorRGB2N(100, 116, 139)
+
    ADD STATUS TO oDlg PARTS 400, 200
 
    ACTIVATE DIALOG oDlg CENTER
@@ -73,8 +83,8 @@ PROCEDURE Main()
    s_Db := NIL
 RETURN
 
-STATIC FUNCTION AbrirVista(cVista, oParent)
-   LOCAL nX := 10, nY := 5, nW := 640, nH := 510
+STATIC FUNCTION AbrirVista(cVista, oDlg)
+   LOCAL nX := 5, nY := 55, nW := 848, nH := 430
 
    IF cVista == "Empresa"
       CerrarVista()
@@ -84,44 +94,43 @@ STATIC FUNCTION AbrirVista(cVista, oParent)
 
    CerrarVista()
 
-   INIT DIALOG s_oViewChild AT nX, nY SIZE nW, nH STYLE WS_POPUP + WS_BORDER
+   @ nX, nY PANEL s_oPanel OF oDlg SIZE nW, nH
 
    DO CASE
    CASE cVista == "Paises"
-      PaisesView(s_Db, s_oViewChild, 0, 0, nW, nH)
-   CASE cVista == "Clientes"
-      ClientesView(s_Db, s_oViewChild, 0, 0, nW, nH)
-   CASE cVista == "Facturas"
-      FacturasView(s_Db, s_oViewChild, 0, 0, nW, nH)
+      PaisesView(s_Db, s_oPanel, 0, 0, nW, nH)
    CASE cVista == "TiposIva"
-      TiposIvaView(s_Db, s_oViewChild, 0, 0, nW, nH)
+      TiposIvaView(s_Db, s_oPanel, 0, 0, nW, nH)
    CASE cVista == "TiposIdent"
-      TiposIdentificacionView(s_Db, s_oViewChild, 0, 0, nW, nH)
+      TiposIdentificacionView(s_Db, s_oPanel, 0, 0, nW, nH)
+   CASE cVista == "Clientes"
+      ClientesView(s_Db, s_oPanel, 0, 0, nW, nH)
    CASE cVista == "Articulos"
-      ArticulosView(s_Db, s_oViewChild, 0, 0, nW, nH)
+      ArticulosView(s_Db, s_oPanel, 0, 0, nW, nH)
    CASE cVista == "Proveedores"
-      ProveedoresView(s_Db, s_oViewChild, 0, 0, nW, nH)
+      ProveedoresView(s_Db, s_oPanel, 0, 0, nW, nH)
    CASE cVista == "CategoriasGasto"
-      CategoriasGastoView(s_Db, s_oViewChild, 0, 0, nW, nH)
+      CategoriasGastoView(s_Db, s_oPanel, 0, 0, nW, nH)
    CASE cVista == "BienesInversion"
-      BienesInversionView(s_Db, s_oViewChild, 0, 0, nW, nH)
+      BienesInversionView(s_Db, s_oPanel, 0, 0, nW, nH)
+   CASE cVista == "Facturas"
+      FacturasView(s_Db, s_oPanel, 0, 0, nW, nH)
    CASE cVista == "Gastos"
-      GastosView(s_Db, s_oViewChild, 0, 0, nW, nH)
+      GastosView(s_Db, s_oPanel, 0, 0, nW, nH)
    CASE cVista == "ValidacionNif"
-      ValidacionView(s_Db, s_oViewChild, 0, 0, nW, nH)
+      ValidacionView(s_Db, s_oPanel, 0, 0, nW, nH)
    CASE cVista == "Vies"
-      ViesView(s_Db, s_oViewChild, 0, 0, nW, nH)
+      ViesView(s_Db, s_oPanel, 0, 0, nW, nH)
    CASE cVista == "ModelosAeat"
-      ModelosAeatView(s_Db, s_oViewChild, 0, 0, nW, nH)
+      ModelosAeatView(s_Db, s_oPanel, 0, 0, nW, nH)
    ENDCASE
 
-   ACTIVATE DIALOG s_oViewChild NOMODAL
 RETURN NIL
 
-STATIC FUNCTION CerrarVista()
-   IF s_oViewChild != NIL
-      s_oViewChild:Close()
-      s_oViewChild := NIL
+FUNCTION CerrarVista()
+   IF s_oPanel != NIL
+      s_oPanel:Hide()
+      s_oPanel := NIL
    ENDIF
 RETURN NIL
 

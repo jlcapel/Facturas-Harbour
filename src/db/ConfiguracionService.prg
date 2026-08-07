@@ -6,7 +6,7 @@ FUNCTION ObtenerConfiguracion(db, cClave)
    LOCAL cValor := NIL
    sqlite3_bind_text(stmt, 1, cClave)
    IF sqlite3_step(stmt) == SQLITE_ROW
-      cValor := sqlite3_column_text(stmt, 0)
+      cValor := sqlite3_column_text(stmt, 1)
    ENDIF
    sqlite3_finalize(stmt)
    RETURN cValor

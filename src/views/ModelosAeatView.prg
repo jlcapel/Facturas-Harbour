@@ -29,11 +29,22 @@ FUNCTION ModelosAeatView(db, oParent, nX, nY, nW, nH)
    @ nX+220, nY+200 SAY L("M111Trimestre") SIZE 80, 22 OF oParent
    @ nX+300, nY+197 GET COMBOBOX oCbTrim VAR nTrim ITEMS {1, 2, 3, 4} SIZE 80, 200 OF oParent
 
-   @ nX+20, nY+240 BUTTON L("CommonGenerar") SIZE 100, 30 OF oParent ON CLICK {|| ;
+@ nX+20, nY+240 BUTTON L("CommonGenerar") SIZE 100, 30 OF oParent ON CLICK {|| ;
       GenerarModeloAeat(db, nModelo, aAnios[nAnioIdx], nTrim) }
 
    @ nX+140, nY+240 BUTTON "Abrir Carpeta" SIZE 100, 30 OF oParent ON CLICK {|| AbrirCarpetaModelo(nModelo) }
+
+   @ nX+260, nY+240 BUTTON "Verificar Cadena" SIZE 120, 30 OF oParent ON CLICK {|| VerificarCadenaUI(db) }
+
 RETURN NIL
+
+STATIC FUNCTION VerificarCadenaUI(db)
+   LOCAL lOkReg := VerificarCadenaRegistros(db)
+   LOCAL lOkEvt := VerificarCadenaEventos(db)
+   LOCAL cMsg := "Registros: " + Iif(lOkReg, "✅ ÍNTEGRO", "❌ CORRUPTO") + Chr(10) + ;
+                 "Eventos: " + Iif(lOkEvt, "✅ ÍNTEGRO", "❌ CORRUPTO")
+   hwg_MsgInfo(cMsg, "Verificación de Cadena")
+   RETURN NIL
 
 STATIC FUNCTION GenerarModeloAeat(db, nModelo, nAnio, nTrim)
    LOCAL aRes, cText := "", nI

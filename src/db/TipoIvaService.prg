@@ -6,12 +6,12 @@ FUNCTION ObtenerTiposIva(db)
    LOCAL aResult := {}
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
       AAdd(aResult, { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
+         sqlite3_column_int(stmt, 1), ;
          sqlite3_column_text(stmt, 2), ;
-         sqlite3_column_int(stmt, 3) != 0, ;
-         sqlite3_column_text(stmt, 4), ;
-         sqlite3_column_text(stmt, 5) } )
+         sqlite3_column_text(stmt, 3), ;
+         sqlite3_column_int(stmt, 4) != 0, ;
+         sqlite3_column_text(stmt, 5), ;
+         sqlite3_column_text(stmt, 6) } )
    ENDDO
    sqlite3_finalize(stmt)
    RETURN aResult
@@ -22,12 +22,12 @@ FUNCTION ObtenerTipoIvaPorId(db, nId)
    sqlite3_bind_int(stmt, 1, nId)
    IF sqlite3_step(stmt) == SQLITE_ROW
       aResult := { ;
-         sqlite3_column_int(stmt, 0), ;
-         sqlite3_column_text(stmt, 1), ;
+         sqlite3_column_int(stmt, 1), ;
          sqlite3_column_text(stmt, 2), ;
-         sqlite3_column_int(stmt, 3) != 0, ;
-         sqlite3_column_text(stmt, 4), ;
-         sqlite3_column_text(stmt, 5) }
+         sqlite3_column_text(stmt, 3), ;
+         sqlite3_column_int(stmt, 4) != 0, ;
+         sqlite3_column_text(stmt, 5), ;
+         sqlite3_column_text(stmt, 6) }
    ENDIF
    sqlite3_finalize(stmt)
    RETURN aResult

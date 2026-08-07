@@ -18,9 +18,8 @@ FUNCTION GenerarCsvGastos(db, nYear)
    sqlite3_bind_int(stmt, 1, nYear)
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
       AAdd(aGastos, { ;
-         sqlite3_column_text(stmt, 0), ;
-         sqlite3_column_int(stmt, 1), ;
-         sqlite3_column_text(stmt, 2), ;
+         sqlite3_column_text(stmt, 1), ;
+         sqlite3_column_int(stmt, 2), ;
          sqlite3_column_text(stmt, 3), ;
          sqlite3_column_text(stmt, 4), ;
          sqlite3_column_text(stmt, 5), ;
@@ -32,8 +31,9 @@ FUNCTION GenerarCsvGastos(db, nYear)
          sqlite3_column_text(stmt, 11), ;
          sqlite3_column_text(stmt, 12), ;
          sqlite3_column_text(stmt, 13), ;
-         sqlite3_column_int(stmt, 14) != 0, ;
-         sqlite3_column_int(stmt, 15) })
+         sqlite3_column_text(stmt, 14), ;
+         sqlite3_column_int(stmt, 15) != 0, ;
+         sqlite3_column_int(stmt, 16) })
    ENDDO
    sqlite3_finalize(stmt)
 

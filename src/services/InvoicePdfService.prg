@@ -1,5 +1,7 @@
 #require "hbhpdf"
+#require "hbzebra"
 #include "harupdf.ch"
+#include "hbzebra.ch"
 
 #define PDF_MARGIN         40
 #define HEADER_Y           780
@@ -14,7 +16,7 @@
 #define TABLE_WIDTH        500
 #define TOTAL_LEFT         440
 
-FUNCTION GenerarPdfFactura(db, nFacturaId, cRutaSalida)
+FUNCTION GenerarPdfFactura(db, nFacturaId, cRutaSalida, cEntorno)
    LOCAL aFactura, aLineas, aInfo
 
    aFactura := ObtenerFacturaPorId(db, nFacturaId)
@@ -23,6 +25,7 @@ FUNCTION GenerarPdfFactura(db, nFacturaId, cRutaSalida)
    ENDIF
 
    aInfo := ObtenerInfoEmpresa(db)
+   aInfo[9] := cEntorno  // Sobrescribir entorno pasado como parámetro
    RETURN CrearPdf(aFactura, aInfo, cRutaSalida)
 
 STATIC FUNCTION ObtenerInfoEmpresa(db)
@@ -40,6 +43,8 @@ STATIC FUNCTION ObtenerInfoEmpresa(db)
 
 STATIC FUNCTION CrearPdf(aFactura, aInfo, cRutaSalida)
    LOCAL pdf, page, fontN, fontB, fontS, y, nFila, i, aLinea, nLineas
+   LOCAL cEntorno, cNifEmisor, cNumFactura, dFechaEmision, nBaseImponible
+   LOCAL nIvaImporte, cUrlQR, cQrPath, oZebra, nQrSize, imageHandle
 
    pdf := HPDF_New()
    IF pdf == NIL
@@ -76,12 +81,35 @@ STATIC FUNCTION CrearPdf(aFactura, aInfo, cRutaSalida)
       ENDIF
    NEXT
 
-   PintarLineaH(page, y)
-   y -= 4
+PintarLineaH(page, y)
+    y -= 4
 
-   PintarTotales(page, fontN, fontB, aFactura, @y)
+    PintarTotales(page, fontN, fontB, aFactura, @y)
 
-   PintarPie(page, fontS, aFactura, @y)
+    // --- QR VERI*FACTU (hbzebra) ---
+    cEntorno := Iif(aInfo[9] == "2", "Preproduccion", "Produccion")
+    cNifEmisor := aInfo[2]
+    cNumFactura := aFactura[2]
+    nBaseImponible := aFactura[12]
+    nIvaImporte := aFactura[13]
+    cUrlQR := GenerarUrlVerificacion(aInfo[2], aFactura[2], aFactura[3], aFactura[12], aFactura[13], cEntorno)
+    hZebra := hb_zebra_create_qrcode(cUrlQR, HB_ZEBRA_FLAG_QR_LEVEL_L)
+    nQrX := 595 - PDF_MARGIN - 80
+    nQrY := y - 80 - 10
+
+    IF hZebra != NIL .AND. hb_zebra_geterror(hZebra) == 0
+       hb_zebra_draw(hZebra, {|x, y, w, h| HPDF_Page_Rectangle(page, nQrX + x, nQrY + y, w, h)}, 80, -80)
+       HPDF_Page_Fill(page)
+       HPDF_Page_SetFontAndSize(page, fontS, 7)
+       HPDF_Page_SetRGBFill(page, 0.3, 0.3, 0.3)
+       HPDF_Page_BeginText(page)
+       HPDF_Page_TextOut(page, nQrX, nQrY - 12, "Verificar en AEAT")
+       HPDF_Page_EndText(page)
+    ENDIF
+    hb_zebra_destroy(hZebra)
+    // --- Fin QR ---
+
+    PintarPie(page, fontS, aFactura, @y)
 
    HPDF_SaveToFile(pdf, cRutaSalida)
    HPDF_Free(pdf)
