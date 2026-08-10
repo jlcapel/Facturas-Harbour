@@ -9,14 +9,14 @@ FUNCTION ComprobarNif(db, cNif, cNombre)
    ENDIF
    cCert := ObtenerConfiguracion(db, "VeriFactu.CertificadoRuta")
    cPass := ObtenerConfiguracion(db, "VeriFactu.CertificadoPassword")
-   IF Empty(cCert) .OR. !hb_FileExists(cCert)
-      RETURN { .F., NIL, NIL, "Certificado no configurado" }
-   ENDIF
-   cSoap := ConstruirSoapVnif(cNifClean, cNombre)
-   nResult := LlamarVnif(cCert, cPass, cSoap, @cResponse)
-   IF nResult != 0
-      RETURN { .F., NIL, NIL, "Error de conexión con AEAT VNifV2: " + hb_ntos(nResult) }
-   ENDIF
+IF Empty(cCert) .OR. !hb_FileExists(cCert)
+       RETURN { .F., NIL, NIL, L("ServiceCertNoConfig") }
+    ENDIF
+    cSoap := ConstruirSoapVnif(cNifClean, cNombre)
+    nResult := LlamarVnif(cCert, cPass, cSoap, @cResponse)
+    IF nResult != 0
+       RETURN { .F., NIL, NIL, StrTran(L("ServiceVnifConexion"), "{1}", hb_ntos(nResult)) }
+    ENDIF
    RETURN ProcesarVnifRespuesta(cResponse)
 
 STATIC FUNCTION ConstruirSoapVnif(cNif, cNombre)
@@ -98,14 +98,14 @@ STATIC FUNCTION ProcesarVnifRespuesta(cXml)
    DO CASE
    CASE cResultado == "Identificado"
       RETURN { .T., cNif, cNombre, NIL }
-   CASE cResultado == "No identificado-similar"
-      RETURN { .T., cNif, cNombre, "Nombre no coincide: " + cNombre }
-   CASE cResultado == "No identificado"
-      RETURN { .F., cNif, cNombre, "NIF no identificado en censo AEAT" }
-   OTHERWISE
-      RETURN { .F., cNif, cNombre, "Resultado: " + cResultado }
-   ENDCASE
-RETURN { .F., NIL, NIL, "Error al procesar respuesta" }
+CASE cResultado == "No identificado-similar"
+       RETURN { .T., cNif, cNombre, StrTran(L("ServiceVnifNoCoincide"), "{1}", cNombre) }
+    CASE cResultado == "No identificado"
+       RETURN { .F., cNif, cNombre, L("ServiceVnifNoIdentificado") }
+    OTHERWISE
+       RETURN { .F., cNif, cNombre, StrTran(L("ServiceVnifResultado"), "{1}", cResultado) }
+    ENDCASE
+RETURN { .F., NIL, NIL, L("ServiceVnifErrorProcesar") }
 
 STATIC FUNCTION EscapeXmlVnif(cText)
    IF cText == NIL; RETURN ""; ENDIF

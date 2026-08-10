@@ -14,14 +14,14 @@ PROCEDURE Main()
       LogInfo("Main: no se pudo asegurar integridad BD")
    ENDIF
    HacerBackup()
-   LocalizationNew()
+    LocalizationNew()
    cLang := ObtenerConfiguracion(s_Db, "Language")
    IF cLang != NIL
       LocalizationSetLang(cLang)
    ENDIF
 
    // --- Evento VERI*FACTU: Login ---
-   RegistrarEvento(s_Db, "Login", "Inicio de sesión")
+   RegistrarEvento(s_Db, "Login", L("MainEventoLogin"))
    // --- Fin Evento ---
 
    PREPARE FONT oTitleFnt NAME "Arial" WIDTH 0 HEIGHT -20 WEIGHT 700
@@ -73,7 +73,7 @@ PROCEDURE Main()
    @ 190, 20 SAY "Facturas - VERI*FACTU" SIZE 400, 28 ;
       COLOR hwg_ColorRGB2N(30, 64, 114) FONT oTitleFnt
 
-   @ 130, 32 SAY "Seleccione una opción en el menú superior" SIZE 400, 18 ;
+   @ 130, 32 SAY L("MainMsgSeleccionOpcion") SIZE 400, 18 ;
       COLOR hwg_ColorRGB2N(100, 116, 139)
 
    ADD STATUS TO oDlg PARTS 400, 200
@@ -136,20 +136,20 @@ RETURN NIL
 
 STATIC FUNCTION ExportarRegAeat()
    LOCAL cPath := GuardarXmlRegistros(s_Db)
-   hwg_MsgInfo("Registros AEAT exportados: " + cPath, "Exportación")
+   hwg_MsgInfo(StrTran(L("MainExportRegistros"), "{1}", cPath), L("MainTituloExportacion"))
 RETURN NIL
 
 STATIC FUNCTION ExportarEventosXml()
    LOCAL cPath := GuardarXmlEventos(s_Db)
-   hwg_MsgInfo("Eventos exportados: " + cPath, "Exportación")
+   hwg_MsgInfo(StrTran(L("MainExportEventos"), "{1}", cPath), L("MainTituloExportacion"))
 RETURN NIL
 
 STATIC FUNCTION ExportarGastosCsv()
-   LOCAL cYear := hwg_MsgGet("Año", "Introduzca año:", hb_ntos(Year(Date())))
+   LOCAL cYear := hwg_MsgGet(L("MainAnioTitulo"), L("MainAnioPrompt"), hb_ntos(Year(Date())))
    LOCAL nYear, cPath
    IF Empty(cYear); RETURN; ENDIF
    nYear := Val(cYear)
-   IF nYear < 2000 .OR. nYear > 2100; hwg_MsgInfo("Año no válido", "Error"); RETURN; ENDIF
+   IF nYear < 2000 .OR. nYear > 2100; hwg_MsgInfo(L("MainAnioNoValido"), L("CommonError")); RETURN; ENDIF
    cPath := GuardarCsvGastos(s_Db, nYear)
-   hwg_MsgInfo("Gastos exportados: " + cPath, "Exportación")
+   hwg_MsgInfo(StrTran(L("MainExportGastos"), "{1}", cPath), L("MainTituloExportacion"))
 RETURN NIL

@@ -89,7 +89,7 @@ STATIC FUNCTION VerifactuControls(db, oDlg)
    IF Empty(cIrpf); cIrpf := "15.00"; ENDIF
 
    @ 30, 258 SAY L("EmpresaEntornoAeat") SIZE 100, 22 OF oDlg
-   @ 140, 256 GET COMBOBOX nAmbiente ITEMS {"Producción", "Pruebas"} SIZE 130, 200 OF oDlg
+   @ 140, 256 GET COMBOBOX nAmbiente ITEMS {L("EmpresaAmbienteProduccion"), L("EmpresaAmbientePruebas")} SIZE 130, 200 OF oDlg
 
    @ 300, 258 SAY L("EmpresaRetencionIrpf") SIZE 110, 22 OF oDlg
    @ 420, 256 GET cIrpf SIZE 80, 26 PICTURE "99.99" OF oDlg
@@ -176,9 +176,9 @@ STATIC FUNCTION IdiomaControls(db, oDlg)
    ENDSWITCH
 
    @ 100, 633 GET COMBOBOX oCb VAR nIdx ITEMS aIdiomas SIZE 120, 200 OF oDlg
-   @ 230, 633 BUTTON "Aplicar" SIZE 60, 22 OF oDlg ON CLICK {|| ;
-      LocalCambiarIdioma(db, nIdx), ;
-      hwg_MsgInfo(L("UtilidadesIdiomaInstante"), L("UtilidadesIdioma")) }
+   @ 230, 633 BUTTON L("UtilidadesIdiomaBoton") SIZE 60, 22 OF oDlg ON CLICK {|| ;
+       LocalCambiarIdioma(db, nIdx), ;
+       hwg_MsgInfo(L("UtilidadesIdiomaInstante"), L("UtilidadesIdioma")) }
 RETURN NIL
 
 STATIC FUNCTION LocalCambiarIdioma(db, nIdx)

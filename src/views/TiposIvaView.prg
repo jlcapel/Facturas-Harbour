@@ -9,24 +9,24 @@ FUNCTION TiposIvaView(db, oParent, nX, nY, nW, nH)
 
    oBrw:aArray := aData
    oBrw:AddColumn(HColumn():New(L("TiposIvaNombre"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 25, 0))
-   oBrw:AddColumn(HColumn():New("% IVA", {|v,o| (v), o:aArray[o:nCurrent, 3]}, "C", 10, 0, .F., DT_RIGHT))
+   oBrw:AddColumn(HColumn():New(L("TiposIvaPctHeader"), {|v,o| (v), o:aArray[o:nCurrent, 3]}, "C", 10, 0, .F., DT_RIGHT))
    oBrw:AddColumn(HColumn():New(L("TiposIvaActivo"), {|v,o| (v), iif(o:aArray[o:nCurrent, 4], L("CommonSi"), L("CommonNo"))}, "C", 8, 0, .F., DT_CENTER))
    oBrw:AddColumn(HColumn():New(L("TiposIvaDesde"), {|v,o| (v), o:aArray[o:nCurrent, 5]}, "C", 14, 0, .F., DT_CENTER))
 
    @ nX+30, nY+nH-55 BUTTON L("TiposIvaNuevo") SIZE 70, 28 OF oParent ON CLICK {|| TipoIvaNuevo(db, @aData, oBrw)}
    @ nX+110, nY+nH-55 BUTTON L("TiposIvaEditar") SIZE 70, 28 OF oParent ON CLICK {|| TipoIvaEditar(db, @aData, oBrw, oBrw:nCurrent)}
    @ nX+190, nY+nH-55 BUTTON L("TiposIvaEliminar") SIZE 70, 28 OF oParent ON CLICK {|| TipoIvaEliminar(db, @aData, oBrw)}
-   @ nX+270, nY+nH-55 BUTTON "PDF" SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfTiposIva(db, aData)}
+   @ nX+270, nY+nH-55 BUTTON L("TiposIvaBtnPdf") SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfTiposIva(db, aData)}
 RETURN NIL
 
 STATIC FUNCTION TipoIvaNuevo(db, aData, oBrw)
    LOCAL oDlg, cNombre := Space(30), cPorcentaje := Space(6), lCancel := .F.
 
-   INIT DIALOG oDlg TITLE "Nuevo tipo de IVA" AT 0,0 SIZE 350, 180 STYLE DS_CENTER
+   INIT DIALOG oDlg TITLE L("TiposIvaTitleNuevo") AT 0,0 SIZE 350, 180 STYLE DS_CENTER
 
    @ 20, 20 SAY L("TiposIvaNombreLabel") SIZE 80, 22
    @ 110, 18 GET cNombre SIZE 200, 26
-   @ 20, 55 SAY L("GastoEditPctIva") SIZE 80, 22
+   @ 20, 55 SAY L("TiposIvaPorcentajeLabel") SIZE 80, 22
    @ 110, 53 GET cPorcentaje SIZE 100, 26 PICTURE "99.99"
 
    @ 80, 120 BUTTON L("TiposIvaGuardar") SIZE 80, 28 ON CLICK {|| oDlg:Close()}
@@ -46,7 +46,7 @@ STATIC FUNCTION TipoIvaEditar(db, aData, oBrw, nRow)
    LOCAL aTipo, oDlg, cNombre, cPorcentaje, lCancel := .F.
 
    IF nRow < 1 .OR. nRow > Len(aData)
-      hwg_MsgInfo("Seleccione un tipo de IVA", "Aviso")
+      hwg_MsgInfo(L("TiposIvaMsgSeleccione"), L("CommonAviso"))
       RETURN
    ENDIF
 
@@ -54,11 +54,11 @@ STATIC FUNCTION TipoIvaEditar(db, aData, oBrw, nRow)
    cNombre := PadR(aTipo[2], 30)
    cPorcentaje := PadR(aTipo[3], 6)
 
-   INIT DIALOG oDlg TITLE "Editar tipo de IVA" AT 0,0 SIZE 350, 180 STYLE DS_CENTER
+   INIT DIALOG oDlg TITLE L("TiposIvaTitleEditar") AT 0,0 SIZE 350, 180 STYLE DS_CENTER
 
    @ 20, 20 SAY L("TiposIvaNombreLabel") SIZE 80, 22
    @ 110, 18 GET cNombre SIZE 200, 26
-   @ 20, 55 SAY L("GastoEditPctIva") SIZE 80, 22
+   @ 20, 55 SAY L("TiposIvaPorcentajeLabel") SIZE 80, 22
    @ 110, 53 GET cPorcentaje SIZE 100, 26 PICTURE "99.99"
 
    @ 80, 120 BUTTON L("TiposIvaGuardar") SIZE 80, 28 ON CLICK {|| oDlg:Close()}
@@ -77,20 +77,20 @@ RETURN NIL
 STATIC FUNCTION ExportPdfTiposIva(db, aData)
    LOCAL aCols := { ;
       {L("TiposIvaNombre"), 200, 2}, ;
-      {"% IVA", 80, 3, .T.}, ;
+      {L("TiposIvaPctHeader"), 80, 3, .T.}, ;
       {L("TiposIvaActivo"), 50, 4, .T.}, ;
       {L("TiposIvaDesde"), 120, 5} }
-   LOCAL cPath := AbrirListadoPdf(db, "TiposIVA", aData, aCols)
-   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, L("CommonExportar")); ENDIF
+   LOCAL cPath := AbrirListadoPdf(db, L("TiposIvaTitlePage"), aData, aCols)
+   IF !Empty(cPath); hwg_MsgInfo(StrTran(L("TiposIvaMsgPdfGenerado"), "{1}", cPath), L("CommonExportar")); ENDIF
 RETURN NIL
 
 STATIC FUNCTION TipoIvaEliminar(db, aData, oBrw)
    LOCAL nRow := oBrw:nCurrent
    IF nRow < 1 .OR. nRow > Len(aData)
-      hwg_MsgInfo("Seleccione un tipo de IVA", "Aviso")
+      hwg_MsgInfo(L("TiposIvaMsgSeleccione"), L("CommonAviso"))
       RETURN
    ENDIF
-   IF hwg_MsgYesNo("¿Eliminar " + aData[nRow][2] + "?", "Confirmar")
+   IF hwg_MsgYesNo(StrTran(L("TiposIvaMsgEliminar"), "{1}", aData[nRow][2]), L("CommonConfirmar"))
       aData := ObtenerTiposIva(db)
       oBrw:aArray := aData
       oBrw:Refresh()

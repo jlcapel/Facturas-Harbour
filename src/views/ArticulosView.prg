@@ -17,7 +17,7 @@ FUNCTION ArticulosView(db, oParent, nX, nY, nW, nH)
    @ nX+30, nY+nH-55 BUTTON L("ArticulosNuevo") SIZE 70, 28 OF oParent ON CLICK {|| ArticuloNuevo(db, @aData, oBrw)}
    @ nX+110, nY+nH-55 BUTTON L("ArticulosEditar") SIZE 70, 28 OF oParent ON CLICK {|| ArticuloEditar(db, @aData, oBrw, oBrw:nCurrent)}
    @ nX+190, nY+nH-55 BUTTON L("ArticulosEliminar") SIZE 70, 28 OF oParent ON CLICK {|| ArticuloEliminar(db, @aData, oBrw)}
-   @ nX+270, nY+nH-55 BUTTON "PDF" SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfArticulos(db, aData)}
+   @ nX+270, nY+nH-55 BUTTON L("ArticulosBtnPdf") SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfArticulos(db, aData)}
 RETURN NIL
 
 STATIC FUNCTION ArticuloNuevo(db, aData, oBrw)
@@ -33,7 +33,7 @@ RETURN NIL
 STATIC FUNCTION ArticuloEditar(db, aData, oBrw, nRow)
    LOCAL aArt, aResult
    IF nRow < 1 .OR. nRow > Len(aData)
-      hwg_MsgInfo("Seleccione un artículo", "Aviso")
+      hwg_MsgInfo(L("ArticulosMsgSeleccione"), L("CommonAviso"))
       RETURN
    ENDIF
    aArt := aData[nRow]
@@ -49,10 +49,10 @@ RETURN NIL
 STATIC FUNCTION ArticuloEliminar(db, aData, oBrw)
    LOCAL nRow := oBrw:nCurrent
    IF nRow < 1 .OR. nRow > Len(aData)
-      hwg_MsgInfo("Seleccione un artículo", "Aviso")
+      hwg_MsgInfo(L("ArticulosMsgSeleccione"), L("CommonAviso"))
       RETURN
    ENDIF
-   IF hwg_MsgYesNo("¿Eliminar " + aData[nRow][3] + "?", "Confirmar")
+   IF hwg_MsgYesNo(StrTran(L("ArticulosMsgEliminar"), "{1}", aData[nRow][3]), L("CommonConfirmar"))
       EliminarArticulo(db, aData[nRow][1])
       aData := ObtenerArticulos(db)
       oBrw:aArray := aData
@@ -81,7 +81,7 @@ STATIC FUNCTION ArticuloEditDialog(db, nId)
       ENDIF
    ENDIF
 
-   INIT DIALOG oDlg TITLE "Editar artículo" AT 0,0 SIZE 450, 300 STYLE DS_CENTER
+   INIT DIALOG oDlg TITLE L("ArticulosTitleEditar") AT 0,0 SIZE 450, 300 STYLE DS_CENTER
 
    @ 20, 20 SAY L("ArticulosCodigoLabel") SIZE 80, 22
    @ 110, 18 GET cCodigo SIZE 150, 26
@@ -89,10 +89,10 @@ STATIC FUNCTION ArticuloEditDialog(db, nId)
    @ 20, 55 SAY L("ArticulosDescripcionLabel") SIZE 80, 22
    @ 110, 53 GET cDescripcion SIZE 300, 26
 
-   @ 20, 90 SAY "Precio:" SIZE 80, 22
+   @ 20, 90 SAY L("ArticulosPrecioLabel") SIZE 80, 22
    @ 110, 88 GET cPrecio SIZE 120, 26 PICTURE "999999.99"
 
-   @ 20, 125 SAY "Unidad:" SIZE 80, 22
+   @ 20, 125 SAY L("ArticulosUnidadLabel") SIZE 80, 22
    @ 110, 123 GET cUnidad SIZE 60, 26
 
    @ 20, 160 SAY L("ArticulosTipoIva") SIZE 80, 22
@@ -127,5 +127,5 @@ STATIC FUNCTION ExportPdfArticulos(db, aData)
       {L("ArticulosUd"), 50, 5, .T.}, ;
       {L("CommonActivo"), 50, 6, .T.} }
    LOCAL cPath := AbrirListadoPdf(db, L("ArticulosTitle"), aData, aCols)
-   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, L("CommonExportar")); ENDIF
+   IF !Empty(cPath); hwg_MsgInfo(StrTran(L("ArticulosMsgPdfGenerado"), "{1}", cPath), L("CommonExportar")); ENDIF
 RETURN NIL

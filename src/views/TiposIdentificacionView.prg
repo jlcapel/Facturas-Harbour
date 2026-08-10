@@ -15,13 +15,13 @@ FUNCTION TiposIdentificacionView(db, oParent, nX, nY, nW, nH)
    @ nX+30, nY+nH-55 BUTTON L("IdentifNuevo") SIZE 70, 28 OF oParent ON CLICK {|| TipoIdentNuevo(db, @aData, oBrw)}
    @ nX+110, nY+nH-55 BUTTON L("IdentifEditar") SIZE 70, 28 OF oParent ON CLICK {|| TipoIdentEditar(db, @aData, oBrw, oBrw:nCurrent)}
    @ nX+190, nY+nH-55 BUTTON L("IdentifEliminar") SIZE 70, 28 OF oParent ON CLICK {|| TipoIdentEliminar(db, @aData, oBrw)}
-   @ nX+270, nY+nH-55 BUTTON "PDF" SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfTiposIdent(db, aData)}
+   @ nX+270, nY+nH-55 BUTTON L("IdentifBtnPdf") SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfTiposIdent(db, aData)}
 RETURN NIL
 
 STATIC FUNCTION TipoIdentNuevo(db, aData, oBrw)
    LOCAL oDlg, cCodigo := Space(10), cNombre := Space(50), lCancel := .F.
 
-   INIT DIALOG oDlg TITLE "Nuevo tipo de identificación" AT 0,0 SIZE 400, 180 STYLE DS_CENTER
+   INIT DIALOG oDlg TITLE L("IdentifTitleNuevo") AT 0,0 SIZE 400, 180 STYLE DS_CENTER
 
    @ 20, 20 SAY L("IdentifCodigoLabel") SIZE 80, 22
    @ 110, 18 GET cCodigo SIZE 100, 26
@@ -45,7 +45,7 @@ STATIC FUNCTION TipoIdentEditar(db, aData, oBrw, nRow)
    LOCAL aTipo, oDlg, cCodigo, cNombre, lCancel := .F.
 
    IF nRow < 1 .OR. nRow > Len(aData)
-      hwg_MsgInfo("Seleccione un tipo de identificación", "Aviso")
+      hwg_MsgInfo(L("IdentifMsgSeleccione"), L("CommonAviso"))
       RETURN
    ENDIF
 
@@ -53,7 +53,7 @@ STATIC FUNCTION TipoIdentEditar(db, aData, oBrw, nRow)
    cCodigo := PadR(aTipo[2], 10)
    cNombre := PadR(aTipo[3], 50)
 
-   INIT DIALOG oDlg TITLE "Editar tipo de identificación" AT 0,0 SIZE 400, 180 STYLE DS_CENTER
+   INIT DIALOG oDlg TITLE L("IdentifTitleEditar") AT 0,0 SIZE 400, 180 STYLE DS_CENTER
 
    @ 20, 20 SAY L("IdentifCodigoLabel") SIZE 80, 22
    @ 110, 18 GET cCodigo SIZE 100, 26
@@ -78,17 +78,17 @@ STATIC FUNCTION ExportPdfTiposIdent(db, aData)
       {L("IdentifCodigoAeat"), 120, 2}, ;
       {L("IdentifNombre"), 400, 3}, ;
       {L("CommonActivo"), 50, 4, .T.} }
-   LOCAL cPath := AbrirListadoPdf(db, "TiposIdentificacion", aData, aCols)
-   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, L("CommonExportar")); ENDIF
+   LOCAL cPath := AbrirListadoPdf(db, L("IdentifTitle"), aData, aCols)
+   IF !Empty(cPath); hwg_MsgInfo(StrTran(L("IdentifMsgPdfGenerado"), "{1}", cPath), L("CommonExportar")); ENDIF
 RETURN NIL
 
 STATIC FUNCTION TipoIdentEliminar(db, aData, oBrw)
    LOCAL nRow := oBrw:nCurrent
    IF nRow < 1 .OR. nRow > Len(aData)
-      hwg_MsgInfo("Seleccione un tipo de identificación", "Aviso")
+      hwg_MsgInfo(L("IdentifMsgSeleccione"), L("CommonAviso"))
       RETURN
    ENDIF
-   IF hwg_MsgYesNo("¿Eliminar " + aData[nRow][3] + "?", "Confirmar")
+   IF hwg_MsgYesNo(StrTran(L("IdentifMsgEliminar"), "{1}", aData[nRow][3]), L("CommonConfirmar"))
       GuardarTipoIdentificacion(db, aData[nRow][1], aData[nRow][2], aData[nRow][3], .F.)
       aData := ObtenerTiposIdentificacion(db)
       oBrw:aArray := aData

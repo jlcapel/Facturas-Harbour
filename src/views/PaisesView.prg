@@ -6,28 +6,28 @@ FUNCTION PaisesView(db, oParent, nX, nY, nW, nH)
    aData := ObtenerPaises(db)
 
    @ nX+20, nY+20 BROWSE oBrw ARRAY SIZE nW-40, nH-90 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL OF oParent
-   oBrw:aHeadPadding[4] := 10
-   oBrw:aPadding[2] := 6
-   oBrw:aPadding[4] := 6
+    oBrw:aHeadPadding[4] := 10
+    oBrw:aPadding[2] := 6
+    oBrw:aPadding[4] := 6
 
-   oBrw:aArray := aData
-   oBrw:AddColumn(HColumn():New(L("PaisesCodigo"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 8, 0, .F., DT_CENTER))
-   oBrw:AddColumn(HColumn():New(L("PaisesNombre"), {|v,o| (v), o:aArray[o:nCurrent, 3]}, "C", 30, 0))
-   oBrw:AddColumn(HColumn():New(L("PaisesNacionalidad"), {|v,o| (v), o:aArray[o:nCurrent, 4]}, "C", 25, 0))
-   oBrw:AddColumn(HColumn():New(L("PaisesUe"), {|v,o| (v), iif(o:aArray[o:nCurrent, 5], L("CommonSi"), L("CommonNo"))}, "C", 8, 0, .F., DT_CENTER))
+    oBrw:aArray := aData
+    oBrw:AddColumn(HColumn():New(L("PaisesCodigo"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 8, 0, .F., DT_CENTER))
+    oBrw:AddColumn(HColumn():New(L("PaisesNombre"), {|v,o| (v), o:aArray[o:nCurrent, 3]}, "C", 30, 0))
+    oBrw:AddColumn(HColumn():New(L("PaisesNacionalidad"), {|v,o| (v), o:aArray[o:nCurrent, 4]}, "C", 25, 0))
+    oBrw:AddColumn(HColumn():New(L("PaisesUe"), {|v,o| (v), iif(o:aArray[o:nCurrent, 5], L("CommonSi"), L("CommonNo"))}, "C", 8, 0, .F., DT_CENTER))
 
-   @ nX+30, nY+nH-55 BUTTON L("PaisesNuevo") SIZE 70, 28 OF oParent ON CLICK {|| PaisNuevo(db, @aData, oBrw)}
-   @ nX+110, nY+nH-55 BUTTON L("PaisesEditar") SIZE 70, 28 OF oParent ON CLICK {|| PaisEditar(db, @aData, oBrw, oBrw:nCurrent)}
-   @ nX+190, nY+nH-55 BUTTON L("PaisesEliminar") SIZE 70, 28 OF oParent ON CLICK {|| PaisEliminar(db, @aData, oBrw)}
-   @ nX+270, nY+nH-55 BUTTON "PDF" SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfPaises(db, aData)}
-   @ nX+340, nY+nH-55 BUTTON L("PaisesVolver") SIZE 70, 28 OF oParent ON CLICK {|| CerrarVista()}
+    @ nX+30, nY+nH-55 BUTTON L("PaisesNuevo") SIZE 70, 28 OF oParent ON CLICK {|| PaisNuevo(db, @aData, oBrw)}
+    @ nX+110, nY+nH-55 BUTTON L("PaisesEditar") SIZE 70, 28 OF oParent ON CLICK {|| PaisEditar(db, @aData, oBrw, oBrw:nCurrent)}
+    @ nX+190, nY+nH-55 BUTTON L("PaisesEliminar") SIZE 70, 28 OF oParent ON CLICK {|| PaisEliminar(db, @aData, oBrw)}
+    @ nX+270, nY+nH-55 BUTTON L("PaisesBtnPdf") SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfPaises(db, aData)}
+    @ nX+340, nY+nH-55 BUTTON L("PaisesVolver") SIZE 70, 28 OF oParent ON CLICK {|| CerrarVista()}
 RETURN NIL
 
 STATIC FUNCTION PaisNuevo(db, aData, oBrw)
    LOCAL oDlg, cCodigo := Space(2), cNombre := Space(30), cNacionalidad := Space(25)
    LOCAL oChkUE, lEsUE := .F., lCancel := .F.
 
-   INIT DIALOG oDlg TITLE "Nuevo país" AT 0,0 SIZE 350, 220 STYLE DS_CENTER
+   INIT DIALOG oDlg TITLE L("PaisesTitleNuevo") AT 0,0 SIZE 350, 220 STYLE DS_CENTER
 
    @ 20, 20 SAY L("PaisesCodigoLabel") SIZE 80, 22
    @ 110, 18 GET cCodigo SIZE 60, 26
@@ -54,7 +54,7 @@ RETURN NIL
 STATIC FUNCTION PaisEditar(db, aData, oBrw, nRow)
    LOCAL aPais, oDlg, cCodigo, cNombre, cNacionalidad, oChkUE, lEsUEInit, lEsUE := .F., lCancel := .F.
    IF nRow < 1 .OR. nRow > Len(aData)
-      hwg_MsgInfo("Seleccione un país", "Aviso")
+      hwg_MsgInfo(L("PaisesMsgSeleccione"), L("CommonAviso"))
       RETURN
    ENDIF
 
@@ -64,7 +64,7 @@ STATIC FUNCTION PaisEditar(db, aData, oBrw, nRow)
    cNacionalidad := PadR(aPais[4], 25)
    lEsUEInit := aPais[5]
 
-   INIT DIALOG oDlg TITLE "Editar país" AT 0,0 SIZE 350, 220 STYLE DS_CENTER
+   INIT DIALOG oDlg TITLE L("PaisesTitleEditar") AT 0,0 SIZE 350, 220 STYLE DS_CENTER
 
    @ 20, 20 SAY L("PaisesCodigoLabel") SIZE 80, 22
    @ 110, 18 GET cCodigo SIZE 60, 26
@@ -94,16 +94,16 @@ STATIC FUNCTION ExportPdfPaises(db, aData)
       {L("PaisesNacionalidad"), 200, 4}, ;
       {L("PaisesUe"), 60, 5, .T.} }
    LOCAL cPath := AbrirListadoPdf(db, L("PaisesTitle"), aData, aCols)
-   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, L("CommonExportar")); ENDIF
+   IF !Empty(cPath); hwg_MsgInfo(StrTran(L("PaisesMsgPdfGenerado"), "{1}", cPath), L("CommonExportar")); ENDIF
 RETURN NIL
 
 STATIC FUNCTION PaisEliminar(db, aData, oBrw)
    LOCAL nRow := oBrw:nCurrent
    IF nRow < 1 .OR. nRow > Len(aData)
-      hwg_MsgInfo("Seleccione un país", "Aviso")
+      hwg_MsgInfo(L("PaisesMsgSeleccione"), L("CommonAviso"))
       RETURN
    ENDIF
-   IF hwg_MsgYesNo("¿Eliminar " + aData[nRow][3] + "?", "Confirmar")
+   IF hwg_MsgYesNo(StrTran(L("PaisesMsgEliminar"), "{1}", aData[nRow][3]), L("CommonConfirmar"))
       GuardarPais(db, aData[nRow][1], aData[nRow][2], aData[nRow][3], aData[nRow][4], aData[nRow][5], .F.)
       aData := ObtenerPaises(db)
       oBrw:aArray := aData

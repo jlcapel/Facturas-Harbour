@@ -2,15 +2,15 @@ FUNCTION L(cKey)
    RETURN LocalizationGet(cKey)
 
 FUNCTION LocalizationNew()
-   PUBLIC oLoc := {=>}
-   oLoc["hStrings"] := {=>}
-   oLoc["cLang"] := "es"
-   LocalizationLoad("es")
-   LocalizationLoad("en")
-   LocalizationLoad("fr")
-   LocalizationLoad("ca")
-   LocalizationLoad("eu")
-   oLoc["hFallback"] := oLoc["hStrings"]["es"]
+    PUBLIC oLoc := {=>}
+    oLoc["hStrings"] := {=>}
+    oLoc["cLang"] := "es"
+    LocalizationLoad("es")
+    LocalizationLoad("en")
+    LocalizationLoad("fr")
+    LocalizationLoad("ca")
+    LocalizationLoad("eu")
+    oLoc["hFallback"] := oLoc["hStrings"]["es"]
 RETURN NIL
 
 FUNCTION LocalizationGet(cKey)
@@ -34,13 +34,17 @@ RETURN NIL
 
 FUNCTION LocalizationLoad(cCode)
    LOCAL h := NIL
-   SWITCH cCode
-   CASE "es"; h := LoadStrings_es()
-   CASE "en"; h := LoadStrings_en()
-   CASE "fr"; h := LoadStrings_fr()
-   CASE "ca"; h := LoadStrings_ca()
-   CASE "eu"; h := LoadStrings_eu()
-   ENDSWITCH
+    SWITCH cCode
+    CASE "es"; h := LoadStrings_es()
+    BREAK
+    CASE "en"; h := LoadStrings_en()
+    BREAK
+    CASE "fr"; h := LoadStrings_fr()
+    BREAK
+    CASE "ca"; h := LoadStrings_ca()
+    BREAK
+    CASE "eu"; h := LoadStrings_eu()
+    ENDSWITCH
    IF h != NIL
       oLoc["hStrings"][cCode] := h
    ENDIF

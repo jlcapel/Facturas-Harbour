@@ -17,14 +17,16 @@ Copyright (c) 2025-2026 José L. Capel — jlcapel@hotmail.com
 
 **THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.**
 
-## Stack
+## Stack aprobado
+
+El stack tecnológico general está fijado en la [ADR-001](./adr/ADR-001.md):
 
 - **Harbour** 3.2.0dev — https://github.com/harbour/core
 - **HWGUI** — GUI multiplataforma (GTK3 en Linux, WinAPI en Windows)
-- **SQLite3** — Base de datos local
-- **Haru PDF** — Generación de PDFs
-- **libcurl** — SOAP AEAT
-- **Mini-XML** — XML parsing
+- **SQLite** mediante `hbsqlit3` — Base de datos local
+- **hbcurl** — HTTP/SOAP AEAT, HTTPS y certificado cliente
+- **hbhpdf** — Generación de PDFs
+- **hbzebra** — Generación de códigos QR
 
 ## Compilar
 
@@ -36,6 +38,8 @@ cd Facturas-Harbour
 Para Windows cross-compilation, ver AGENTS.md.
 
 ## Estado del proyecto
+
+La tabla siguiente es el resumen histórico inicial. El estado vigente de estabilización, validación fiscal, pruebas, runtime y distribución está en los hitos 11–14 del [ROADMAP](./ROADMAP.md). No se activará AEAT en producción hasta completar los criterios definidos allí.
 
 | Hito | Estado |
 |---|---|---|

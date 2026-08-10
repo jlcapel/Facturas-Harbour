@@ -14,9 +14,9 @@ FUNCTION FacturasView(db, oParent, nX, nY, nW, nH)
    oBrw:AddColumn(HColumn():New(L("FacturasTipoHead"), {|v,o| (v), o:aArray[o:nCurrent, 4]}, "C", 6, 0, .F., DT_CENTER))
    oBrw:AddColumn(HColumn():New(L("CommonBase"), {|v,o| (v), Str(o:aArray[o:nCurrent, 6], 10, 2)}, "C", 10, 0, .F., DT_RIGHT))
    oBrw:AddColumn(HColumn():New(L("FacturasTotalLinea"), {|v,o| (v), Str(o:aArray[o:nCurrent, 7], 10, 2)}, "C", 10, 0, .F., DT_RIGHT))
-   oBrw:AddColumn(HColumn():New(L("FacturasEstadoHead"), {|v,o| (v), Iif(o:aArray[o:nCurrent, 8] == 0, "Emitida", "Anulada")}, "C", 10, 0, .F., DT_CENTER))
+   oBrw:AddColumn(HColumn():New(L("FacturasEstadoHead"), {|v,o| (v), Iif(o:aArray[o:nCurrent, 8] == 0, L("FacturasEstadoEmitida"), L("FacturasEstadoAnulada"))}, "C", 10, 0, .F., DT_CENTER))
 
-   @ nX+30, nY+nH-55 BUTTON "Nueva" SIZE 70, 28 OF oParent ON CLICK {|| FacturaNueva(db, @aData, oBrw)}
+   @ nX+30, nY+nH-55 BUTTON L("FacturasBtnNueva") SIZE 70, 28 OF oParent ON CLICK {|| FacturaNueva(db, @aData, oBrw)}
    @ nX+110, nY+nH-55 BUTTON L("CommonEditar") SIZE 70, 28 OF oParent ON CLICK {|| FacturaEditar(db, @aData, oBrw)}
    @ nX+190, nY+nH-55 BUTTON L("FacturasImprimir") SIZE 70, 28 OF oParent ON CLICK {|| FacturaImprimir(db, aData, oBrw)}
    @ nX+270, nY+nH-55 BUTTON L("FacturasAnular") SIZE 70, 28 OF oParent ON CLICK {|| FacturaAnular(db, @aData, oBrw)}
@@ -35,7 +35,7 @@ STATIC FUNCTION FacturaEditar(db, aData, oBrw)
    LOCAL nRow := oBrw:nCurrent
    LOCAL nId
    IF nRow < 1 .OR. nRow > Len(aData)
-      hwg_MsgInfo("Seleccione una factura", "Aviso")
+      hwg_MsgInfo(L("FacturasMsgSeleccione"), L("CommonAviso"))
       RETURN
    ENDIF
    nId := FacturaCrearDialog(db, aData[nRow][1])
@@ -53,11 +53,11 @@ STATIC FUNCTION FacturaAnular(db, aData, oBrw)
    LOCAL stmt
 
    IF nRow < 1 .OR. nRow > Len(aData)
-      hwg_MsgInfo("Seleccione una factura", "Aviso")
+      hwg_MsgInfo(L("FacturasMsgSeleccione"), L("CommonAviso"))
       RETURN
    ENDIF
    IF aData[nRow][8] != 0
-      hwg_MsgInfo(L("ServiceFacturaYaAnulada"), "Aviso")
+      hwg_MsgInfo(L("ServiceFacturaYaAnulada"), L("CommonAviso"))
       RETURN
    ENDIF
 
@@ -75,7 +75,7 @@ STATIC FUNCTION FacturaAnular(db, aData, oBrw)
    ENDIF
    sqlite3_finalize(stmt)
 
-   IF hwg_MsgYesNo("¿Anular " + cNumFactura + "?", "Confirmar")
+   IF hwg_MsgYesNo(StrTran(L("FacturasMsgAnular"), "{1}", cNumFactura), L("CommonConfirmar"))
       // Anular factura (cambiar estado a 1 = Anulada)
       IF AnularFactura(db, nFacturaId)
          // Crear registro de anulación VERI*FACTU
@@ -85,7 +85,7 @@ STATIC FUNCTION FacturaAnular(db, aData, oBrw)
          lAnulacion := CrearRegistroAnulacion(db, nFacturaId, 0, ;
             cNumFacturaAnulacion, Date(), cNifEmisor, ;
             aData[nRow][6], aData[nRow][7] - aData[nRow][6] + 0, ;
-            aData[nRow][2], aData[nRow][3], "F1", "Anulación voluntaria")
+            aData[nRow][2], aData[nRow][3], "F1", L("FacturaAnulacionVoluntaria"))
 
          IF lAnulacion
             // El envío SOAP se hace desde CrearRegistroAnulacion
@@ -106,7 +106,7 @@ STATIC FUNCTION FacturaImprimir(db, aData, oBrw)
    LOCAL cRuta, nId, cEntorno
 
    IF nRow < 1 .OR. nRow > Len(aData)
-      hwg_MsgInfo("Seleccione una factura", "Aviso")
+      hwg_MsgInfo(L("FacturasMsgSeleccione"), L("CommonAviso"))
       RETURN
    ENDIF
 
@@ -118,8 +118,8 @@ STATIC FUNCTION FacturaImprimir(db, aData, oBrw)
 
    cEntorno := Iif(ObtenerConfiguracion(db, "VeriFactu.Ambiente") == "2", "Preproduccion", "Produccion")
    IF GenerarPdfFactura(db, nId, cRuta, cEntorno)
-      hwg_MsgInfo("PDF generado: " + cRuta, "Información")
+      hwg_MsgInfo(StrTran(L("FacturasMsgPdfGenerado"), "{1}", cRuta), L("CommonInformacion"))
    ELSE
-      hwg_MsgInfo("Error al generar PDF", "Error")
+      hwg_MsgInfo(L("FacturasMsgErrorPdf"), L("CommonError"))
    ENDIF
 RETURN NIL

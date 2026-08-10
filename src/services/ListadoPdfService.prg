@@ -139,7 +139,7 @@ STATIC PROCEDURE PintarPieListado(page, fontS, cTitulo, nPag, y)
    HPDF_Page_SetRGBFill(page, 0.5, 0.5, 0.5)
    HPDF_Page_BeginText(page)
    HPDF_Page_TextOut(page, 30, y, cTitulo)
-   HPDF_Page_TextOut(page, 770 - 40, y, "Pág. " + hb_ntos(nPag))
+   HPDF_Page_TextOut(page, 770 - 40, y, StrTran(L("ListadoPdfPagina"), "{1}", hb_ntos(nPag)))
    HPDF_Page_EndText(page)
    HPDF_Page_SetRGBFill(page, 0, 0, 0)
 RETURN

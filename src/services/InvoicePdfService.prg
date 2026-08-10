@@ -103,7 +103,7 @@ PintarLineaH(page, y)
        HPDF_Page_SetFontAndSize(page, fontS, 7)
        HPDF_Page_SetRGBFill(page, 0.3, 0.3, 0.3)
        HPDF_Page_BeginText(page)
-       HPDF_Page_TextOut(page, nQrX, nQrY - 12, "Verificar en AEAT")
+       HPDF_Page_TextOut(page, nQrX, nQrY - 12, L("PdfVerificarAeat"))
        HPDF_Page_EndText(page)
     ENDIF
     hb_zebra_destroy(hZebra)
@@ -126,8 +126,8 @@ STATIC FUNCTION FmtDec(nVal)
    RETURN StrTran(Str(nVal, 12, 2), " ", "")
 
 STATIC PROCEDURE PintarCabecera(page, fontN, fontB, aInfo, aFactura, y)
-   LOCAL cEntorno := Iif(aInfo[9] == "1", "", " (PRUEBAS)")
-   LOCAL cTitulo := "FACTURA" + cEntorno
+   LOCAL cEntorno := Iif(aInfo[9] == "1", "", L("PdfPruebaSufijo"))
+   LOCAL cTitulo := L("PdfFacturaTitle") + cEntorno
    LOCAL cNumero := aFactura[2]
    LOCAL dFecha := aFactura[3]
    LOCAL cFecha := DToC(dFecha)
@@ -151,7 +151,7 @@ STATIC PROCEDURE PintarCabecera(page, fontN, fontB, aInfo, aFactura, y)
 
    HPDF_Page_SetFontAndSize(page, fontN, 10)
    HPDF_Page_BeginText(page)
-   HPDF_Page_TextOut(page, 595 - PDF_MARGIN - HPDF_Page_TextWidth(page, "Fecha: " + cFecha), y, "Fecha: " + cFecha)
+   HPDF_Page_TextOut(page, 595 - PDF_MARGIN - HPDF_Page_TextWidth(page, StrTran(L("PdfFecha"), "{0}", cFecha)), y, StrTran(L("PdfFecha"), "{0}", cFecha))
    HPDF_Page_EndText(page)
    y -= 20
 
@@ -163,7 +163,7 @@ STATIC PROCEDURE PintarCabecera(page, fontN, fontB, aInfo, aFactura, y)
 
    HPDF_Page_SetFontAndSize(page, fontN, 10)
    HPDF_Page_BeginText(page)
-   HPDF_Page_TextOut(page, PDF_MARGIN, y, "NIF: " + aInfo[2])
+   HPDF_Page_TextOut(page, PDF_MARGIN, y, StrTran(L("PdfNif"), "{0}", aInfo[2]))
    HPDF_Page_EndText(page)
    y -= 14
 
@@ -183,7 +183,7 @@ STATIC PROCEDURE PintarCabecera(page, fontN, fontB, aInfo, aFactura, y)
 
    IF !Empty(aInfo[7])
       HPDF_Page_BeginText(page)
-      HPDF_Page_TextOut(page, PDF_MARGIN, y, "Tel: " + aInfo[7])
+      HPDF_Page_TextOut(page, PDF_MARGIN, y, StrTran(L("PdfTel"), "{0}", aInfo[7]))
       HPDF_Page_EndText(page)
       y -= 14
    ENDIF
@@ -203,7 +203,7 @@ STATIC PROCEDURE PintarCabecera(page, fontN, fontB, aInfo, aFactura, y)
       HPDF_Page_SetRGBFill(page, 1, 0, 0)
       HPDF_Page_SetFontAndSize(page, fontB, 12)
       HPDF_Page_BeginText(page)
-      HPDF_Page_TextOut(page, 595 / 2 - 70, y, "DOCUMENTO DE PRUEBA - SIN VALOR FISCAL")
+      HPDF_Page_TextOut(page, 595 / 2 - 70, y, L("PdfDocumentoPrueba"))
       HPDF_Page_EndText(page)
       HPDF_Page_SetRGBFill(page, 0, 0, 0)
       y -= 20
@@ -217,7 +217,7 @@ STATIC PROCEDURE PintarCliente(page, fontN, fontB, aFactura, y)
    HPDF_Page_SetRGBFill(page, 0.8, 0.8, 0.8)
    HPDF_Page_SetFontAndSize(page, fontB, 10)
    HPDF_Page_BeginText(page)
-   HPDF_Page_TextOut(page, PDF_MARGIN, y, "DATOS DEL CLIENTE")
+   HPDF_Page_TextOut(page, PDF_MARGIN, y, L("PdfDatosCliente"))
    HPDF_Page_EndText(page)
    HPDF_Page_SetRGBFill(page, 0, 0, 0)
    y -= 14
@@ -229,7 +229,7 @@ STATIC PROCEDURE PintarCliente(page, fontN, fontB, aFactura, y)
    y -= 14
 
    HPDF_Page_BeginText(page)
-   HPDF_Page_TextOut(page, PDF_MARGIN, y, "NIF: " + cNif)
+   HPDF_Page_TextOut(page, PDF_MARGIN, y, StrTran(L("PdfClienteNif"), "{0}", cNif))
    HPDF_Page_EndText(page)
    y -= 18
 RETURN
@@ -244,15 +244,15 @@ STATIC PROCEDURE PintarTablaHeader(page, fontB, y)
 
    HPDF_Page_SetFontAndSize(page, fontB, 9)
    HPDF_Page_BeginText(page)
-   HPDF_Page_TextOut(page, x + 5, y + 2, "Cant.")
+   HPDF_Page_TextOut(page, x + 5, y + 2, L("PdfCant"))
    x += COL_CANT
-   HPDF_Page_TextOut(page, x + 5, y + 2, "Descripción")
+   HPDF_Page_TextOut(page, x + 5, y + 2, L("PdfDescripcion"))
    x += COL_DESC
-   HPDF_Page_TextOut(page, x + 5, y + 2, "Precio")
+   HPDF_Page_TextOut(page, x + 5, y + 2, L("PdfPrecio"))
    x += COL_PRECIO
-   HPDF_Page_TextOut(page, x + 5, y + 2, "IVA%")
+   HPDF_Page_TextOut(page, x + 5, y + 2, L("PdfIvaPct"))
    x += COL_IVA
-   HPDF_Page_TextOut(page, x + 5, y + 2, "Importe")
+   HPDF_Page_TextOut(page, x + 5, y + 2, L("PdfImporte"))
    HPDF_Page_EndText(page)
    y -= LINE_HEIGHT + 4
 RETURN
@@ -291,20 +291,20 @@ STATIC PROCEDURE PintarTotales(page, fontN, fontB, aFactura, y)
 
    HPDF_Page_SetFontAndSize(page, fontN, 10)
    HPDF_Page_BeginText(page)
-   HPDF_Page_TextOut(page, xLabel, y, "Base Imponible:")
+   HPDF_Page_TextOut(page, xLabel, y, L("PdfBaseImponible"))
    HPDF_Page_TextOut(page, xVal + 80 - HPDF_Page_TextWidth(page, FmtDec(nBase)), y, FmtDec(nBase))
    HPDF_Page_EndText(page)
    y -= 16
 
    HPDF_Page_BeginText(page)
-   HPDF_Page_TextOut(page, xLabel, y, "IVA:")
+   HPDF_Page_TextOut(page, xLabel, y, L("PdfIva"))
    HPDF_Page_TextOut(page, xVal + 80 - HPDF_Page_TextWidth(page, FmtDec(nIva)), y, FmtDec(nIva))
    HPDF_Page_EndText(page)
    y -= 16
 
    IF nIrpf > 0
       HPDF_Page_BeginText(page)
-      HPDF_Page_TextOut(page, xLabel, y, "IRPF (" + Str(nIrpfPct, 4, 1) + "%):")
+      HPDF_Page_TextOut(page, xLabel, y, StrTran(L("PdfRetIrpf"), "{0:F1}", AllTrim(Str(nIrpfPct, 4, 1))))
       HPDF_Page_TextOut(page, xVal + 80 - HPDF_Page_TextWidth(page, "-" + FmtDec(nIrpf)), y, "-" + FmtDec(nIrpf))
       HPDF_Page_EndText(page)
       y -= 16
@@ -315,7 +315,7 @@ STATIC PROCEDURE PintarTotales(page, fontN, fontB, aFactura, y)
 
    HPDF_Page_SetFontAndSize(page, fontB, 14)
    HPDF_Page_BeginText(page)
-   HPDF_Page_TextOut(page, xLabel, y, "TOTAL:")
+   HPDF_Page_TextOut(page, xLabel, y, L("PdfTotalLabel"))
    HPDF_Page_SetFontAndSize(page, fontB, 14)
    HPDF_Page_TextOut(page, xVal + 80 - HPDF_Page_TextWidth(page, FmtDec(nTotal)), y, FmtDec(nTotal))
    HPDF_Page_EndText(page)
@@ -333,14 +333,14 @@ STATIC PROCEDURE PintarPie(page, fontS, aFactura, y)
 
    IF aFactura[26] != NIL
       HPDF_Page_BeginText(page)
-      HPDF_Page_TextOut(page, PDF_MARGIN, y, "Hash: " + Left(aFactura[26], 16) + "...")
+      HPDF_Page_TextOut(page, PDF_MARGIN, y, StrTran(L("PdfHash"), "{0}", Left(aFactura[26], 16)))
       HPDF_Page_EndText(page)
       y -= 10
    ENDIF
 
    IF aFactura[27] != NIL
       HPDF_Page_BeginText(page)
-      HPDF_Page_TextOut(page, PDF_MARGIN, y, "CSV: " + aFactura[27])
+      HPDF_Page_TextOut(page, PDF_MARGIN, y, StrTran(L("PdfCsv"), "{0}", aFactura[27]))
       HPDF_Page_EndText(page)
    ENDIF
 

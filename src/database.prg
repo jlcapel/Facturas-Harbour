@@ -394,8 +394,9 @@ STATIC FUNCTION SembrarConfiguracion(db)
       { "IVA.General", "21.00" }, ;
       { "IVA.Reducido", "10.00" }, ;
       { "IVA.Superreducido", "4.00" }, ;
-      { "IRPF.Porcentaje", "15" }, ;
-      { "VeriFactu.NombreSistemaInformatico", "Facturas" }, ;
+{ "IRPF.Porcentaje", "15" }, ;
+       { "Language", "es" }, ;
+       { "VeriFactu.NombreSistemaInformatico", "Facturas" }, ;
       { "VeriFactu.NifDesarrollo", "" }, ;
       { "VeriFactu.VersionSIF", "1.0.0" }, ;
       { "VeriFactu.NumeroInstalacion", "1" }, ;

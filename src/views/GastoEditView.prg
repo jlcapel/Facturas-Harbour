@@ -15,8 +15,8 @@ FUNCTION GastoEditDialog(db, nGastoId)
    LOCAL nGastoDeducible := 0
 
    LOCAL aProveedores, aCategorias, aBienes
-   LOCAL aTiposDoc := {"Factura", "Ticket Simplificada", "Recibo", "DUA", "Otro"}
-   LOCAL aMediosPago := {"Efectivo", "Transferencia", "Tarjeta", "Domiciliación", "Otro"}
+   LOCAL aTiposDoc := {L("GastosTipoDocFactura"), L("GastosTipoDocTicket"), L("GastosTipoDocRecibo"), L("GastosTipoDocDua"), L("GastosTipoDocOtro")}
+   LOCAL aMediosPago := {L("GastosMedioPagoEfectivo"), L("GastosMedioPagoTransferencia"), L("GastosMedioPagoTarjeta"), L("GastosMedioPagoDomiciliacion"), L("GastosMedioPagoOtro")}
 
    aProveedores := ObtenerProveedores(db)
    aCategorias := ObtenerCategoriasGasto(db)
@@ -25,7 +25,7 @@ FUNCTION GastoEditDialog(db, nGastoId)
    IF nGastoId != 0
       aGasto := ObtenerGastoPorId(db, nGastoId)
       IF aGasto == NIL
-         hwg_MsgInfo("Gasto no encontrado", "Error")
+         hwg_MsgInfo(L("GastoEditMsgNoEncontrada"), L("CommonError"))
          RETURN 0
       ENDIF
       cNumero := aGasto[2]
@@ -55,14 +55,14 @@ FUNCTION GastoEditDialog(db, nGastoId)
    ENDIF
 
    INIT DIALOG oDlg ;
-      TITLE Iif(nGastoId == 0, "Nuevo gasto", "Editar gasto") ;
+      TITLE Iif(nGastoId == 0, L("GastoEditTitleNuevo"), L("GastoEditTitleEditar")) ;
       AT 0, 0 ;
       SIZE 720, 520 ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
    @ 20, 15 SAY L("GastoEditNumFactura") SIZE 80, 22
    @ 110, 13 GET cNumero SIZE 150, 26
-   @ 300, 15 SAY "Tipo doc.:" SIZE 80, 22
+   @ 300, 15 SAY L("GastosTipoDoc") SIZE 80, 22
    @ 380, 13 GET COMBOBOX nTipoDoc ITEMS aTiposDoc SIZE 160, 200
    @ 20, 48 SAY L("GastoEditFechaEmision") SIZE 100, 22
    @ 130, 46 GET dFechaEmi SIZE 110, 26
@@ -74,7 +74,7 @@ FUNCTION GastoEditDialog(db, nGastoId)
    @ 110, 112 GET COMBOBOX nCategoriaSel ITEMS ListaCatNombres(aCategorias) SIZE 250, 200
    @ 20, 147 SAY L("GastoEditDescripcion") SIZE 80, 22
    @ 110, 145 GET cDescripcion SIZE 500, 26
-   @ 20, 180 GROUPBOX "Importes" SIZE 680, 170
+   @ 20, 180 GROUPBOX L("GastoEditImportes") SIZE 680, 170
    @ 30, 200 SAY L("GastoEditBaseImponible") SIZE 110, 22
    @ 150, 198 GET nBaseImp PICTURE "9999999.99" SIZE 120, 26
    @ 310, 200 SAY L("GastoEditPctIva") SIZE 50, 22
@@ -87,7 +87,7 @@ FUNCTION GastoEditDialog(db, nGastoId)
    @ 400, 264 SAY Str(nRetImp, 12, 2) SIZE 110, 26
    @ 30, 299 SAY L("PdfTotalLabel") SIZE 100, 22
    @ 150, 297 SAY Str(nTotal, 12, 2) SIZE 120, 26
-   @ 310, 299 SAY "Gasto deducible IRPF:" SIZE 130, 22
+   @ 310, 299 SAY L("GastoEditDeducibleIrpf") SIZE 130, 22
    @ 450, 297 SAY Str(nGastoDeducible, 12, 2) SIZE 110, 26
    @ 30, 355 SAY L("GastoEditMedioPago") SIZE 80, 22
    @ 130, 353 GET COMBOBOX nMedioPago ITEMS aMediosPago SIZE 160, 200
@@ -133,7 +133,7 @@ STATIC FUNCTION GuardarGastoDesdeDialog(db, nGastoId, cNumero, dFechaEmi, dFecha
    LOCAL nIvaImp, nRetImp, nTotal, nGastoDeducible, lCatIvaDeducible
 
    IF nProveedorSel < 1 .OR. nProveedorSel > Len(aProveedores)
-      hwg_MsgInfo("Seleccione un proveedor", "Aviso")
+      hwg_MsgInfo(L("ProveedoresMsgSeleccione"), L("CommonAviso"))
       RETURN 0
    ENDIF
    nProveedorId := aProveedores[nProveedorSel][1]
@@ -185,9 +185,9 @@ STATIC FUNCTION GuardarGastoDesdeDialog(db, nGastoId, cNumero, dFechaEmi, dFecha
    ENDIF
 
    IF nResult > 0
-      hwg_MsgInfo("Gasto " + AllTrim(cNumero) + " guardado", "Información")
+      hwg_MsgInfo(StrTran(L("GastoGuardadoMsg"), "{1}", AllTrim(cNumero)), L("CommonInformacion"))
    ELSE
-      hwg_MsgInfo("Error al guardar el gasto", "Error")
+      hwg_MsgInfo(L("GastoEditErrorGuardar"), L("CommonError"))
    ENDIF
    RETURN nResult
 

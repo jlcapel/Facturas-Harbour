@@ -8,7 +8,7 @@ FUNCTION FacturaCrearDialog(db, nFacturaId)
    LOCAL aArticulos, aTiposIva
    LOCAL oBrwLineas
    LOCAL nBaseImp := 0, nIvaImp := 0, nIrpf := 0, nIrpfImp := 0, nTotal := 0
-   LOCAL aTiposFactura := {"Normal", "Rectificativa", "Anulación"}
+   LOCAL aTiposFactura := {L("FacturaTipoNormal"), L("FacturaTipoRectificativa"), L("FacturaTipoAnulacion")}
    LOCAL nTipoFactura := 1, cAeatTipo := "F1"
 
    aClientes := ObtenerClientes(db)
@@ -41,7 +41,7 @@ FUNCTION FacturaCrearDialog(db, nFacturaId)
    ENDIF
 
    INIT DIALOG oDlg ;
-      TITLE Iif(nFacturaId == 0, L("FacturasNueva"), "Editar Factura") ;
+      TITLE Iif(nFacturaId == 0, L("FacturasNueva"), L("FacturaEditTitleEditar")) ;
       AT 0, 0 ;
       SIZE 780, 600 ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
@@ -52,34 +52,34 @@ FUNCTION FacturaCrearDialog(db, nFacturaId)
    @ 280, 15 SAY L("FacturasFecha") SIZE 50, 22
    @ 340, 13 GET dFecha SIZE 110, 26
 
-   @ 20, 50 SAY "Cliente:" SIZE 80, 22
+   @ 20, 50 SAY L("ClientesClienteLabel") SIZE 80, 22
    @ 110, 48 GET COMBOBOX nClienteSel ITEMS ListaNombresClientes(aClientes) SIZE 300, 200
 
    @ 20, 85 SAY L("ArticulosDescripcionLabel") SIZE 80, 22
    @ 110, 83 GET cDescripcion SIZE 500, 26
 
-   @ 20, 120 SAY "Tipo:" SIZE 50, 22
+   @ 20, 120 SAY L("FacturasTipoLabel") SIZE 50, 22
    @ 80, 118 GET COMBOBOX nTipoFactura ITEMS aTiposFactura SIZE 130, 200
 
-   @ 20, 155 GROUPBOX "Líneas" SIZE 730, 280
+   @ 20, 155 GROUPBOX L("FacturaEditLineas") SIZE 730, 280
 
    @ 30, 175 BROWSE oBrwLineas ARRAY SIZE 600, 220 STYLE WS_BORDER + WS_VSCROLL + WS_HSCROLL
    oBrwLineas:aArray := aLineas
    oBrwLineas:AddColumn(HColumn():New(L("FacturasArticulo"), {|v,o| (v), Iif(o:aArray[o:nCurrent, 2] > 0, "", "")}, "C", 0, 0))
    oBrwLineas:AddColumn(HColumn():New(L("CommonDescripcion"), {|v,o| (v), o:aArray[o:nCurrent, 4]}, "C", 28, 0))
-   oBrwLineas:AddColumn(HColumn():New("Cant.", {|v,o| (v), Str(o:aArray[o:nCurrent, 5], 8, 2)}, "C", 8, 0, .F., DT_RIGHT))
-   oBrwLineas:AddColumn(HColumn():New(L("CommonPrecio"), {|v,o| (v), Str(o:aArray[o:nCurrent, 6], 10, 2)}, "C", 10, 0, .F., DT_RIGHT))
-   oBrwLineas:AddColumn(HColumn():New("IVA%", {|v,o| (v), Str(o:aArray[o:nCurrent, 7], 6, 2)}, "C", 6, 0, .F., DT_RIGHT))
+   oBrwLineas:AddColumn(HColumn():New(L("FacturaEditCantHead"), {|v,o| (v), Str(o:aArray[o:nCurrent, 5], 8, 2)}, "C", 8, 0, .F., DT_RIGHT))
+   oBrwLineas:AddColumn(HColumn():New(L("FacturasPrecio"), {|v,o| (v), Str(o:aArray[o:nCurrent, 6], 10, 2)}, "C", 10, 0, .F., DT_RIGHT))
+   oBrwLineas:AddColumn(HColumn():New(L("FacturaEditIvaPctHead"), {|v,o| (v), Str(o:aArray[o:nCurrent, 7], 6, 2)}, "C", 6, 0, .F., DT_RIGHT))
    oBrwLineas:AddColumn(HColumn():New(L("CommonImporte"), {|v,o| (v), Str(o:aArray[o:nCurrent, 8], 10, 2)}, "C", 10, 0, .F., DT_RIGHT))
 
-   @ 650, 175 BUTTON "Añadir" SIZE 70, 22 OF oDlg ON CLICK {|| LineaAdd(db, aArticulos, aTiposIva, @aLineas, oBrwLineas)}
-   @ 650, 205 BUTTON "Quitar" SIZE 70, 22 OF oDlg ON CLICK {|| LineaRemove(@aLineas, oBrwLineas)}
+   @ 650, 175 BUTTON L("FacturaEditAnadirLinea") SIZE 70, 22 OF oDlg ON CLICK {|| LineaAdd(db, aArticulos, aTiposIva, @aLineas, oBrwLineas)}
+   @ 650, 205 BUTTON L("FacturaEditQuitarLinea") SIZE 70, 22 OF oDlg ON CLICK {|| LineaRemove(@aLineas, oBrwLineas)}
 
    @ 500, 455 SAY L("FacturasBaseImponible") SIZE 120, 22
    @ 630, 453 SAY Str(nBaseImp, 12, 2) SIZE 110, 26
    @ 500, 485 SAY L("FacturasIvaLabel") SIZE 120, 22
    @ 630, 483 SAY Str(nIvaImp, 12, 2) SIZE 110, 26
-   @ 500, 515 SAY "IRPF (" + Str(nIrpf, 5, 1) + "%):" SIZE 120, 22
+   @ 500, 515 SAY StrTran(L("FacturaEditIrpfLabel"), "{1}", Str(nIrpf, 5, 1)) SIZE 120, 22
    @ 630, 513 SAY Str(nIrpfImp, 12, 2) SIZE 110, 26
    @ 500, 545 SAY L("PdfTotalLabel") SIZE 120, 22
    @ 630, 543 SAY Str(nTotal, 12, 2) SIZE 110, 26
@@ -144,10 +144,10 @@ STATIC FUNCTION LineaEditDialog(db, aArticulos, aTiposIva, aLinea)
       IF nIvaSel == 0; nIvaSel := 1; ENDIF
    ENDIF
 
-   INIT DIALOG oDlg TITLE Iif(aLinea == NIL, L("GastoEditAnadirLinea"), "Editar línea") ;
+   INIT DIALOG oDlg TITLE Iif(aLinea == NIL, L("FacturaEditAnadirLinea"), L("FacturaEditTitleEditarLinea")) ;
       AT 0,0 SIZE 480, 300 STYLE DS_CENTER
 
-   @ 20, 20 SAY "Artículo:" SIZE 80, 22
+   @ 20, 20 SAY L("ArticulosDescripcionLabel") SIZE 80, 22
    @ 110, 18 GET COMBOBOX nArtSel ITEMS ListaNombresArticulos(aArticulos) SIZE 250, 200 ;
       ON CHANGE {|| ActualizarDatosLinea(aArticulos, @cDescripcion, @cPrecio, @nIvaSel, ;
          aTiposIva, nArtSel, @nIvaPct)}
@@ -155,16 +155,16 @@ STATIC FUNCTION LineaEditDialog(db, aArticulos, aTiposIva, aLinea)
    @ 20, 60 SAY L("ArticulosDescripcionLabel") SIZE 80, 22
    @ 110, 58 GET cDescripcion SIZE 320, 26
 
-   @ 20, 100 SAY "Cantidad:" SIZE 80, 22
+   @ 20, 100 SAY L("FacturaEditCantidadLabel") SIZE 80, 22
    @ 110, 98 GET nCantidad SIZE 80, 26 PICTURE "9999.99"
 
-   @ 250, 100 SAY "Precio:" SIZE 50, 22
+   @ 250, 100 SAY L("FacturaEditPrecioLabel") SIZE 50, 22
    @ 310, 98 GET cPrecio SIZE 120, 26 PICTURE "999999.99"
 
    @ 20, 140 SAY L("ArticulosTipoIva") SIZE 80, 22
    @ 110, 138 GET COMBOBOX nIvaSel ITEMS ListaNombresIva(aTiposIva) SIZE 200, 200
 
-   @ 150, 210 BUTTON "Aceptar" SIZE 90, 30 ON CLICK {|| oDlg:Close()}
+   @ 150, 210 BUTTON L("CommonAceptar") SIZE 90, 30 ON CLICK {|| oDlg:Close()}
    @ 280, 210 BUTTON L("CommonCancelar") SIZE 90, 30 ON CLICK {|| lCancel := .T., oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
@@ -214,12 +214,12 @@ STATIC FUNCTION GuardarFacturaDesdeDialog(db, nFacturaId, cNumero, dFecha, cDesc
    LOCAL aFactura, nClienteId, nResult
 
    IF nClienteSel < 1 .OR. nClienteSel > Len(aClientes)
-      hwg_MsgInfo("Seleccione un cliente", "Aviso")
+      hwg_MsgInfo(L("ClientesMsgSeleccione"), L("CommonAviso"))
       RETURN 0
    ENDIF
 
    IF Len(aLineas) == 0
-      hwg_MsgInfo("Añada al menos una línea", "Aviso")
+      hwg_MsgInfo(L("FacturaEditMinLineas"), L("CommonAviso"))
       RETURN 0
    ENDIF
 
@@ -241,8 +241,8 @@ STATIC FUNCTION GuardarFacturaDesdeDialog(db, nFacturaId, cNumero, dFecha, cDesc
 
    nResult := CrearFactura(db, aFactura, aLineas)
    IF nResult > 0
-      hwg_MsgInfo("Factura " + cNumero + " guardada", "Información")
+      hwg_MsgInfo(StrTran(L("FacturaEditMsgGuardada"), "{1}", cNumero), L("CommonInformacion"))
    ELSE
-      hwg_MsgInfo("Error al guardar la factura", "Error")
+      hwg_MsgInfo(StrTran(L("FacturaEditErrorGuardar"), "{1}", "DB Error"), L("CommonError"))
    ENDIF
    RETURN nResult

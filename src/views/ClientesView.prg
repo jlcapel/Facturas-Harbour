@@ -17,7 +17,7 @@ FUNCTION ClientesView(db, oParent, nX, nY, nW, nH)
    @ nX+30, nY+nH-55 BUTTON L("ClientesNuevo") SIZE 70, 28 OF oParent ON CLICK {|| ClienteNuevo(db, @aData, oBrw)}
    @ nX+110, nY+nH-55 BUTTON L("ClientesEditar") SIZE 70, 28 OF oParent ON CLICK {|| ClienteEditar(db, @aData, oBrw, oBrw:nCurrent)}
    @ nX+190, nY+nH-55 BUTTON L("ClientesEliminar") SIZE 70, 28 OF oParent ON CLICK {|| ClienteEliminar(db, @aData, oBrw)}
-   @ nX+270, nY+nH-55 BUTTON "PDF" SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfClientes(db, aData)}
+   @ nX+270, nY+nH-55 BUTTON L("ClientesBtnPdf") SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfClientes(db, aData)}
 RETURN NIL
 
 STATIC FUNCTION ClienteNuevo(db, aData, oBrw)
@@ -34,7 +34,7 @@ RETURN NIL
 STATIC FUNCTION ClienteEditar(db, aData, oBrw, nRow)
    LOCAL aCliente, aResult
    IF nRow < 1 .OR. nRow > Len(aData)
-      hwg_MsgInfo("Seleccione un cliente", "Aviso")
+      hwg_MsgInfo(L("ClientesMsgSeleccione"), L("CommonAviso"))
       RETURN
    ENDIF
    aCliente := aData[nRow]
@@ -51,10 +51,10 @@ RETURN NIL
 STATIC FUNCTION ClienteEliminar(db, aData, oBrw)
    LOCAL nRow := oBrw:nCurrent
    IF nRow < 1 .OR. nRow > Len(aData)
-      hwg_MsgInfo("Seleccione un cliente", "Aviso")
+      hwg_MsgInfo(L("ClientesMsgSeleccione"), L("CommonAviso"))
       RETURN
    ENDIF
-   IF hwg_MsgYesNo("¿Eliminar " + aData[nRow][2] + "?", "Confirmar")
+   IF hwg_MsgYesNo(StrTran(L("ClientesMsgEliminar"), "{1}", aData[nRow][2]), L("CommonConfirmar"))
       EliminarCliente(db, aData[nRow][1])
       aData := ObtenerClientes(db)
       oBrw:aArray := aData
@@ -68,7 +68,7 @@ STATIC FUNCTION ClienteEditDialog(db, nId)
    LOCAL cNif := Space(15), cNifIva := Space(15)
    LOCAL cDireccion := Space(50), cPoblacion := Space(30), cProvincia := Space(25)
    LOCAL cCp := Space(10), cTelefono := Space(15), cEmail := Space(30)
-   LOCAL aPaises, aTiposId, aTipoCliente := {"Nacional", L("Modelo349Sub"), "Extracomunitario"}
+   LOCAL aPaises, aTiposId, aTipoCliente := {L("TipoClienteNacional"), L("TipoClienteIntra"), L("TipoClienteExtra")}
    LOCAL nPaisSel := 1, nTipoIdSel := 1, nTipoClienteSel := 1, aCli
 
    aPaises := ObtenerPaises(db)
@@ -97,24 +97,24 @@ STATIC FUNCTION ClienteEditDialog(db, nId)
       ENDIF
    ENDIF
 
-   INIT DIALOG oDlg TITLE "Editar cliente" AT 0,0 SIZE 520, 480 STYLE DS_CENTER
+   INIT DIALOG oDlg TITLE L("ClientesTitleEditar") AT 0,0 SIZE 520, 480 STYLE DS_CENTER
 
    @ 20, 15 SAY L("ClientesNombreLabel") SIZE 80, 22
    @ 110, 13 GET cNombre SIZE 370, 26
 
-   @ 20, 48 SAY "Tipo:" SIZE 80, 22
+   @ 20, 48 SAY L("ClientesTipoLabel") SIZE 80, 22
    @ 110, 46 GET COMBOBOX nTipoClienteSel ITEMS aTipoCliente SIZE 150, 200
 
    @ 20, 81 SAY L("ClientesPais") SIZE 80, 22
    @ 110, 79 GET COMBOBOX nPaisSel ITEMS ListaPaisesNombres(aPaises) SIZE 200, 200
 
-   @ 20, 114 SAY "ID Fiscal:" SIZE 80, 22
+   @ 20, 114 SAY L("ClientesTipoIdLabel") SIZE 80, 22
    @ 110, 112 GET COMBOBOX nTipoIdSel ITEMS ListaTiposIdNombres(aTiposId) SIZE 200, 200
 
-   @ 20, 147 SAY "NIF:" SIZE 80, 22
+   @ 20, 147 SAY L("ClientesNifLabel") SIZE 80, 22
    @ 110, 145 GET cNif SIZE 150, 26
 
-   @ 20, 180 SAY "NIF IVA:" SIZE 80, 22
+   @ 20, 180 SAY L("ClientesNifIvaLabel") SIZE 80, 22
    @ 110, 178 GET cNifIva SIZE 150, 26
 
    @ 20, 213 SAY L("ClientesDireccion") SIZE 80, 22
@@ -126,7 +126,7 @@ STATIC FUNCTION ClienteEditDialog(db, nId)
    @ 290, 246 SAY L("ClientesProvincia") SIZE 80, 22
    @ 370, 244 GET cProvincia SIZE 120, 26
 
-   @ 20, 279 SAY "C.Postal:" SIZE 80, 22
+   @ 20, 279 SAY L("ClientesCpLabel") SIZE 80, 22
    @ 110, 277 GET cCp SIZE 100, 26
 
    @ 20, 312 SAY L("ClientesTelefonoLabel") SIZE 80, 22
@@ -174,5 +174,5 @@ STATIC FUNCTION ExportPdfClientes(db, aData)
       {L("ClientesTelefono"), 120, 12}, ;
       {L("CommonActivo"), 60, 14, .T.} }
    LOCAL cPath := AbrirListadoPdf(db, L("ClientesTitle"), aData, aCols)
-   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, L("CommonExportar")); ENDIF
+   IF !Empty(cPath); hwg_MsgInfo(StrTran(L("ClientesMsgPdfGenerado"), "{1}", cPath), L("CommonExportar")); ENDIF
 RETURN NIL

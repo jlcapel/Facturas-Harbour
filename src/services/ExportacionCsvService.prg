@@ -37,12 +37,12 @@ FUNCTION GenerarCsvGastos(db, nYear)
    ENDDO
    sqlite3_finalize(stmt)
 
-   cCsv := "NºFactura;FechaEmisión;NIF;Proveedor;Descripción;BaseImponible;Iva%;IVA;Ret%Iva;RetIva;Total;GastoDeducible;Categoría;Pagado;TipoPago" + hb_eol()
+   cCsv := L("GastoCsvHeader") + hb_eol()
 
    FOR nI := 1 TO Len(aGastos)
       aG := aGastos[nI]
       cNifProv := aG[4]; cNomProv := aG[5]; cCat := aG[14]
-      cPagado := Iif(aG[15], "Sí", "No")
+      cPagado := Iif(aG[15], L("CommonSi"), L("CommonNo"))
       cNFactura := aG[1]
       IF aG[2] != 0 .AND. Empty(cNFactura)
          cNFactura := "R" + StrZero(aG[2], 4)

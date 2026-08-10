@@ -9,7 +9,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 
 | # | Título | Estado |
 |---|---|---|
-| 001 | Elección de stack Harbour + HWGUI | Aceptado |
+| 001 | Stack tecnológico general | Aceptado |
 | 002 | Cross-compilación Windows desde Linux | Aceptado |
 | 003 | SQLite como motor de base de datos | Aceptado |
 | 004 | PDF con Haru PDF (hbhpdf) | Aceptado |

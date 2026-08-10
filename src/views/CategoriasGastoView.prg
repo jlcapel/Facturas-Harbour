@@ -8,12 +8,12 @@ FUNCTION CategoriasGastoView(db, oParent, nX, nY, nW, nH)
    oBrw:AddColumn(HColumn():New(L("CategoriasNombre"), {|v,o| (v), o:aArray[o:nCurrent, 2]}, "C", 28, 0))
    oBrw:AddColumn(HColumn():New(L("CategoriasDeducibleIrpf"), {|v,o| (v), o:aArray[o:nCurrent, 3]}, "C", 16, 0, .F., DT_RIGHT))
    oBrw:AddColumn(HColumn():New(L("CategoriasIvaDeducible"), {|v,o| (v), Iif(o:aArray[o:nCurrent, 4], L("CommonSi"), L("CommonNo"))}, "C", 12, 0, .F., DT_CENTER))
-   oBrw:AddColumn(HColumn():New("Orden", {|v,o| (v), o:aArray[o:nCurrent, 5]}, "N", 6, 0, .F., DT_RIGHT))
+   oBrw:AddColumn(HColumn():New(L("CategoriasOrden"), {|v,o| (v), o:aArray[o:nCurrent, 5]}, "N", 6, 0, .F., DT_RIGHT))
    oBrw:AddColumn(HColumn():New(L("CommonActivo"), {|v,o| (v), Iif(o:aArray[o:nCurrent, 6], L("CommonSi"), L("CommonNo"))}, "C", 8, 0, .F., DT_CENTER))
    @ nX+30, nY+nH-55 BUTTON L("CategoriasNuevo") SIZE 70, 28 OF oParent ON CLICK {|| CatNuevo(db, @aData, oBrw)}
    @ nX+110, nY+nH-55 BUTTON L("CategoriasEditar") SIZE 70, 28 OF oParent ON CLICK {|| CatEditar(db, @aData, oBrw, oBrw:nCurrent)}
    @ nX+190, nY+nH-55 BUTTON L("CategoriasEliminar") SIZE 70, 28 OF oParent ON CLICK {|| CatEliminar(db, @aData, oBrw)}
-   @ nX+270, nY+nH-55 BUTTON "PDF" SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfCategorias(db, aData)}
+   @ nX+270, nY+nH-55 BUTTON L("CategoriasBtnPdf") SIZE 50, 28 OF oParent ON CLICK {|| ExportPdfCategorias(db, aData)}
 RETURN NIL
 
 STATIC FUNCTION CatNuevo(db, aData, oBrw)
@@ -26,7 +26,7 @@ RETURN NIL
 
 STATIC FUNCTION CatEditar(db, aData, oBrw, nRow)
    LOCAL aC, aR
-   IF nRow < 1 .OR. nRow > Len(aData); hwg_MsgInfo("Seleccione una categoría", "Aviso"); RETURN; ENDIF
+   IF nRow < 1 .OR. nRow > Len(aData); hwg_MsgInfo(L("CategoriasMsgSeleccione"), L("CommonAviso")); RETURN; ENDIF
    aC := aData[nRow]
    aR := CatEditDialog(db, aC[1])
    IF aR != NIL
@@ -38,18 +38,18 @@ RETURN NIL
 STATIC FUNCTION ExportPdfCategorias(db, aData)
    LOCAL aCols := { ;
       {L("CategoriasNombre"), 200, 2}, ;
-      {"% Deducible", 100, 3, .T.}, ;
-      {"IVA Deduc.", 80, 4, .T.}, ;
-      {"Orden", 50, 5, .T.}, ;
+      {L("CategoriasDeducibleIrpf"), 100, 3, .T.}, ;
+      {L("CategoriasIvaDeducible"), 80, 4, .T.}, ;
+      {L("CategoriasOrden"), 50, 5, .T.}, ;
       {L("CommonActivo"), 50, 6, .T.} }
    LOCAL cPath := AbrirListadoPdf(db, "CategoriasGasto", aData, aCols)
-   IF !Empty(cPath); hwg_MsgInfo("PDF generado: " + cPath, L("CommonExportar")); ENDIF
+   IF !Empty(cPath); hwg_MsgInfo(StrTran(L("CategoriasMsgPdfGenerado"), "{1}", cPath), L("CommonExportar")); ENDIF
 RETURN NIL
 
 STATIC FUNCTION CatEliminar(db, aData, oBrw)
    LOCAL nRow := oBrw:nCurrent
-   IF nRow < 1 .OR. nRow > Len(aData); hwg_MsgInfo("Seleccione una categoría", "Aviso"); RETURN; ENDIF
-   IF hwg_MsgYesNo("¿Eliminar " + aData[nRow][2] + "?", "Confirmar")
+   IF nRow < 1 .OR. nRow > Len(aData); hwg_MsgInfo(L("CategoriasMsgSeleccione"), L("CommonAviso")); RETURN; ENDIF
+   IF hwg_MsgYesNo(StrTran(L("CategoriasMsgEliminar"), "{1}", aData[nRow][2]), L("CommonConfirmar"))
       EliminarCategoriaGasto(db, aData[nRow][1])
       aData := ObtenerCategoriasGasto(db); oBrw:aArray := aData; oBrw:Refresh()
    ENDIF
@@ -69,7 +69,7 @@ STATIC FUNCTION CatEditDialog(db, nId)
       ENDIF
    ENDIF
 
-   INIT DIALOG oDlg TITLE Iif(nId==0, "Nueva categoría", "Editar categoría") AT 0,0 SIZE 400, 200 STYLE DS_CENTER
+   INIT DIALOG oDlg TITLE Iif(nId==0, L("CategoriasTitleNuevo"), L("CategoriasTitleEditar")) AT 0,0 SIZE 400, 200 STYLE DS_CENTER
    @ 20, 15 SAY L("CategoriasNombreLabel") SIZE 80, 22
    @ 110, 13 GET cNombre SIZE 260, 26
    @ 20, 48 SAY L("CategoriasDeducibleLabel") SIZE 120, 22

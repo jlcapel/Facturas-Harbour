@@ -7,6 +7,89 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 
 # Roadmap — Facturas Harbour
 
+## Estado de planificación
+
+El inventario de código confirma la presencia de los módulos previstos hasta el hito 10, pero los hitos históricos de este documento no son evidencia de validación funcional, fiscal o de producción. La compilación Linux y Windows está verificada; las rutas UI, las integraciones externas y la corrección fiscal siguen pendientes de evidencia reproducible.
+
+El stack tecnológico aprobado es Harbour + HWGUI + SQLite/hbsqlit3 + hbcurl + hbhpdf + hbzebra. Véase [ADR-001](./adr/ADR-001.md).
+
+No se habilitará el envío AEAT en producción hasta completar los hitos 11 y 12.
+
+## Hito 11: Estabilización fiscal y de persistencia
+
+### 11.0 Contrato con la referencia .NET
+
+- [ ] Fijar el commit o versión de `Facturas .NET` que será el contrato funcional de Harbour.
+- [ ] Crear una matriz de equivalencia para factura, rectificación, anulación, registro VERI*FACTU, XML/SOAP, PDF y modelos AEAT.
+- [ ] Decidir explícitamente las capacidades de la referencia actual que entran en el alcance Harbour antes de implementarlas.
+
+### 11.1 Correcciones bloqueantes
+
+- [ ] Activar la verificación TLS de certificado y host en las llamadas AEAT; fallar de forma segura si el certificado cliente o la configuración son inválidos.
+- [ ] Formatear de forma canónica y sin relleno los importes del hash y del QR; conservar fecha, hora y zona horaria exactas del registro.
+- [ ] Corregir el desglose IVA para agrupar por el tipo de IVA y calcular base y cuota desde los campos correctos de cada línea.
+- [ ] Rediseñar la anulación según la referencia .NET: crear el documento y registro de anulación sin actualizar el estado de la original si el registro fiscal falla.
+- [ ] Sustituir la edición directa de una factura emitida por el flujo fiscal equivalente de la referencia, sin duplicar su número ni alterar su registro histórico.
+- [ ] Encapsular alta, líneas, versión o registro fiscal y eventos en transacciones SQLite, con rollback ante cualquier fallo.
+- [ ] Corregir la verificación de las cadenas de registros y eventos para recalcular exactamente los datos persistidos.
+- [ ] Usar la hora oficial cuando se genere el registro y reparar el backup para SQLite en WAL, incluida la retención de copias.
+
+### Criterios de aceptación
+
+- [ ] Ninguna operación deja facturas, líneas, registros o eventos parciales.
+- [ ] Alta, rectificación o subsanación y anulación generan los mismos datos fiscales esperados que la referencia .NET.
+- [ ] No hay envío AEAT con TLS no verificado ni con configuración de certificado incompleta.
+- [ ] La comprobación de cadena detecta una alteración y acepta una cadena válida creada por la aplicación.
+
+## Hito 12: Pruebas y evidencia fiscal
+
+- [ ] Crear una suite Harbour con `hbtest` y una BD temporal aislada de la BD de usuario.
+- [ ] Incorporar vectores de prueba de la referencia .NET para cálculos, hash, QR, desglose IVA y encadenamiento.
+- [ ] Cubrir errores de transacción, numeración duplicada, edición o subsanación, anulación, restauración y limpieza de backups.
+- [ ] Simular las respuestas SOAP AEAT y comprobar XML, CSV y errores sin llamar a producción.
+- [ ] Ejecutar pruebas en Linux y validar el binario Windows en Windows.
+- [ ] Ejecutar el flujo completo exclusivamente en preproducción AEAT con certificado de prueba y conservar la evidencia.
+
+### Criterios de aceptación
+
+- [ ] La suite automatizada pasa en una instalación limpia.
+- [ ] Los resultados de hash, QR y XML coinciden con la referencia y los casos de prueba aprobados.
+- [ ] Se documentan fecha, entorno y resultado de la validación AEAT de preproducción.
+
+## Hito 13: Runtime, multiplataforma y distribución
+
+- [ ] Reproducir y resolver el error HWGUI histórico `No exported method: EVAL` antes de declarar estable la ventana principal.
+- [ ] Definir una batería manual de UI para todas las vistas en GTK3/Linux y WinAPI/Windows, incluyendo foco, teclado, grids, modales, PDF y cambio de idioma.
+- [ ] Fijar versiones de Harbour, HWGUI y dependencias nativas por release; abandonar revisiones de desarrollo no fijadas.
+- [ ] Crear instalador Windows y paquete Linux que resuelva las dependencias de Harbour, GTK3, SQLite, cURL y Haru PDF.
+- [ ] Validar restauración de backup, apertura de PDF y accesos a carpetas en ambos sistemas operativos.
+
+### Criterios de aceptación
+
+- [ ] El producto se instala y arranca en equipos limpios de Linux y Windows.
+- [ ] Todas las rutas de UI críticas pasan en ambos backends HWGUI.
+- [ ] El artefacto distribuido y sus dependencias quedan versionados y documentados.
+
+## Hito 14: Documentación, trazabilidad y decisión de release
+
+- [ ] Actualizar README, ROADMAP, ADRs y guía de compilación para reflejar el estado realmente verificado.
+- [ ] Mantener una tabla de evidencia por release: versiones, build, pruebas, UI, BD, PDF y preproducción AEAT.
+- [ ] Publicar una guía de recuperación de BD y una política de backup comprobada.
+- [ ] Registrar las decisiones de alcance frente a la referencia .NET en ADRs.
+- [ ] Revisar las condiciones de licencia y los avisos de distribución de las dependencias incluidas.
+
+### Criterio de salida para producción
+
+- [ ] Hitos 11, 12 y 13 completados con evidencia conservada.
+- [ ] No quedan incidencias bloqueantes de integridad fiscal, seguridad TLS, persistencia o UI.
+- [ ] La decisión de activar producción AEAT queda documentada y aprobada por el responsable del producto.
+
+---
+
+## Hitos históricos 1–10
+
+Los siguientes hitos documentan el desarrollo inicial. Su estado no sustituye los criterios de validación y release definidos anteriormente.
+
 Hitos basados en el proyecto Facturas .NET. Cada hito entrega una funcionalidad completa y verificable.
 
 ---

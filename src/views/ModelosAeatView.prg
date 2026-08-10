@@ -13,14 +13,14 @@ FUNCTION ModelosAeatView(db, oParent, nX, nY, nW, nH)
    NEXT
    nAnioIdx := Len(aAnios)
 
-   @ nX+20, nY+20 SAY "Modelos AEAT - Seleccione modelo:" SIZE 300, 22 OF oParent
+   @ nX+20, nY+20 SAY L("ModelosAeatSubtitle") SIZE 300, 22 OF oParent
 
    @ nX+20, nY+50 BUTTON L("Modelo303Title") SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 1}
-   @ nX+250, nY+50 BUTTON "Modelo 390 - IVA Resumen Anual" SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 2}
-   @ nX+20, nY+85 BUTTON "Modelo 130 - IRPF Estimación Directa" SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 3}
-   @ nX+250, nY+85 BUTTON "Modelo 347 - Operaciones Terceros" SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 4}
-   @ nX+20, nY+120 BUTTON "Modelo 111 - IRPF Retenciones" SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 5}
-   @ nX+250, nY+120 BUTTON "Modelo 115 - IRPF Alquiler" SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 6}
+   @ nX+250, nY+50 BUTTON L("ModelosAeatBtn390") SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 2}
+   @ nX+20, nY+85 BUTTON L("ModelosAeatBtn130") SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 3}
+   @ nX+250, nY+85 BUTTON L("ModelosAeatBtn347") SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 4}
+   @ nX+20, nY+120 BUTTON L("ModelosAeatBtn111") SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 5}
+   @ nX+250, nY+120 BUTTON L("ModelosAeatBtn115") SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 6}
    @ nX+20, nY+155 BUTTON L("Modelo349Title") SIZE 220, 28 OF oParent ON CLICK {|| nModelo := 7}
 
    @ nX+20, nY+200 SAY L("M111Ejercicio") SIZE 80, 22 OF oParent
@@ -32,18 +32,18 @@ FUNCTION ModelosAeatView(db, oParent, nX, nY, nW, nH)
 @ nX+20, nY+240 BUTTON L("CommonGenerar") SIZE 100, 30 OF oParent ON CLICK {|| ;
       GenerarModeloAeat(db, nModelo, aAnios[nAnioIdx], nTrim) }
 
-   @ nX+140, nY+240 BUTTON "Abrir Carpeta" SIZE 100, 30 OF oParent ON CLICK {|| AbrirCarpetaModelo(nModelo) }
+   @ nX+140, nY+240 BUTTON L("CommonAbrirCarpeta") SIZE 100, 30 OF oParent ON CLICK {|| AbrirCarpetaModelo(nModelo) }
 
-   @ nX+260, nY+240 BUTTON "Verificar Cadena" SIZE 120, 30 OF oParent ON CLICK {|| VerificarCadenaUI(db) }
+   @ nX+260, nY+240 BUTTON L("UtilidadesVerificarCadena") SIZE 120, 30 OF oParent ON CLICK {|| VerificarCadenaUI(db) }
 
 RETURN NIL
 
 STATIC FUNCTION VerificarCadenaUI(db)
    LOCAL lOkReg := VerificarCadenaRegistros(db)
    LOCAL lOkEvt := VerificarCadenaEventos(db)
-   LOCAL cMsg := "Registros: " + Iif(lOkReg, "✅ ÍNTEGRO", "❌ CORRUPTO") + Chr(10) + ;
-                 "Eventos: " + Iif(lOkEvt, "✅ ÍNTEGRO", "❌ CORRUPTO")
-   hwg_MsgInfo(cMsg, "Verificación de Cadena")
+   LOCAL cMsg := L("ModelosAeatRegistros") + Iif(lOkReg, L("ModelosAeatIntegro"), L("ModelosAeatCorrupto")) + Chr(10) + ;
+                 L("ModelosAeatEventos") + Iif(lOkEvt, L("ModelosAeatIntegro"), L("ModelosAeatCorrupto"))
+   hwg_MsgInfo(cMsg, L("UtilidadesVerificarCadena"))
    RETURN NIL
 
 STATIC FUNCTION GenerarModeloAeat(db, nModelo, nAnio, nTrim)
@@ -58,7 +58,7 @@ STATIC FUNCTION GenerarModeloAeat(db, nModelo, nAnio, nTrim)
    CASE 7; aRes := GenerarModelo349(db, nAnio); EXIT
    ENDSWITCH
    IF aRes == NIL
-      hwg_MsgInfo("No hay datos para el período seleccionado.", "Modelo AEAT")
+      hwg_MsgInfo(L("ModelosAeatSinDatos"), L("ModelosAeatTitle"))
       RETURN .F.
    ENDIF
    FOR nI := 1 TO Len(aRes) STEP 2

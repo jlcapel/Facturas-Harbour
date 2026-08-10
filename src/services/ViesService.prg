@@ -10,7 +10,7 @@ FUNCTION ComprobarVat(cPais, cNumero)
 
    nResult := LlamarVies(cSoap, @cResponse)
    IF nResult != 0
-      RETURN { .F., NIL, NIL, NIL, "Error de conexión VIES: " + hb_ntos(nResult) }
+      RETURN { .F., NIL, NIL, NIL, StrTran(L("ServiceViesConexion"), "{1}", hb_ntos(nResult)) }
    ENDIF
 
    aResult := ProcesarRespuestaVies(cResponse)
@@ -74,7 +74,7 @@ STATIC FUNCTION ProcesarRespuestaVies(cXml)
    IF cValid == "true"
       RETURN { .T., cPais, cNombre, cDireccion, NIL }
    ENDIF
-   RETURN { .F., cPais, cNombre, cDireccion, "VAT no válido en VIES" }
+   RETURN { .F., cPais, cNombre, cDireccion, L("ServiceViesNoValido") }
 
 STATIC FUNCTION EscapeXmlVies(cText)
    IF cText == NIL; RETURN ""; ENDIF
