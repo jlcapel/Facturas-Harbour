@@ -61,6 +61,7 @@ linux_build() {
      -lhbhpdf -lhpdf \
      -lhbzebra \
      $GTK_LIBS -lm \
+     -Wl,-rpath,'$ORIGIN/../lib/facturas-harbour' \
     -Wl,--end-group \
     -o "$PROJECT" \
     -L"$HARBOUR_LIB" -L/usr/lib/x86_64-linux-gnu
@@ -132,7 +133,7 @@ win_build() {
     "$WIN_LIB"/libhbziparc.a \
     "$WIN_LIB"/libhbzlib.a \
     "$WIN_LIB"/libhbmxml.a \
-    -lws2_32 -lcrypt32 -lbcrypt -lgdi32 -lgdiplus -lwinspool -lwinmm -lole32 -loleaut32 -lcomctl32 -lcomdlg32 -luuid \
+    -lws2_32 -liphlpapi -lcrypt32 -lbcrypt -lgdi32 -lgdiplus -lwinspool -lwinmm -lole32 -loleaut32 -lcomctl32 -lcomdlg32 -luuid \
     -lsqlite3 \
     -Wl,--end-group \
     -o "$WIN_OUT"

@@ -1,6 +1,6 @@
 #include "hwgui.ch"
 
-FUNCTION FacturaCrearDialog(db, nFacturaId)
+FUNCTION FacturaCrearDialog(db, nFacturaId, lSubsanando)
    LOCAL oDlg, lCancel := .F., nResult := 0
    LOCAL aFactura, aLineas := {}
    LOCAL cNumero := "", dFecha := Date(), cDescripcion := ""
@@ -11,6 +11,10 @@ FUNCTION FacturaCrearDialog(db, nFacturaId)
    LOCAL aTiposFactura := {L("FacturaTipoNormal"), L("FacturaTipoRectificativa"), L("FacturaTipoAnulacion")}
    LOCAL nTipoFactura := 1, cAeatTipo := "F1"
 
+   IF lSubsanando == NIL
+      lSubsanando := .F.
+   ENDIF
+
    aClientes := ObtenerClientes(db)
    aArticulos := ObtenerArticulos(db)
    aTiposIva := ObtenerTiposIva(db)
@@ -19,6 +23,14 @@ FUNCTION FacturaCrearDialog(db, nFacturaId)
       aFactura := ObtenerFacturaPorId(db, nFacturaId)
       IF aFactura == NIL
          hwg_MsgInfo(L("ServiceFacturaNoEncontrada"), "Error")
+         RETURN 0
+      ENDIF
+      IF !lSubsanando
+         hwg_MsgInfo(L("FacturaEditNoModificar"), L("CommonAviso"))
+         RETURN 0
+      ENDIF
+      IF aFactura[25] == 0
+         hwg_MsgInfo(L("ServiceFacturaSinRegistro"), L("CommonAviso"))
          RETURN 0
       ENDIF
       cNumero := aFactura[2]
@@ -41,7 +53,7 @@ FUNCTION FacturaCrearDialog(db, nFacturaId)
    ENDIF
 
    INIT DIALOG oDlg ;
-      TITLE Iif(nFacturaId == 0, L("FacturasNueva"), L("FacturaEditTitleEditar")) ;
+      TITLE Iif(nFacturaId == 0, L("FacturasNueva"), StrTran(L("FacturaEditSubsanando"), "{0}", cNumero)) ;
       AT 0, 0 ;
       SIZE 780, 600 ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
@@ -86,7 +98,7 @@ FUNCTION FacturaCrearDialog(db, nFacturaId)
 
    @ 180, 570 BUTTON L("CommonGuardar") SIZE 90, 28 ON CLICK {;
       nResult := GuardarFacturaDesdeDialog(db, nFacturaId, cNumero, dFecha, cDescripcion, ;
-         aClientes, nClienteSel, nTipoFactura, cAeatTipo, nIrpf, aLineas), ;
+         aClientes, nClienteSel, nTipoFactura, cAeatTipo, nIrpf, aLineas, lSubsanando), ;
       Iif(nResult > 0, oDlg:Close(), NIL) }
    @ 320, 570 BUTTON L("CommonCancelar") SIZE 90, 28 ON CLICK {|| lCancel := .T., oDlg:Close()}
 
@@ -129,6 +141,7 @@ STATIC FUNCTION LineaEditDialog(db, aArticulos, aTiposIva, aLinea)
    LOCAL nCantidad := 1, cPrecio := Space(12)
    LOCAL nIvaSel := 0, nImporte := 0
    LOCAL aArt, nArtId, nIvaId, nIvaPct
+   LOCAL aTratamientos := ObtenerTratamientosIva(), nTratamientoSel := 1, aTratamiento
 
    IF aLinea != NIL
       cDescripcion := PadR(aLinea[4], 50)
@@ -142,15 +155,16 @@ STATIC FUNCTION LineaEditDialog(db, aArticulos, aTiposIva, aLinea)
       IF nArtSel == 0; nArtSel := 1; ENDIF
       nIvaSel := AScan(aTiposIva, {|x| x[1] == nIvaId})
       IF nIvaSel == 0; nIvaSel := 1; ENDIF
+      nTratamientoSel := BuscarIndiceTratamiento(aTratamientos, aLinea[16], aLinea[17])
    ENDIF
 
    INIT DIALOG oDlg TITLE Iif(aLinea == NIL, L("FacturaEditAnadirLinea"), L("FacturaEditTitleEditarLinea")) ;
-      AT 0,0 SIZE 480, 300 STYLE DS_CENTER
+      AT 0,0 SIZE 480, 350 STYLE DS_CENTER
 
    @ 20, 20 SAY L("ArticulosDescripcionLabel") SIZE 80, 22
    @ 110, 18 GET COMBOBOX nArtSel ITEMS ListaNombresArticulos(aArticulos) SIZE 250, 200 ;
       ON CHANGE {|| ActualizarDatosLinea(aArticulos, @cDescripcion, @cPrecio, @nIvaSel, ;
-         aTiposIva, nArtSel, @nIvaPct)}
+         aTiposIva, nArtSel, @nIvaPct, aTratamientos, @nTratamientoSel)}
 
    @ 20, 60 SAY L("ArticulosDescripcionLabel") SIZE 80, 22
    @ 110, 58 GET cDescripcion SIZE 320, 26
@@ -162,10 +176,14 @@ STATIC FUNCTION LineaEditDialog(db, aArticulos, aTiposIva, aLinea)
    @ 310, 98 GET cPrecio SIZE 120, 26 PICTURE "999999.99"
 
    @ 20, 140 SAY L("ArticulosTipoIva") SIZE 80, 22
-   @ 110, 138 GET COMBOBOX nIvaSel ITEMS ListaNombresIva(aTiposIva) SIZE 200, 200
+   @ 110, 138 GET COMBOBOX nIvaSel ITEMS ListaNombresIva(aTiposIva) SIZE 200, 200 ;
+      ON CHANGE {|| ActualizarTratamientoDesdeTipo(aTiposIva, nIvaSel, aTratamientos, @nTratamientoSel)}
 
-   @ 150, 210 BUTTON L("CommonAceptar") SIZE 90, 30 ON CLICK {|| oDlg:Close()}
-   @ 280, 210 BUTTON L("CommonCancelar") SIZE 90, 30 ON CLICK {|| lCancel := .T., oDlg:Close()}
+   @ 20, 175 SAY L("FacturasTratamientoIva") SIZE 80, 22
+   @ 110, 173 GET COMBOBOX nTratamientoSel ITEMS ListaNombresTratamientos(aTratamientos) SIZE 320, 200
+
+   @ 150, 250 BUTTON L("CommonAceptar") SIZE 90, 30 ON CLICK {|| oDlg:Close()}
+   @ 280, 250 BUTTON L("CommonCancelar") SIZE 90, 30 ON CLICK {|| lCancel := .T., oDlg:Close()}
 
    ACTIVATE DIALOG oDlg CENTER
 
@@ -178,10 +196,12 @@ STATIC FUNCTION LineaEditDialog(db, aArticulos, aTiposIva, aLinea)
    nArtId := Iif(nArtSel > 0 .AND. nArtSel <= Len(aArticulos), aArticulos[nArtSel][1], 0)
    nIvaId := Iif(nIvaSel > 0 .AND. nIvaSel <= Len(aTiposIva), aTiposIva[nIvaSel][1], 0)
    nIvaPct := Val(aTiposIva[nIvaSel][2])
+   aTratamiento := aTratamientos[nTratamientoSel]
 
-   RETURN { 0, nArtId, nIvaId, AllTrim(cDescripcion), nCantidad, Val(cPrecio), nIvaPct, nImporte, 0, 0 }
+   RETURN { 0, nArtId, nIvaId, AllTrim(cDescripcion), nCantidad, Val(cPrecio), nIvaPct, nImporte, 0, 0, ;
+      NIL, NIL, NIL, aTratamiento[3], aTratamiento[4], aTratamiento[5], aTratamiento[6], aTratamiento[7] }
 
-STATIC FUNCTION ActualizarDatosLinea(aArticulos, cDescripcion, cPrecio, nIvaSel, aTiposIva, nArtSel, nIvaPct)
+STATIC FUNCTION ActualizarDatosLinea(aArticulos, cDescripcion, cPrecio, nIvaSel, aTiposIva, nArtSel, nIvaPct, aTratamientos, nTratamientoSel)
    LOCAL aArt
    IF nArtSel > 0 .AND. nArtSel <= Len(aArticulos)
       aArt := aArticulos[nArtSel]
@@ -191,6 +211,7 @@ STATIC FUNCTION ActualizarDatosLinea(aArticulos, cDescripcion, cPrecio, nIvaSel,
          nIvaSel := AScan(aTiposIva, {|x| x[1] == aArt[7]})
          IF nIvaSel == 0; nIvaSel := 1; ENDIF
          nIvaPct := Val(aTiposIva[nIvaSel][2])
+         ActualizarTratamientoDesdeTipo(aTiposIva, nIvaSel, aTratamientos, @nTratamientoSel)
       ENDIF
    ENDIF
 RETURN NIL
@@ -207,11 +228,47 @@ STATIC FUNCTION ListaNombresIva(aTipos)
    FOR nI := 1 TO Len(aTipos)
       AAdd(aNombres, aTipos[nI][2])
    NEXT
-   RETURN aNombres
+RETURN aNombres
+
+STATIC FUNCTION ListaNombresTratamientos(aTratamientos)
+   LOCAL aNombres := {}, nI
+
+   FOR nI := 1 TO Len(aTratamientos)
+      AAdd(aNombres, aTratamientos[nI][1] + " - " + aTratamientos[nI][2])
+   NEXT
+RETURN aNombres
+
+STATIC FUNCTION BuscarIndiceTratamiento(aTratamientos, cCalificacionOperacion, cOperacionExenta)
+   LOCAL aTratamiento := BuscarTratamientoIva(cCalificacionOperacion, cOperacionExenta)
+   LOCAL nIndice
+
+   IF aTratamiento == NIL
+      aTratamiento := aTratamientos[1]
+   ENDIF
+   nIndice := AScan(aTratamientos, {|a| a[1] == aTratamiento[1]})
+   IF nIndice == 0
+      nIndice := 1
+   ENDIF
+RETURN nIndice
+
+STATIC FUNCTION ActualizarTratamientoDesdeTipo(aTiposIva, nIvaSel, aTratamientos, nTratamientoSel)
+   LOCAL aTratamiento
+
+   IF nIvaSel < 1 .OR. nIvaSel > Len(aTiposIva)
+      RETURN NIL
+   ENDIF
+   aTratamiento := TratamientoIvaDesdeTipo(aTiposIva[nIvaSel])
+   IF aTratamiento != NIL
+      nTratamientoSel := AScan(aTratamientos, {|a| a[1] == aTratamiento[1]})
+      IF nTratamientoSel == 0
+         nTratamientoSel := 1
+      ENDIF
+   ENDIF
+RETURN NIL
 
 STATIC FUNCTION GuardarFacturaDesdeDialog(db, nFacturaId, cNumero, dFecha, cDescripcion, ;
-      aClientes, nClienteSel, nTipoFactura, cAeatTipo, nIrpf, aLineas)
-   LOCAL aFactura, nClienteId, nResult
+      aClientes, nClienteSel, nTipoFactura, cAeatTipo, nIrpf, aLineas, lSubsanando)
+   LOCAL aFactura, nClienteId, nResult, nI, aTratamiento
 
    IF nClienteSel < 1 .OR. nClienteSel > Len(aClientes)
       hwg_MsgInfo(L("ClientesMsgSeleccione"), L("CommonAviso"))
@@ -223,12 +280,20 @@ STATIC FUNCTION GuardarFacturaDesdeDialog(db, nFacturaId, cNumero, dFecha, cDesc
       RETURN 0
    ENDIF
 
+   FOR nI := 1 TO Len(aLineas)
+      aTratamiento := BuscarTratamientoIva(aLineas[nI][16], aLineas[nI][17])
+      IF aTratamiento != NIL .AND. TratamientoIvaExigeIvaCero(aTratamiento) .AND. aLineas[nI][7] != 0
+         hwg_MsgInfo(StrTran(StrTran(L("FacturaEditTratamientoIvaRequiereCero"), "{0}", LTrim(Str(nI))), "{1}", aTratamiento[1]), L("CommonAviso"))
+         RETURN 0
+      ENDIF
+   NEXT
+
    nClienteId := aClientes[nClienteSel][1]
 
    aFactura := Array(17)
    aFactura[1] := cNumero
    aFactura[2] := dFecha
-   aFactura[3] := NIL
+   aFactura[3] := Iif(lSubsanando, dFecha, NIL)
    aFactura[4] := nClienteId
    aFactura[5] := nTipoFactura - 1
    aFactura[6] := 0
@@ -239,9 +304,17 @@ STATIC FUNCTION GuardarFacturaDesdeDialog(db, nFacturaId, cNumero, dFecha, cDesc
    aFactura[16] := 0
    aFactura[17] := 0
 
-   nResult := CrearFactura(db, aFactura, aLineas)
+   IF lSubsanando
+      nResult := SubsanarFactura(db, nFacturaId, aFactura, aLineas)
+   ELSE
+      nResult := CrearFactura(db, aFactura, aLineas)
+   ENDIF
    IF nResult > 0
-      hwg_MsgInfo(StrTran(L("FacturaEditMsgGuardada"), "{1}", cNumero), L("CommonInformacion"))
+      IF lSubsanando
+         hwg_MsgInfo(L("FacturaEditGuardada"), L("CommonInformacion"))
+      ELSE
+         hwg_MsgInfo(StrTran(L("FacturaEditMsgGuardada"), "{1}", cNumero), L("CommonInformacion"))
+      ENDIF
    ELSE
       hwg_MsgInfo(StrTran(L("FacturaEditErrorGuardar"), "{1}", "DB Error"), L("CommonError"))
    ENDIF

@@ -1,6 +1,6 @@
 FUNCTION EsRespuestaHtml(cBody)
-   LOCAL cTrim := LTrim(cBody)
-   RETURN Left(cTrim, 9) == "<!DOCTYPE" .OR. ;
+   LOCAL cTrim := Lower(LTrim(cBody))
+   RETURN Left(cTrim, 9) == "<!doctype" .OR. ;
           Left(cTrim, 6) == "<html " .OR. ;
           Left(cTrim, 5) == "<html"
 
@@ -50,4 +50,3 @@ FUNCTION MatchFilter(xValue, cFilter)
       RETURN At(Upper(cFilter), Upper(DToC(xValue))) > 0
    ENDIF
    RETURN .F.
-

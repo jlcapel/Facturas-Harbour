@@ -9,7 +9,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 
 ## Estado de planificación
 
-El inventario de código confirma la presencia de los módulos previstos hasta el hito 10, pero los hitos históricos de este documento no son evidencia de validación funcional, fiscal o de producción. La compilación Linux y Windows está verificada; las rutas UI, las integraciones externas y la corrección fiscal siguen pendientes de evidencia reproducible.
+El inventario de código confirma la presencia de los módulos previstos hasta el hito 10, pero los hitos históricos de este documento no son evidencia de validación funcional, fiscal o de producción. La compilación Linux y Windows, la prueba fiscal aislada, las migraciones temporales, el SOAP sin red, backup/NTP y el paquete Debian están verificados; la UI manual, PDF, instalación limpia, instalador Windows y preproducción AEAT siguen pendientes. El detalle y los límites constan en [docs/EVIDENCIA_RELEASE.md](./docs/EVIDENCIA_RELEASE.md).
 
 El stack tecnológico aprobado es Harbour + HWGUI + SQLite/hbsqlit3 + hbcurl + hbhpdf + hbzebra. Véase [ADR-001](./adr/ADR-001.md).
 

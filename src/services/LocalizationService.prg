@@ -36,17 +36,17 @@ FUNCTION LocalizationLoad(cCode)
    LOCAL h := NIL
     SWITCH cCode
     CASE "es"; h := LoadStrings_es()
-    BREAK
+    EXIT
     CASE "en"; h := LoadStrings_en()
-    BREAK
+    EXIT
     CASE "fr"; h := LoadStrings_fr()
-    BREAK
+    EXIT
     CASE "ca"; h := LoadStrings_ca()
-    BREAK
+    EXIT
     CASE "eu"; h := LoadStrings_eu()
+    EXIT
     ENDSWITCH
    IF h != NIL
       oLoc["hStrings"][cCode] := h
    ENDIF
 RETURN NIL
-

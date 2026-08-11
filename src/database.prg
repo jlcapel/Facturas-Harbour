@@ -19,11 +19,300 @@ FUNCTION InicializarBaseDatos()
       RETURN .F.
    ENDIF
    CrearTablas(db)
+   AsegurarEsquemaFiscal(db)
+   IF !AsegurarEsquemaVersionesFiscales(db)
+      db := NIL
+      RETURN .F.
+   ENDIF
    SembrarDatosIniciales(db)
    db := NIL
    RETURN .T.
 
-STATIC FUNCTION CrearTablas(db)
+FUNCTION AsegurarEsquemaFiscal(db)
+   AsegurarColumnaFiscal(db, "TiposIva", "Impuesto", "TEXT NOT NULL DEFAULT '01'")
+   AsegurarColumnaFiscal(db, "TiposIva", "ClaveRegimen", "TEXT NOT NULL DEFAULT '01'")
+   AsegurarColumnaFiscal(db, "TiposIva", "CalificacionOperacion", "TEXT NOT NULL DEFAULT 'S1'")
+   AsegurarColumnaFiscal(db, "TiposIva", "DescripcionFiscal", "TEXT")
+   AsegurarColumnaFiscal(db, "LineasFactura", "Impuesto", "TEXT NOT NULL DEFAULT '01'")
+   AsegurarColumnaFiscal(db, "LineasFactura", "ClaveRegimen", "TEXT NOT NULL DEFAULT '01'")
+   AsegurarColumnaFiscal(db, "LineasFactura", "CalificacionOperacion", "TEXT DEFAULT 'S1'")
+   AsegurarColumnaFiscal(db, "LineasFactura", "OperacionExenta", "TEXT")
+   AsegurarColumnaFiscal(db, "LineasFactura", "DescripcionFiscal", "TEXT")
+   sqlite3_exec(db, "UPDATE TiposIva SET Impuesto='01' WHERE Impuesto IS NULL OR TRIM(Impuesto)=''" )
+   sqlite3_exec(db, "UPDATE TiposIva SET ClaveRegimen='01' WHERE ClaveRegimen IS NULL OR TRIM(ClaveRegimen)=''" )
+   sqlite3_exec(db, "UPDATE TiposIva SET CalificacionOperacion='S1' WHERE CalificacionOperacion IS NULL OR TRIM(CalificacionOperacion)=''" )
+   sqlite3_exec(db, "UPDATE TiposIva SET Impuesto='01', ClaveRegimen='01', CalificacionOperacion='S2', DescripcionFiscal=COALESCE(DescripcionFiscal, 'Operación sujeta y no exenta con inversión del sujeto pasivo') WHERE Nombre LIKE '%Inversión%' AND CalificacionOperacion <> 'S2'" )
+RETURN .T.
+
+STATIC FUNCTION AsegurarColumnaFiscal(db, cTabla, cColumna, cDefinicion)
+   LOCAL stmt, lExiste := .F.
+
+   IF !ExisteTablaMigracion(db, cTabla)
+      RETURN .F.
+   ENDIF
+   stmt := sqlite3_prepare(db, "PRAGMA table_info(" + cTabla + ")")
+   IF Empty(stmt)
+      RETURN .F.
+   ENDIF
+   DO WHILE sqlite3_step(stmt) == SQLITE_ROW
+      IF Lower(sqlite3_column_text(stmt, 2)) == Lower(cColumna)
+         lExiste := .T.
+         EXIT
+      ENDIF
+   ENDDO
+   sqlite3_finalize(stmt)
+   IF !lExiste
+      RETURN sqlite3_exec(db, "ALTER TABLE " + cTabla + " ADD COLUMN " + cColumna + " " + cDefinicion) == SQLITE_OK
+   ENDIF
+RETURN .T.
+
+FUNCTION AsegurarEsquemaVersionesFiscales(db)
+   LOCAL lOk := ExisteTablaMigracion(db, "RegistrosFacturacion") .AND. ;
+      ExisteTablaMigracion(db, "Facturas") .AND. ExisteTablaMigracion(db, "TiposIva")
+
+   IF !lOk
+      RETURN .F.
+   ENDIF
+   IF RegistroFacturaTieneUnicidad(db)
+      lOk := ReconstruirRegistrosFacturacion(db)
+   ENDIF
+   IF !lOk
+      RETURN .F.
+   ENDIF
+   lOk := AsegurarColumnaFiscal(db, "RegistrosFacturacion", "FacturaVersionFiscalId", "INTEGER")
+   IF !lOk
+      RETURN .F.
+   ENDIF
+   IF !ExisteTablaMigracion(db, "FacturasVersionesFiscales")
+      lOk := CrearTablaFacturasVersionesFiscales(db)
+   ENDIF
+   IF lOk .AND. !ExisteTablaMigracion(db, "FacturasDesglosesIva")
+      lOk := CrearTablaFacturasDesglosesIva(db)
+   ENDIF
+   IF lOk .AND. !ExisteTablaMigracion(db, "FacturasVersionesFiscalesDesglosesIva")
+      lOk := CrearTablaFacturasVersionesFiscalesDesglosesIva(db)
+   ENDIF
+   IF lOk
+      lOk := sqlite3_exec(db, "CREATE INDEX IF NOT EXISTS IX_RegistrosFacturacion_FacturaId ON RegistrosFacturacion(FacturaId)") == SQLITE_OK
+   ENDIF
+   IF lOk
+      lOk := sqlite3_exec(db, "CREATE UNIQUE INDEX IF NOT EXISTS IX_RegistrosFacturacion_FacturaVersionFiscalId ON RegistrosFacturacion(FacturaVersionFiscalId)") == SQLITE_OK
+   ENDIF
+   IF lOk
+      lOk := sqlite3_exec(db, "CREATE UNIQUE INDEX IF NOT EXISTS IX_FacturasVersionesFiscales_HashContenido ON FacturasVersionesFiscales(HashContenido)") == SQLITE_OK .AND. ;
+         sqlite3_exec(db, "CREATE INDEX IF NOT EXISTS IX_FacturasVersionesFiscales_FacturaId ON FacturasVersionesFiscales(FacturaId)") == SQLITE_OK
+   ENDIF
+   IF lOk
+      lOk := sqlite3_exec(db, "CREATE INDEX IF NOT EXISTS IX_FacturasDesglosesIva_FacturaId_Orden ON FacturasDesglosesIva(FacturaId, Orden)") == SQLITE_OK .AND. ;
+         sqlite3_exec(db, "CREATE INDEX IF NOT EXISTS IX_FacturasDesglosesIva_TipoIvaId ON FacturasDesglosesIva(TipoIvaId)") == SQLITE_OK .AND. ;
+         sqlite3_exec(db, "CREATE INDEX IF NOT EXISTS IX_FacturasVersionesFiscalesDesglosesIva_FacturaVersionFiscalId_Orden ON FacturasVersionesFiscalesDesglosesIva(FacturaVersionFiscalId, Orden)") == SQLITE_OK .AND. ;
+         sqlite3_exec(db, "CREATE INDEX IF NOT EXISTS IX_FacturasVersionesFiscalesDesglosesIva_TipoIvaId ON FacturasVersionesFiscalesDesglosesIva(TipoIvaId)") == SQLITE_OK
+   ENDIF
+RETURN lOk
+
+STATIC FUNCTION CrearTablaFacturasVersionesFiscales(db)
+RETURN sqlite3_exec(db, ;
+   "CREATE TABLE FacturasVersionesFiscales( " + ;
+   "Id INTEGER PRIMARY KEY AUTOINCREMENT, " + ;
+   "FacturaId INTEGER NOT NULL, RegistroFacturacionId INTEGER, TipoRegistro INTEGER NOT NULL, " + ;
+   "NumeroFactura TEXT NOT NULL, FechaEmision TEXT NOT NULL, FechaOperacion TEXT, ClienteId INTEGER NOT NULL, " + ;
+   "ClienteSnapshotJson TEXT NOT NULL, LineasSnapshotJson TEXT NOT NULL, Descripcion TEXT, " + ;
+   "AeatTipoFactura TEXT NOT NULL, TipoRectificacion TEXT, FacturaRectificadaId INTEGER, " + ;
+   "BaseImponible TEXT NOT NULL, IvaImporte TEXT NOT NULL, IrpfPorcentaje TEXT NOT NULL, " + ;
+   "IrpfImporte TEXT NOT NULL, Total TEXT NOT NULL, TotalFiscal TEXT NOT NULL, DesgloseJson TEXT NOT NULL, " + ;
+   "FechaCreacion TEXT NOT NULL, HashContenido TEXT NOT NULL, " + ;
+   "FOREIGN KEY(FacturaId) REFERENCES Facturas(Id) ON DELETE RESTRICT )" ) == SQLITE_OK
+
+STATIC FUNCTION CrearTablaFacturasDesglosesIva(db)
+   LOCAL lOk := sqlite3_exec(db, ;
+      "CREATE TABLE FacturasDesglosesIva( " + ;
+      "Id INTEGER PRIMARY KEY AUTOINCREMENT, FacturaId INTEGER NOT NULL, Orden INTEGER NOT NULL, TipoIvaId INTEGER, " + ;
+      "TipoIvaNombre TEXT, Impuesto TEXT NOT NULL DEFAULT '01', ClaveRegimen TEXT NOT NULL DEFAULT '01', " + ;
+      "CalificacionOperacion TEXT, OperacionExenta TEXT, DescripcionFiscal TEXT, TipoImpositivo TEXT NOT NULL, " + ;
+      "BaseImponible TEXT NOT NULL, CuotaRepercutida TEXT NOT NULL, TotalFiscal TEXT NOT NULL, " + ;
+      "FOREIGN KEY(FacturaId) REFERENCES Facturas(Id) ON DELETE RESTRICT, " + ;
+      "FOREIGN KEY(TipoIvaId) REFERENCES TiposIva(Id) ON DELETE RESTRICT )" ) == SQLITE_OK
+
+   IF lOk
+      lOk := sqlite3_exec(db, "CREATE INDEX IF NOT EXISTS IX_FacturasDesglosesIva_FacturaId_Orden ON FacturasDesglosesIva(FacturaId, Orden)") == SQLITE_OK .AND. ;
+         sqlite3_exec(db, "CREATE INDEX IF NOT EXISTS IX_FacturasDesglosesIva_TipoIvaId ON FacturasDesglosesIva(TipoIvaId)") == SQLITE_OK
+   ENDIF
+RETURN lOk
+
+STATIC FUNCTION CrearTablaFacturasVersionesFiscalesDesglosesIva(db)
+   LOCAL lOk := sqlite3_exec(db, ;
+      "CREATE TABLE FacturasVersionesFiscalesDesglosesIva( " + ;
+      "Id INTEGER PRIMARY KEY AUTOINCREMENT, FacturaVersionFiscalId INTEGER NOT NULL, Orden INTEGER NOT NULL, TipoIvaId INTEGER, " + ;
+      "TipoIvaNombre TEXT, Impuesto TEXT NOT NULL DEFAULT '01', ClaveRegimen TEXT NOT NULL DEFAULT '01', " + ;
+      "CalificacionOperacion TEXT, OperacionExenta TEXT, DescripcionFiscal TEXT, TipoImpositivo TEXT NOT NULL, " + ;
+      "BaseImponible TEXT NOT NULL, CuotaRepercutida TEXT NOT NULL, TotalFiscal TEXT NOT NULL, " + ;
+      "FOREIGN KEY(FacturaVersionFiscalId) REFERENCES FacturasVersionesFiscales(Id) ON DELETE RESTRICT, " + ;
+      "FOREIGN KEY(TipoIvaId) REFERENCES TiposIva(Id) ON DELETE RESTRICT )" ) == SQLITE_OK
+
+   IF lOk
+      lOk := sqlite3_exec(db, "CREATE INDEX IF NOT EXISTS IX_FacturasVersionesFiscalesDesglosesIva_FacturaVersionFiscalId_Orden ON FacturasVersionesFiscalesDesglosesIva(FacturaVersionFiscalId, Orden)") == SQLITE_OK .AND. ;
+         sqlite3_exec(db, "CREATE INDEX IF NOT EXISTS IX_FacturasVersionesFiscalesDesglosesIva_TipoIvaId ON FacturasVersionesFiscalesDesglosesIva(TipoIvaId)") == SQLITE_OK
+   ENDIF
+RETURN lOk
+
+STATIC FUNCTION ExisteTablaMigracion(db, cTabla)
+   LOCAL stmt := sqlite3_prepare(db, "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?")
+   LOCAL lExiste := .F.
+
+   IF Empty(stmt)
+      RETURN .F.
+   ENDIF
+   sqlite3_bind_text(stmt, 1, cTabla)
+   lExiste := sqlite3_step(stmt) == SQLITE_ROW
+   sqlite3_finalize(stmt)
+RETURN lExiste
+
+STATIC FUNCTION RegistroFacturaTieneUnicidad(db)
+   LOCAL stmt := sqlite3_prepare(db, "PRAGMA index_list(RegistrosFacturacion)")
+   LOCAL cIndice, lUnico := .F.
+
+   IF Empty(stmt)
+      RETURN .F.
+   ENDIF
+   DO WHILE sqlite3_step(stmt) == SQLITE_ROW
+      cIndice := sqlite3_column_text(stmt, 2)
+      IF sqlite3_column_int(stmt, 3) == 1 .AND. IndiceEsFacturaUnico(db, cIndice)
+         lUnico := .T.
+         EXIT
+      ENDIF
+   ENDDO
+   sqlite3_finalize(stmt)
+RETURN lUnico
+
+STATIC FUNCTION IndiceEsFacturaUnico(db, cIndice)
+   LOCAL stmt := sqlite3_prepare(db, "PRAGMA index_info('" + StrTran(cIndice, "'", "''") + "')")
+   LOCAL nColumnas := 0, lFactura := .F.
+
+   IF Empty(stmt)
+      RETURN .F.
+   ENDIF
+   DO WHILE sqlite3_step(stmt) == SQLITE_ROW
+      nColumnas++
+      lFactura := Lower(sqlite3_column_text(stmt, 3)) == "facturaid"
+   ENDDO
+   sqlite3_finalize(stmt)
+RETURN nColumnas == 1 .AND. lFactura
+
+STATIC FUNCTION ReconstruirRegistrosFacturacion(db)
+   LOCAL cDefinicion := DefinicionTablaMigracion(db, "RegistrosFacturacion")
+   LOCAL cNueva, cColumnas, aAuxiliares, nI, lOk := .T.
+
+   cNueva := StrTran(cDefinicion, "FacturaId INTEGER NOT NULL UNIQUE REFERENCES", "FacturaId INTEGER NOT NULL REFERENCES")
+   IF Empty(cDefinicion) .OR. cNueva == cDefinicion
+      RETURN .F.
+   ENDIF
+   cNueva := StrTran(cNueva, "CREATE TABLE RegistrosFacturacion", "CREATE TABLE RegistrosFacturacionMigracion")
+   cNueva := StrTran(cNueva, "CREATE TABLE IF NOT EXISTS RegistrosFacturacion", "CREATE TABLE IF NOT EXISTS RegistrosFacturacionMigracion")
+   IF At("RegistrosFacturacionMigracion", cNueva) == 0
+      RETURN .F.
+   ENDIF
+   cColumnas := ColumnasTablaMigracion(db, "RegistrosFacturacion")
+   aAuxiliares := DefinicionesAuxiliaresMigracion(db)
+   IF Empty(cColumnas)
+      RETURN .F.
+   ENDIF
+   lOk := sqlite3_exec(db, "PRAGMA foreign_keys=OFF") == SQLITE_OK
+   IF lOk
+      lOk := sqlite3_exec(db, "BEGIN IMMEDIATE") == SQLITE_OK
+   ENDIF
+   IF lOk
+      lOk := sqlite3_exec(db, cNueva) == SQLITE_OK
+   ENDIF
+   IF lOk
+      lOk := sqlite3_exec(db, "INSERT INTO RegistrosFacturacionMigracion(" + cColumnas + ") SELECT " + cColumnas + " FROM RegistrosFacturacion") == SQLITE_OK
+   ENDIF
+   IF lOk
+      lOk := sqlite3_exec(db, "DROP TABLE RegistrosFacturacion") == SQLITE_OK
+   ENDIF
+   IF lOk
+      lOk := sqlite3_exec(db, "ALTER TABLE RegistrosFacturacionMigracion RENAME TO RegistrosFacturacion") == SQLITE_OK
+   ENDIF
+   IF lOk
+      FOR nI := 1 TO Len(aAuxiliares)
+         lOk := sqlite3_exec(db, aAuxiliares[nI]) == SQLITE_OK
+         IF !lOk
+            EXIT
+         ENDIF
+      NEXT
+   ENDIF
+   IF lOk
+      lOk := IntegridadForaneaValida(db)
+   ENDIF
+   IF lOk
+      lOk := sqlite3_exec(db, "COMMIT") == SQLITE_OK
+   ELSE
+      sqlite3_exec(db, "ROLLBACK")
+   ENDIF
+   sqlite3_exec(db, "PRAGMA foreign_keys=ON")
+RETURN lOk
+
+STATIC FUNCTION DefinicionTablaMigracion(db, cTabla)
+   LOCAL stmt := sqlite3_prepare(db, "SELECT sql FROM sqlite_master WHERE type='table' AND name=?")
+   LOCAL cDefinicion := ""
+
+   IF Empty(stmt)
+      RETURN cDefinicion
+   ENDIF
+   sqlite3_bind_text(stmt, 1, cTabla)
+   IF sqlite3_step(stmt) == SQLITE_ROW
+      cDefinicion := sqlite3_column_text(stmt, 1)
+   ENDIF
+   sqlite3_finalize(stmt)
+RETURN cDefinicion
+
+STATIC FUNCTION ColumnasTablaMigracion(db, cTabla)
+   LOCAL stmt := sqlite3_prepare(db, "PRAGMA table_info(" + cTabla + ")")
+   LOCAL cColumnas := "", cColumna
+
+   IF Empty(stmt)
+      RETURN cColumnas
+   ENDIF
+   DO WHILE sqlite3_step(stmt) == SQLITE_ROW
+      cColumna := sqlite3_column_text(stmt, 2)
+      IF !Empty(cColumnas)
+         cColumnas += ","
+      ENDIF
+      cColumnas += '"' + StrTran(cColumna, '"', '""') + '"'
+   ENDDO
+   sqlite3_finalize(stmt)
+RETURN cColumnas
+
+STATIC FUNCTION DefinicionesAuxiliaresMigracion(db)
+   LOCAL stmt := sqlite3_prepare(db, "SELECT type, name, sql FROM sqlite_master WHERE tbl_name='RegistrosFacturacion' AND type IN ('index','trigger') AND sql IS NOT NULL")
+   LOCAL aDefiniciones := {}, cTipo, cIndice, cDefinicion
+
+   IF Empty(stmt)
+      RETURN aDefiniciones
+   ENDIF
+   DO WHILE sqlite3_step(stmt) == SQLITE_ROW
+      cTipo := sqlite3_column_text(stmt, 1)
+      cIndice := sqlite3_column_text(stmt, 2)
+      cDefinicion := sqlite3_column_text(stmt, 3)
+      IF cTipo == "index" .AND. IndiceEsFacturaUnico(db, cIndice)
+         LOOP
+      ENDIF
+      AAdd(aDefiniciones, cDefinicion)
+   ENDDO
+   sqlite3_finalize(stmt)
+RETURN aDefiniciones
+
+STATIC FUNCTION IntegridadForaneaValida(db)
+   LOCAL stmt := sqlite3_prepare(db, "PRAGMA foreign_key_check")
+   LOCAL lValida := .F.
+
+   IF Empty(stmt)
+      RETURN .F.
+   ENDIF
+   lValida := sqlite3_step(stmt) != SQLITE_ROW
+   sqlite3_finalize(stmt)
+RETURN lValida
+
+FUNCTION CrearTablas(db)
 
    sqlite3_exec(db, "PRAGMA journal_mode=WAL")
    sqlite3_exec(db, "PRAGMA foreign_keys=ON")
@@ -49,6 +338,10 @@ STATIC FUNCTION CrearTablas(db)
       "Id INTEGER PRIMARY KEY AUTOINCREMENT, " + ;
       "Nombre TEXT(50) NOT NULL, " + ;
       "Porcentaje TEXT NOT NULL, " + ;
+      "Impuesto TEXT NOT NULL DEFAULT '01', " + ;
+      "ClaveRegimen TEXT NOT NULL DEFAULT '01', " + ;
+      "CalificacionOperacion TEXT NOT NULL DEFAULT 'S1', " + ;
+      "DescripcionFiscal TEXT, " + ;
       "Activo INTEGER NOT NULL DEFAULT 1, " + ;
       "FechaInicio TEXT NOT NULL, " + ;
       "FechaFin TEXT )" )
@@ -118,13 +411,19 @@ STATIC FUNCTION CrearTablas(db)
       "PrecioUnitario TEXT NOT NULL, " + ;
       "IvaPorcentaje TEXT NOT NULL, " + ;
       "Importe TEXT NOT NULL, " + ;
+      "Impuesto TEXT NOT NULL DEFAULT '01', " + ;
+      "ClaveRegimen TEXT NOT NULL DEFAULT '01', " + ;
+      "CalificacionOperacion TEXT DEFAULT 'S1', " + ;
+      "OperacionExenta TEXT, " + ;
+      "DescripcionFiscal TEXT, " + ;
       "DescuentoPorcentaje TEXT, " + ;
       "DescuentoImporte TEXT )" )
 
    sqlite3_exec(db, ;
       "CREATE TABLE IF NOT EXISTS RegistrosFacturacion( " + ;
       "Id INTEGER PRIMARY KEY AUTOINCREMENT, " + ;
-      "FacturaId INTEGER NOT NULL UNIQUE REFERENCES Facturas(Id) ON DELETE CASCADE, " + ;
+      "FacturaId INTEGER NOT NULL REFERENCES Facturas(Id) ON DELETE CASCADE, " + ;
+      "FacturaVersionFiscalId INTEGER, " + ;
       "TipoRegistro INTEGER NOT NULL DEFAULT 0, " + ;
       "Hash TEXT(64) NOT NULL UNIQUE, " + ;
       "HashAnterior TEXT(64), " + ;
@@ -149,9 +448,12 @@ STATIC FUNCTION CrearTablas(db)
       "TipoFactura TEXT, TipoRectificativa TEXT, " + ;
       "FacturasRectificadas TEXT, FacturasSustituidas TEXT, " + ;
       "ImporteRectificacion TEXT, FechaOperacion TEXT, DescripcionOperacion TEXT(500), " + ;
+      "FacturaSimplificadaArt7273 TEXT, FacturaSinIdentifDestinatarioArt61d TEXT, Macrodato TEXT, " + ;
+      "EmitidaPorTerceroODestinatario TEXT, Tercero TEXT, Destinatarios TEXT, Cupon TEXT, " + ;
       "Desglose TEXT, Encadenamiento TEXT, " + ;
       "SistemaInformatico TEXT, FechaHoraHusoGenRegistro TEXT NOT NULL, " + ;
-      "TipoHuella TEXT DEFAULT '01', SinRegistroPrevio TEXT )" )
+      "NumRegistroAcuerdoFacturacion TEXT, IdAcuerdoSistemaInformatico TEXT, TipoHuella TEXT DEFAULT '01', " + ;
+      "SinRegistroPrevio TEXT, RechazoPrevioAnulacion TEXT, GeneradoPor TEXT, Generador TEXT )" )
 
    sqlite3_exec(db, ;
       "CREATE TABLE IF NOT EXISTS RegistrosEvento( " + ;

@@ -17,7 +17,7 @@ FUNCTION FacturasView(db, oParent, nX, nY, nW, nH)
    oBrw:AddColumn(HColumn():New(L("FacturasEstadoHead"), {|v,o| (v), Iif(o:aArray[o:nCurrent, 8] == 0, L("FacturasEstadoEmitida"), L("FacturasEstadoAnulada"))}, "C", 10, 0, .F., DT_CENTER))
 
    @ nX+30, nY+nH-55 BUTTON L("FacturasBtnNueva") SIZE 70, 28 OF oParent ON CLICK {|| FacturaNueva(db, @aData, oBrw)}
-   @ nX+110, nY+nH-55 BUTTON L("CommonEditar") SIZE 70, 28 OF oParent ON CLICK {|| FacturaEditar(db, @aData, oBrw)}
+   @ nX+110, nY+nH-55 BUTTON L("FacturasSubsanar") SIZE 70, 28 OF oParent ON CLICK {|| FacturaSubsanar(db, @aData, oBrw)}
    @ nX+190, nY+nH-55 BUTTON L("FacturasImprimir") SIZE 70, 28 OF oParent ON CLICK {|| FacturaImprimir(db, aData, oBrw)}
    @ nX+270, nY+nH-55 BUTTON L("FacturasAnular") SIZE 70, 28 OF oParent ON CLICK {|| FacturaAnular(db, @aData, oBrw)}
 RETURN NIL
@@ -31,14 +31,14 @@ STATIC FUNCTION FacturaNueva(db, aData, oBrw)
    ENDIF
 RETURN NIL
 
-STATIC FUNCTION FacturaEditar(db, aData, oBrw)
+STATIC FUNCTION FacturaSubsanar(db, aData, oBrw)
    LOCAL nRow := oBrw:nCurrent
    LOCAL nId
    IF nRow < 1 .OR. nRow > Len(aData)
       hwg_MsgInfo(L("FacturasMsgSeleccione"), L("CommonAviso"))
       RETURN
    ENDIF
-   nId := FacturaCrearDialog(db, aData[nRow][1])
+   nId := FacturaCrearDialog(db, aData[nRow][1], .T.)
    IF nId > 0
       aData := ObtenerFacturas(db)
       oBrw:aArray := aData
@@ -48,9 +48,7 @@ RETURN NIL
 
 STATIC FUNCTION FacturaAnular(db, aData, oBrw)
    LOCAL nRow := oBrw:nCurrent
-   LOCAL nFacturaId, cNumFactura, dFechaEmision, nBaseImponible, nIvaImporte
-   LOCAL cNifEmisor, cNumFacturaAnulacion, lAnulacion
-   LOCAL stmt
+   LOCAL nFacturaId, cNumFactura, nAnulacion
 
    IF nRow < 1 .OR. nRow > Len(aData)
       hwg_MsgInfo(L("FacturasMsgSeleccione"), L("CommonAviso"))
@@ -64,40 +62,14 @@ STATIC FUNCTION FacturaAnular(db, aData, oBrw)
    nFacturaId := aData[nRow][1]
    cNumFactura := aData[nRow][2]
 
-   // Obtener datos de la factura original para la anulación
-   stmt := sqlite3_prepare(db, ;
-      "SELECT FechaEmision, BaseImponible, IvaImporte FROM Facturas WHERE Id = ?")
-   sqlite3_bind_int(stmt, 1, nFacturaId)
-   IF sqlite3_step(stmt) == SQLITE_ROW
-      dFechaEmision := sqlite3_column_text(stmt, 1)
-      nBaseImponible := sqlite3_column_double(stmt, 2)
-      nIvaImporte := sqlite3_column_double(stmt, 3)
-   ENDIF
-   sqlite3_finalize(stmt)
-
    IF hwg_MsgYesNo(StrTran(L("FacturasMsgAnular"), "{1}", cNumFactura), L("CommonConfirmar"))
-      // Anular factura (cambiar estado a 1 = Anulada)
-      IF AnularFactura(db, nFacturaId)
-         // Crear registro de anulación VERI*FACTU
-         cNifEmisor := ObtenerConfiguracion(db, "Empresa.Nif")
-         cNumFacturaAnulacion := "ANU-" + aData[nRow][2]
-
-         lAnulacion := CrearRegistroAnulacion(db, nFacturaId, 0, ;
-            cNumFacturaAnulacion, Date(), cNifEmisor, ;
-            aData[nRow][6], aData[nRow][7] - aData[nRow][6] + 0, ;
-            aData[nRow][2], aData[nRow][3], "F1", L("FacturaAnulacionVoluntaria"))
-
-         IF lAnulacion
-            // El envío SOAP se hace desde CrearRegistroAnulacion
-         ENDIF
-
-         // --- Evento VERI*FACTU: AnulacionFactura ---
-         RegistrarEvento(db, "AnulacionFactura", "Factura " + cNumFactura + " anulada")
-         // --- Fin Evento ---
-
+      nAnulacion := AnularFactura(db, nFacturaId, L("FacturaAnulacionVoluntaria"))
+      IF nAnulacion > 0
          aData := ObtenerFacturas(db)
          oBrw:aArray := aData
          oBrw:Refresh()
+      ELSE
+         hwg_MsgInfo(StrTran(L("FacturaEditErrorGuardar"), "{0}", "DB Error"), L("CommonError"))
       ENDIF
    ENDIF
 RETURN NIL

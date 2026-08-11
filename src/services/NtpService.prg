@@ -1,57 +1,72 @@
-#require "hbcurl"
-#include "hbcurl.ch"
+STATIC lInetInicializado := .F.
 
-FUNCTION ObtenerFechaHoraOficial()
-   LOCAL cUrl := "https://worldtimeapi.org/api/timezone/Europe/Madrid"
-   LOCAL hCurl, nResult, cResponse := ""
-   LOCAL nPos, cDatetime, cFecha, cHora, nAno, nMes, nDia, nHora, nMin, nSeg, dFecha, tHora
+FUNCTION ObtenerFechaHoraOficial(cServidor)
+   LOCAL cServidorPredeterminado := "hora.roa.es"
+   LOCAL aDirecciones, oSocket, cSolicitud, cRespuesta := Space(48)
+   LOCAL nEnviados, nRecibidos, dtOficial
 
-   hCurl := curl_easy_init()
-   IF hCurl == NIL
-      LogInfo("NtpService: curl_easy_init fallo, usando reloj local")
+   IF cServidor == NIL
+      cServidor := cServidorPredeterminado
+   ENDIF
+   IF !InicializarInet()
+      LogError("NtpService", "No se pudo inicializar INET; usando reloj local")
       RETURN hb_DateTime()
    ENDIF
-
-   curl_easy_setopt(hCurl, HB_CURLOPT_URL, cUrl)
-   curl_easy_setopt(hCurl, HB_CURLOPT_TIMEOUT, 5)
-   curl_easy_setopt(hCurl, HB_CURLOPT_CONNECTTIMEOUT, 5)
-   curl_easy_setopt(hCurl, HB_CURLOPT_SSL_VERIFYPEER, 1)
-   curl_easy_setopt(hCurl, HB_CURLOPT_NOSIGNAL, 1)
-   curl_easy_setopt(hCurl, HB_CURLOPT_WRITEFUNCTION, {|cData| CargarRespuesta(cData, @cResponse)})
-
-   nResult := curl_easy_perform(hCurl)
-   curl_easy_cleanup(hCurl)
-
-   IF nResult != 0 .OR. Empty(cResponse)
-      LogInfo("NtpService: error HTTP " + LTrim(Str(nResult)) + ", usando reloj local")
+   aDirecciones := hb_inetGetHosts(cServidor)
+   IF Empty(aDirecciones)
+      LogError("NtpService", "No se resolvió " + cServidor + "; usando reloj local")
       RETURN hb_DateTime()
    ENDIF
-
-   nPos := At('"datetime":"', cResponse)
-   IF nPos == 0
-      LogInfo("NtpService: no se encontro datetime en respuesta, usando reloj local")
+   oSocket := hb_inetDGram()
+   IF Empty(oSocket)
+      LogError("NtpService", "No se creó socket UDP; usando reloj local")
       RETURN hb_DateTime()
    ENDIF
-
-   cDatetime := SubStr(cResponse, nPos + 12, 19)
-   IF Len(cDatetime) < 19
-      LogInfo("NtpService: formato datetime invalido, usando reloj local")
+   hb_inetTimeout(oSocket, 5000)
+   cSolicitud := Chr(27) + Replicate(Chr(0), 47)
+   nEnviados := hb_inetDGramSend(oSocket, aDirecciones[1], 123, cSolicitud)
+   IF nEnviados == 48
+      nRecibidos := hb_inetDGramRecv(oSocket, @cRespuesta, 48)
+   ELSE
+      nRecibidos := -1
+   ENDIF
+   hb_inetClose(oSocket)
+   IF nRecibidos < 48
+      LogError("NtpService", "Error NTP desde " + cServidor + "; usando reloj local")
       RETURN hb_DateTime()
    ENDIF
+   dtOficial := InterpretarFechaHoraOficial(cRespuesta)
+   IF dtOficial == NIL
+      LogError("NtpService", "Respuesta NTP inválida desde " + cServidor + "; usando reloj local")
+      RETURN hb_DateTime()
+   ENDIF
+   LogInfo("NTP OK desde " + cServidor)
+RETURN dtOficial
 
-   cFecha := Left(cDatetime, 10)
-   cHora := SubStr(cDatetime, 12, 8)
-   nAno := Val(Left(cFecha, 4))
-   nMes := Val(SubStr(cFecha, 6, 2))
-   nDia := Val(SubStr(cFecha, 9, 2))
-   nHora := Val(Left(cHora, 2))
-   nMin := Val(SubStr(cHora, 4, 2))
-   nSeg := Val(SubStr(cHora, 7, 2))
+FUNCTION InterpretarFechaHoraOficial(cRespuesta)
+   LOCAL nSegundos
 
-   LogInfo("NtpService: hora oficial obtenida")
+   IF cRespuesta == NIL .OR. Len(cRespuesta) < 48
+      RETURN NIL
+   ENDIF
+   nSegundos := Asc(SubStr(cRespuesta, 41, 1)) * 16777216 + ;
+      Asc(SubStr(cRespuesta, 42, 1)) * 65536 + ;
+      Asc(SubStr(cRespuesta, 43, 1)) * 256 + Asc(SubStr(cRespuesta, 44, 1))
+   IF nSegundos <= 0
+      RETURN NIL
+   ENDIF
+RETURN hb_DateTime(1900, 1, 1, 0, 0, 0) + nSegundos / 86400
 
-   RETURN hb_DateTime(nAno, nMes, nDia, nHora, nMin, nSeg)
+FUNCTION ResolverFechaHoraOficial(cRespuesta, dtLocal)
+   LOCAL dtOficial := InterpretarFechaHoraOficial(cRespuesta)
 
-STATIC FUNCTION CargarRespuesta(cData, cResponse)
-   cResponse += cData
-RETURN .T.
+   IF dtOficial == NIL
+      RETURN dtLocal
+   ENDIF
+RETURN dtOficial
+
+STATIC FUNCTION InicializarInet()
+   IF !lInetInicializado
+      lInetInicializado := hb_inetInit()
+   ENDIF
+RETURN lInetInicializado

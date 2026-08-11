@@ -1,0 +1,9 @@
+Package: facturas-harbour
+Version: @VERSION@
+Section: office
+Priority: optional
+Architecture: amd64
+Depends: libgtk-3-0 | libgtk-3-0t64, libsqlite3-0, libcurl4 | libcurl4t64, libhpdf-2.3.0, libx11-6, libpcre3, zlib1g
+Maintainer: José L. Capel <jlcapel@hotmail.com>
+Description: Aplicación de facturación VERI*FACTU escrita en Harbour
+ Aplicación de escritorio para facturación VERI*FACTU en España.

@@ -5,11 +5,9 @@ FUNCTION FechaISO8601(dFecha)
    RETURN Str(Year(dFecha), 4) + "-" + PadL(Month(dFecha), 2, "0") + "-" + PadL(Day(dFecha), 2, "0")
 
 FUNCTION FechaISO8601ConTimeZone(dtDateTime)
-   LOCAL cFecha, cTime
-   cFecha := hb_TToC(dtDateTime, 2)
-   cTime := hb_TToC(dtDateTime, 1)
-   cTime := SubStr(cTime, 12)
-   RETURN cFecha + "T" + cTime + "+01:00"
+   LOCAL cMarca := hb_TToS(dtDateTime)
+   RETURN SubStr(cMarca, 1, 4) + "-" + SubStr(cMarca, 5, 2) + "-" + SubStr(cMarca, 7, 2) + ;
+      "T" + SubStr(cMarca, 9, 2) + ":" + SubStr(cMarca, 11, 2) + ":" + SubStr(cMarca, 13, 2) + "Z"
 
 FUNCTION SqlDateToDate(cSqlDate)
    IF cSqlDate == NIL .OR. Len(cSqlDate) < 10

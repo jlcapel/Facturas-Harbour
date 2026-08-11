@@ -1,0 +1,6 @@
+Estado: COMPLETADA con autorización del responsable para elegir formatos; existe `.deb` Linux verificable y el instalador NSIS Windows queda preparado.
+Ficheros modificados: `build.sh`, `README.md`, `packaging/.gitignore`, `packaging/linux/DEBIAN/control`, `packaging/linux/package-deb.sh`, `packaging/windows/Facturas-Harbour.nsi`, `packaging/windows/package-nsis.sh` y este contexto.
+Pruebas ejecutadas: sintaxis y `--check` de ambos scripts; `.deb` `Facturas-Harbour_1.0.15_amd64.deb` generado sin instalar, inspeccionado y extraído en `/tmp`; su RUNPATH carga la librería Harbour incluida; `./build.sh win` y `git diff --check` correctos.
+Decisiones clonadas de .NET: la versión `1.0.15` procede de `Facturas/Facturas.csproj`; con autorización se eligieron DEB x86_64 y NSIS x64, sin certificados, BD ni configuración AEAT y conservando siempre los datos de usuario al desinstalar.
+Riesgos o pendientes: `makensis` no está instalado, por lo que el script NSIS sólo verificó correctamente el prerrequisito y no se creó ni ejecutó el instalador Windows; el `.deb` no se instaló en equipo limpio.
+Siguiente paso permitido: fase 15 puede consolidar exclusivamente esta evidencia y marcar como no verificados el instalador NSIS, las instalaciones limpias y la UI manual.

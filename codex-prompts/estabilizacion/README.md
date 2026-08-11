@@ -14,6 +14,7 @@ Cada fase lee únicamente `AGENTS.md`, `reglas-base.md`, su `contexto` anterior 
 | 01 | Fijar y documentar el contrato de referencia .NET |
 | 02 | Crear el arnés aislado de pruebas Harbour |
 | 03 | Corregir y probar hash y QR canónicos |
+| 04A | Clonar campos y tratamientos fiscales de IVA que desbloquean el desglose |
 | 04 | Corregir y probar desglose IVA |
 | 05 | Corregir y probar cadenas y timestamps |
 | 06 | Endurecer TLS y certificado cliente AEAT |

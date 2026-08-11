@@ -7,8 +7,8 @@ FUNCTION CalcularHashVeriFactu(cNifEmisor, cNumFactura, dFechaExpedicion, cTipoF
    cAnterior := Iif(cHashAnterior == NIL, "", cHashAnterior)
    cFechaStr := FechaDDMMYYYY(dFechaExpedicion)
    cFechaHusoStr := FechaISO8601ConTimeZone(dFechaHoraHuso)
-   cCuota := DecimalAPunto(nCuotaTotal)
-   cImporte := DecimalAPunto(nImporteTotal)
+   cCuota := DecimalAPuntoSinEspacios(nCuotaTotal)
+   cImporte := DecimalAPuntoSinEspacios(nImporteTotal)
 
    cData := "IDEmisorFactura=" + cNifEmisor + ;
       "&NumSerieFactura=" + cNumFactura + ;
@@ -21,7 +21,7 @@ FUNCTION CalcularHashVeriFactu(cNifEmisor, cNumFactura, dFechaExpedicion, cTipoF
 
    RETURN Upper(hb_SHA256(cData, 1))
 
-FUNCTION CrearRegistroAlta(db, nFacturaId, cNifEmisor, cNombreEmisor, cNumFactura, dFechaEmision, ;
+FUNCTION CrearRegistroAlta(db, nFacturaId, nFacturaVersionFiscalId, cNifEmisor, cNombreEmisor, cNumFactura, dFechaEmision, ;
       nBaseImponible, nIvaImporte, nTotal, cTipoFactura, cTipoRectificativa, ;
       nFacturaRectificadaId, cDescripcion, dFechaOperacion, ;
       cNifCliente, cNombreCliente, cCodigoPais, cCodigoAEAT, ;
@@ -31,7 +31,7 @@ FUNCTION CrearRegistroAlta(db, nFacturaId, cNifEmisor, cNombreEmisor, cNumFactur
    LOCAL cHash, cEncadenamiento, cDestinatarios, cDesglose, cSistemaInfo
    LOCAL cFacturasRectificadas := NIL, stmt, nRes, nRegistroId
 
-   dNtpTime := hb_DateTime()
+   dNtpTime := ObtenerFechaHoraOficial()
 
    cHashAnterior := ObtenerUltimoHashRegistro(db)
    nIdRegistroAnterior := ObtenerUltimoIdRegistro(db)
@@ -51,7 +51,7 @@ FUNCTION CrearRegistroAlta(db, nFacturaId, cNifEmisor, cNombreEmisor, cNumFactur
 
    stmt := sqlite3_prepare(db, ;
       "INSERT INTO RegistrosFacturacion(" + ;
-      "FacturaId, TipoRegistro, Hash, HashAnterior, IdRegistroAnterior, " + ;
+      "FacturaId, FacturaVersionFiscalId, TipoRegistro, Hash, HashAnterior, IdRegistroAnterior, " + ;
       "NifEmisor, NumeroFactura, FechaEmision, " + ;
       "BaseImponible, IvaImporte, Total, " + ;
       "NombreRazonEmisor, IDVersion, TipoFactura, TipoRectificativa, " + ;
@@ -59,86 +59,166 @@ FUNCTION CrearRegistroAlta(db, nFacturaId, cNifEmisor, cNombreEmisor, cNumFactur
       "FechaHoraHusoGenRegistro, TipoHuella, FechaRegistro, " + ;
       "Destinatarios, Desglose, SistemaInformatico, Encadenamiento, " + ;
       "EnviadoAEAT) " + ;
-      "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)")
+      "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)")
 
    sqlite3_bind_int(stmt, 1, nFacturaId)
-   sqlite3_bind_int(stmt, 2, 0)
-   sqlite3_bind_text(stmt, 3, cHash)
-   IF Empty(cHashAnterior)
-      sqlite3_bind_null(stmt, 4)
+   IF nFacturaVersionFiscalId == NIL .OR. nFacturaVersionFiscalId == 0
+      sqlite3_bind_null(stmt, 2)
    ELSE
-      sqlite3_bind_text(stmt, 4, cHashAnterior)
+      sqlite3_bind_int(stmt, 2, nFacturaVersionFiscalId)
    ENDIF
-   IF nIdRegistroAnterior == 0
+   sqlite3_bind_int(stmt, 3, 0)
+   sqlite3_bind_text(stmt, 4, cHash)
+   IF Empty(cHashAnterior)
       sqlite3_bind_null(stmt, 5)
    ELSE
-      sqlite3_bind_int(stmt, 5, nIdRegistroAnterior)
+      sqlite3_bind_text(stmt, 5, cHashAnterior)
    ENDIF
-   sqlite3_bind_text(stmt, 6, cNifEmisor)
-   sqlite3_bind_text(stmt, 7, cNumFactura)
-   sqlite3_bind_text(stmt, 8, FechaISO8601(dFechaEmision))
-   sqlite3_bind_text(stmt, 9, Str(nBaseImponible, 12, 2))
-   sqlite3_bind_text(stmt, 10, Str(nIvaImporte, 12, 2))
-   sqlite3_bind_text(stmt, 11, Str(nBaseImponible + nIvaImporte, 12, 2))
-   sqlite3_bind_text(stmt, 12, cNombreEmisor)
-   sqlite3_bind_text(stmt, 13, "1.0")
-   sqlite3_bind_text(stmt, 14, cTipoFactura)
-   sqlite3_bind_text(stmt, 15, cTipoRectificativa)
-   IF cFacturasRectificadas == NIL
-      sqlite3_bind_null(stmt, 16)
+   IF nIdRegistroAnterior == 0
+      sqlite3_bind_null(stmt, 6)
    ELSE
-      sqlite3_bind_text(stmt, 16, cFacturasRectificadas)
+      sqlite3_bind_int(stmt, 6, nIdRegistroAnterior)
+   ENDIF
+   sqlite3_bind_text(stmt, 7, cNifEmisor)
+   sqlite3_bind_text(stmt, 8, cNumFactura)
+   sqlite3_bind_text(stmt, 9, FechaISO8601(dFechaEmision))
+   sqlite3_bind_text(stmt, 10, Str(nBaseImponible, 12, 2))
+   sqlite3_bind_text(stmt, 11, Str(nIvaImporte, 12, 2))
+   sqlite3_bind_text(stmt, 12, Str(nBaseImponible + nIvaImporte, 12, 2))
+   sqlite3_bind_text(stmt, 13, cNombreEmisor)
+   sqlite3_bind_text(stmt, 14, "1.0")
+   sqlite3_bind_text(stmt, 15, cTipoFactura)
+   sqlite3_bind_text(stmt, 16, cTipoRectificativa)
+   IF cFacturasRectificadas == NIL
+      sqlite3_bind_null(stmt, 17)
+   ELSE
+      sqlite3_bind_text(stmt, 17, cFacturasRectificadas)
    ENDIF
    IF dFechaOperacion == NIL
-      sqlite3_bind_text(stmt, 17, FechaISO8601(dFechaEmision))
+      sqlite3_bind_text(stmt, 18, FechaISO8601(dFechaEmision))
    ELSE
-      sqlite3_bind_text(stmt, 17, FechaISO8601(dFechaOperacion))
+      sqlite3_bind_text(stmt, 18, FechaISO8601(dFechaOperacion))
    ENDIF
    IF cDescripcion == NIL .OR. Empty(cDescripcion)
-      sqlite3_bind_text(stmt, 18, "Operacion")
+      sqlite3_bind_text(stmt, 19, "Operacion")
    ELSE
-      sqlite3_bind_text(stmt, 18, cDescripcion)
+      sqlite3_bind_text(stmt, 19, cDescripcion)
    ENDIF
-   sqlite3_bind_text(stmt, 19, FechaISO8601ConTimeZone(dNtpTime))
-   sqlite3_bind_text(stmt, 20, "01")
+   sqlite3_bind_text(stmt, 20, FechaISO8601ConTimeZone(dNtpTime))
+   sqlite3_bind_text(stmt, 21, "01")
+   sqlite3_bind_text(stmt, 22, FechaISO8601ConTimeZone(dNtpTime))
+   sqlite3_bind_text(stmt, 23, cDestinatarios)
+   sqlite3_bind_text(stmt, 24, cDesglose)
+   sqlite3_bind_text(stmt, 25, cSistemaInfo)
+   sqlite3_bind_text(stmt, 26, cEncadenamiento)
+
+   nRes := sqlite3_step(stmt)
+   sqlite3_finalize(stmt)
+   IF nRes != SQLITE_DONE
+      RETURN 0
+   ENDIF
+   nRegistroId := sqlite3_last_insert_rowid(db)
+RETURN nRegistroId
+
+FUNCTION CrearRegistroSustitutivo(db, nFacturaId, nFacturaVersionFiscalId, cNifEmisor, cNombreEmisor, ;
+      cNumFactura, dFechaEmision, nBaseImponible, nIvaImporte, cTipoFactura, ;
+      nBaseOriginal, nIvaOriginal, cDescripcion, dFechaOperacion, ;
+      cNifCliente, cNombreCliente, cCodigoPais, cCodigoAEAT, aLineas, lEsNacional)
+
+   LOCAL cHashAnterior := ObtenerUltimoHashRegistro(db), nIdRegistroAnterior := ObtenerUltimoIdRegistro(db)
+   LOCAL dNtpTime := ObtenerFechaHoraOficial(), cHash, cEncadenamiento, cDestinatarios, cDesglose, cSistemaInfo
+   LOCAL cImporteRectificacion, stmt, nRes, nRegistroId
+
+   cHash := CalcularHashVeriFactu(cNifEmisor, cNumFactura, dFechaEmision, ;
+      cTipoFactura, nIvaImporte, nBaseImponible + nIvaImporte, cHashAnterior, dNtpTime)
+   cEncadenamiento := GenerarEncadenamiento(cHashAnterior, cNifEmisor, cNumFactura, dFechaEmision)
+   cDestinatarios := GenerarDestinatariosJson(cNifCliente, cNombreCliente, cCodigoPais, cCodigoAEAT, lEsNacional)
+   cDesglose := GenerarDesgloseJson(aLineas)
+   cSistemaInfo := GenerarSistemaInformaticoJson(db)
+   cImporteRectificacion := '{"BaseRectificada":' + DecimalAPuntoSinEspacios(nBaseOriginal) + ;
+      ',"CuotaRectificada":' + DecimalAPuntoSinEspacios(nIvaOriginal) + '}'
+
+   stmt := sqlite3_prepare(db, ;
+      "INSERT INTO RegistrosFacturacion(" + ;
+      "FacturaId, FacturaVersionFiscalId, TipoRegistro, Hash, HashAnterior, IdRegistroAnterior, " + ;
+      "NifEmisor, NumeroFactura, FechaEmision, BaseImponible, IvaImporte, Total, " + ;
+      "NombreRazonEmisor, IDVersion, TipoFactura, TipoRectificativa, Subsanacion, ImporteRectificacion, " + ;
+      "FechaOperacion, DescripcionOperacion, FechaHoraHusoGenRegistro, TipoHuella, FechaRegistro, " + ;
+      "Destinatarios, Desglose, SistemaInformatico, Encadenamiento, EnviadoAEAT) " + ;
+      "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)")
+   IF Empty(stmt)
+      RETURN 0
+   ENDIF
+   sqlite3_bind_int(stmt, 1, nFacturaId)
+   sqlite3_bind_int(stmt, 2, nFacturaVersionFiscalId)
+   sqlite3_bind_int(stmt, 3, 2)
+   sqlite3_bind_text(stmt, 4, cHash)
+   IF Empty(cHashAnterior)
+      sqlite3_bind_null(stmt, 5)
+   ELSE
+      sqlite3_bind_text(stmt, 5, cHashAnterior)
+   ENDIF
+   IF nIdRegistroAnterior == 0
+      sqlite3_bind_null(stmt, 6)
+   ELSE
+      sqlite3_bind_int(stmt, 6, nIdRegistroAnterior)
+   ENDIF
+   sqlite3_bind_text(stmt, 7, cNifEmisor)
+   sqlite3_bind_text(stmt, 8, cNumFactura)
+   sqlite3_bind_text(stmt, 9, FechaISO8601(dFechaEmision))
+   sqlite3_bind_text(stmt, 10, DecimalAPuntoSinEspacios(nBaseImponible))
+   sqlite3_bind_text(stmt, 11, DecimalAPuntoSinEspacios(nIvaImporte))
+   sqlite3_bind_text(stmt, 12, DecimalAPuntoSinEspacios(nBaseImponible + nIvaImporte))
+   sqlite3_bind_text(stmt, 13, cNombreEmisor)
+   sqlite3_bind_text(stmt, 14, "1.0")
+   sqlite3_bind_text(stmt, 15, cTipoFactura)
+   sqlite3_bind_text(stmt, 16, "S")
+   sqlite3_bind_text(stmt, 17, "S")
+   sqlite3_bind_text(stmt, 18, cImporteRectificacion)
+   IF dFechaOperacion == NIL
+      sqlite3_bind_text(stmt, 19, FechaISO8601(dFechaEmision))
+   ELSE
+      sqlite3_bind_text(stmt, 19, FechaISO8601(dFechaOperacion))
+   ENDIF
+   IF cDescripcion == NIL .OR. Empty(cDescripcion)
+      sqlite3_bind_text(stmt, 20, "Operacion")
+   ELSE
+      sqlite3_bind_text(stmt, 20, cDescripcion)
+   ENDIF
    sqlite3_bind_text(stmt, 21, FechaISO8601ConTimeZone(dNtpTime))
-   sqlite3_bind_text(stmt, 22, cDestinatarios)
-   sqlite3_bind_text(stmt, 23, cDesglose)
-   sqlite3_bind_text(stmt, 24, cSistemaInfo)
-sqlite3_bind_text(stmt, 25, cEncadenamiento)
+   sqlite3_bind_text(stmt, 22, "01")
+   sqlite3_bind_text(stmt, 23, FechaISO8601ConTimeZone(dNtpTime))
+   sqlite3_bind_text(stmt, 24, cDestinatarios)
+   sqlite3_bind_text(stmt, 25, cDesglose)
+   sqlite3_bind_text(stmt, 26, cSistemaInfo)
+   sqlite3_bind_text(stmt, 27, cEncadenamiento)
+   nRes := sqlite3_step(stmt)
+   sqlite3_finalize(stmt)
+   IF nRes != SQLITE_DONE
+      RETURN 0
+   ENDIF
+   nRegistroId := sqlite3_last_insert_rowid(db)
+RETURN nRegistroId
 
-    nRes := sqlite3_step(stmt)
-    sqlite3_finalize(stmt)
-    IF nRes == SQLITE_DONE
-       nRegistroId := 0
-       stmt := sqlite3_prepare(db, "SELECT last_insert_rowid()")
-       IF sqlite3_step(stmt) == SQLITE_ROW
-          nRegistroId := sqlite3_column_int(stmt, 1)
-       ENDIF
-       sqlite3_finalize(stmt)
-       EnviarRegistroAlta(db, nRegistroId)
-    ENDIF
-    RETURN nRes == SQLITE_DONE
-
-FUNCTION CrearRegistroAnulacion(db, nFacturaId, nFacturaOriginalId, cNumFacturaAnulacion, ;
-      dFechaAnulacion, cNifEmisor, nBaseAnulacion, nIvaAnulacion, ;
-      cNumFacturaOriginal, dFechaOriginal)
+FUNCTION CrearRegistroAnulacion(db, nFacturaId, nFacturaVersionFiscalId, cNifEmisor, ;
+      cNumFacturaAnulacion, dFechaAnulacion, nBaseAnulacion, nIvaAnulacion, ;
+      cNumFacturaOriginal, dFechaOriginal, nBaseOriginal, nIvaOriginal)
 
    LOCAL cHashAnterior, nIdRegistroAnterior, dNtpTime, cHash
    LOCAL cEncadenamiento, cSistemaInfo, stmt, nRes, nRegistroId
 
-   dNtpTime := hb_DateTime()
+   dNtpTime := ObtenerFechaHoraOficial()
    cHashAnterior := ObtenerUltimoHashRegistro(db)
    nIdRegistroAnterior := ObtenerUltimoIdRegistro(db)
    cHash := CalcularHashVeriFactu(cNifEmisor, cNumFacturaAnulacion, dFechaAnulacion, ;
-      "R5", nIvaAnulacion, nBaseAnulacion + nIvaAnulacion, ;
+      "R5", nIvaOriginal, nBaseOriginal + nIvaOriginal, ;
       cHashAnterior, dNtpTime)
    cEncadenamiento := GenerarEncadenamiento(cHashAnterior, cNifEmisor, cNumFacturaAnulacion, dFechaAnulacion)
    cSistemaInfo := GenerarSistemaInformaticoJson(db)
 
    stmt := sqlite3_prepare(db, ;
       "INSERT INTO RegistrosFacturacion(" + ;
-      "FacturaId, TipoRegistro, Hash, HashAnterior, IdRegistroAnterior, " + ;
+      "FacturaId, FacturaVersionFiscalId, TipoRegistro, Hash, HashAnterior, IdRegistroAnterior, " + ;
       "NifEmisor, NumeroFactura, FechaEmision, " + ;
       "BaseImponible, IvaImporte, Total, " + ;
       "IdFacturaAnulada, FechaFacturaAnulada, " + ;
@@ -146,118 +226,216 @@ FUNCTION CrearRegistroAnulacion(db, nFacturaId, nFacturaOriginalId, cNumFacturaA
       "FechaHoraHusoGenRegistro, TipoHuella, " + ;
       "SinRegistroPrevio, RechazoPrevioAnulacion, GeneradoPor, " + ;
       "SistemaInformatico, Encadenamiento, EnviadoAEAT) " + ;
-      "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)")
+      "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)")
 
    sqlite3_bind_int(stmt, 1, nFacturaId)
-   sqlite3_bind_int(stmt, 2, 1)
-   sqlite3_bind_text(stmt, 3, cHash)
+   sqlite3_bind_int(stmt, 2, nFacturaVersionFiscalId)
+   sqlite3_bind_int(stmt, 3, 1)
+   sqlite3_bind_text(stmt, 4, cHash)
    IF Empty(cHashAnterior)
-      sqlite3_bind_null(stmt, 4)
-   ELSE
-      sqlite3_bind_text(stmt, 4, cHashAnterior)
-   ENDIF
-   IF nIdRegistroAnterior == 0
       sqlite3_bind_null(stmt, 5)
    ELSE
-      sqlite3_bind_int(stmt, 5, nIdRegistroAnterior)
+      sqlite3_bind_text(stmt, 5, cHashAnterior)
    ENDIF
-   sqlite3_bind_text(stmt, 6, cNifEmisor)
-   sqlite3_bind_text(stmt, 7, cNumFacturaAnulacion)
-   sqlite3_bind_text(stmt, 8, FechaISO8601(dFechaAnulacion))
-   sqlite3_bind_text(stmt, 9, Str(nBaseAnulacion, 12, 2))
-   sqlite3_bind_text(stmt, 10, Str(nIvaAnulacion, 12, 2))
-   sqlite3_bind_text(stmt, 11, Str(nBaseAnulacion + nIvaAnulacion, 12, 2))
-   sqlite3_bind_text(stmt, 12, cNumFacturaOriginal)
-   sqlite3_bind_text(stmt, 13, FechaISO8601(dFechaOriginal))
-   sqlite3_bind_text(stmt, 14, FechaISO8601ConTimeZone(dNtpTime))
-   sqlite3_bind_text(stmt, 15, "R5")
-   sqlite3_bind_text(stmt, 16, "1.0")
-   sqlite3_bind_text(stmt, 17, FechaISO8601ConTimeZone(dNtpTime))
-   sqlite3_bind_text(stmt, 18, "01")
-   sqlite3_bind_text(stmt, 19, "N")
+   IF nIdRegistroAnterior == 0
+      sqlite3_bind_null(stmt, 6)
+   ELSE
+      sqlite3_bind_int(stmt, 6, nIdRegistroAnterior)
+   ENDIF
+   sqlite3_bind_text(stmt, 7, cNifEmisor)
+   sqlite3_bind_text(stmt, 8, cNumFacturaAnulacion)
+   sqlite3_bind_text(stmt, 9, FechaISO8601(dFechaAnulacion))
+   sqlite3_bind_text(stmt, 10, DecimalAPuntoSinEspacios(nBaseAnulacion))
+   sqlite3_bind_text(stmt, 11, DecimalAPuntoSinEspacios(nIvaAnulacion))
+   sqlite3_bind_text(stmt, 12, DecimalAPuntoSinEspacios(nBaseOriginal + nIvaOriginal))
+   sqlite3_bind_text(stmt, 13, cNumFacturaOriginal)
+   sqlite3_bind_text(stmt, 14, FechaISO8601(dFechaOriginal))
+   sqlite3_bind_text(stmt, 15, FechaISO8601ConTimeZone(dNtpTime))
+   sqlite3_bind_text(stmt, 16, "R5")
+   sqlite3_bind_text(stmt, 17, "1.0")
+   sqlite3_bind_text(stmt, 18, FechaISO8601ConTimeZone(dNtpTime))
+   sqlite3_bind_text(stmt, 19, "01")
    sqlite3_bind_text(stmt, 20, "N")
-   sqlite3_bind_text(stmt, 21, "E")
-   sqlite3_bind_text(stmt, 22, cSistemaInfo)
-   sqlite3_bind_text(stmt, 23, cEncadenamiento)
-
-nRes := sqlite3_step(stmt)
-    sqlite3_finalize(stmt)
-    IF nRes == SQLITE_DONE
-       stmt := sqlite3_prepare(db, "SELECT last_insert_rowid()")
-       IF sqlite3_step(stmt) == SQLITE_ROW
-          nRegistroId := sqlite3_column_int(stmt, 1)
-       ENDIF
-       sqlite3_finalize(stmt)
-       EnviarRegistroAnulacion(db, nRegistroId)
-    ENDIF
-    RETURN nRes == SQLITE_DONE
+   sqlite3_bind_text(stmt, 21, "N")
+   sqlite3_bind_text(stmt, 22, "E")
+   sqlite3_bind_text(stmt, 23, cSistemaInfo)
+   sqlite3_bind_text(stmt, 24, cEncadenamiento)
+   nRes := sqlite3_step(stmt)
+   sqlite3_finalize(stmt)
+   IF nRes != SQLITE_DONE
+      RETURN 0
+   ENDIF
+   nRegistroId := sqlite3_last_insert_rowid(db)
+RETURN nRegistroId
 
 FUNCTION VerificarCadenaRegistros(db)
    LOCAL stmt := sqlite3_prepare(db, ;
       "SELECT Id, Hash, HashAnterior, NifEmisor, NumeroFactura, " + ;
-      "FechaEmision, IvaImporte, BaseImponible, TipoFactura, FechaHoraHusoGenRegistro " + ;
+      "FechaEmision, IvaImporte, BaseImponible, Total, TipoFactura, FechaHoraHusoGenRegistro, IdRegistroAnterior " + ;
       "FROM RegistrosFacturacion ORDER BY Id")
-   LOCAL nI := 0, cHashAnterior, cHashEsperado
+   LOCAL cHashAnterior := "", nIdRegistroAnterior := NIL
+   LOCAL nId, cHash, cHashAnteriorActual, cIdAnterior, nIdAnteriorActual, cHashEsperado
 
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
-      nI++
-      IF nI > 1
-         cHashAnterior := sqlite3_column_text(stmt, 3)
-         IF cHashAnterior != ObtenerHashPorOrden(db, nI - 1)
-            sqlite3_finalize(stmt)
-            RETURN .F.
-         ENDIF
+      nId := sqlite3_column_int(stmt, 1)
+      cHash := sqlite3_column_text(stmt, 2)
+      cHashAnteriorActual := sqlite3_column_text(stmt, 3)
+      cIdAnterior := sqlite3_column_text(stmt, 12)
+      nIdAnteriorActual := Iif(cIdAnterior == NIL .OR. Empty(cIdAnterior), NIL, Val(cIdAnterior))
+      IF Iif(cHashAnteriorActual == NIL, "", cHashAnteriorActual) != cHashAnterior .OR. ;
+            nIdAnteriorActual != nIdRegistroAnterior
+         sqlite3_finalize(stmt)
+         RETURN .F.
       ENDIF
       cHashEsperado := CalcularHashVeriFactu(;
          sqlite3_column_text(stmt, 4), ;
          sqlite3_column_text(stmt, 5), ;
          SqlDateToDate(sqlite3_column_text(stmt, 6)), ;
-         sqlite3_column_text(stmt, 9), ;
+         sqlite3_column_text(stmt, 10), ;
          Val(sqlite3_column_text(stmt, 7)), ;
-         Val(sqlite3_column_text(stmt, 7)) + Val(sqlite3_column_text(stmt, 8)), ;
-         Iif(nI > 1, ObtenerHashPorOrden(db, nI - 1), ""), ;
-         SqlDateToDate(sqlite3_column_text(stmt, 10)))
-      IF sqlite3_column_text(stmt, 2) != cHashEsperado
+         Val(sqlite3_column_text(stmt, 9)), ;
+         cHashAnterior, ;
+         SqlDateTimeToDateTime(sqlite3_column_text(stmt, 11)))
+      IF cHash != cHashEsperado
          sqlite3_finalize(stmt)
          RETURN .F.
       ENDIF
+      cHashAnterior := cHash
+      nIdRegistroAnterior := nId
    ENDDO
    sqlite3_finalize(stmt)
    RETURN .T.
 
 FUNCTION GenerarDesgloseJson(aLineas)
-   LOCAL nI, nTipoIvaId, nTipoIvaActual, nBaseGrupo, nCuota, nIvaPct
-   LOCAL aGrupos := {}, cJson, cLineas := ""
-
-   nTipoIvaActual := 0
-   nBaseGrupo := 0
-   nCuota := 0
-   nIvaPct := 0
+   LOCAL nI, nGrupo, nTipoIvaId, nIvaPct, nImporte
+   LOCAL cTipoIvaNombre, cImpuesto, cClaveRegimen, cCalificacion, cExenta
+   LOCAL aGrupos := {}, cLineas := ""
 
    FOR nI := 1 TO Len(aLineas)
-      nTipoIvaId := aLineas[nI][7]
-      IF nTipoIvaId != nTipoIvaActual .AND. nTipoIvaActual != 0
-         cLineas += '{"Impuesto":"01","ClaveRegimen":"01","CalificacionOperacion":"S1",' + ;
-            '"TipoImpositivo":' + DecimalAPunto(nIvaPct) + ',' + ;
-            '"BaseImponibleOimporteNoSujeto":' + DecimalAPunto(nBaseGrupo) + ',' + ;
-            '"CuotaRepercutida":' + DecimalAPunto(nCuota) + '},'
-         nBaseGrupo := 0
-         nCuota := 0
+      nTipoIvaId := NumeroDesglose(aLineas[nI][3])
+      IF nTipoIvaId == 0
+         nTipoIvaId := NIL
       ENDIF
-      nTipoIvaActual := nTipoIvaId
-      nIvaPct := Val(aLineas[nI][6])
-      nBaseGrupo := nBaseGrupo + Val(aLineas[nI][5])
-      nCuota := nCuota + Val(aLineas[nI][5]) * nIvaPct / 100
+      cTipoIvaNombre := TextoDesglose(aLineas[nI][13])
+      cImpuesto := CodigoDesglose(aLineas[nI][14], "01")
+      cClaveRegimen := CodigoDesglose(aLineas[nI][15], "01")
+      cCalificacion := CodigoDesglose(aLineas[nI][16], NIL)
+      cExenta := CodigoDesglose(aLineas[nI][17], NIL)
+      nIvaPct := NumeroDesglose(aLineas[nI][7])
+      nImporte := NumeroDesglose(aLineas[nI][8])
+      nGrupo := BuscarGrupoDesglose(aGrupos, nTipoIvaId, nIvaPct, cImpuesto, cClaveRegimen, cCalificacion, cExenta)
+      IF nGrupo == 0
+         AAdd(aGrupos, {nTipoIvaId, cTipoIvaNombre, cImpuesto, cClaveRegimen, cCalificacion, cExenta, nIvaPct, 0, 0})
+         nGrupo := Len(aGrupos)
+      ELSEIF aGrupos[nGrupo][2] == NIL .AND. cTipoIvaNombre != NIL
+         aGrupos[nGrupo][2] := cTipoIvaNombre
+      ENDIF
+      aGrupos[nGrupo][8] := aGrupos[nGrupo][8] + nImporte
+      aGrupos[nGrupo][9] := aGrupos[nGrupo][9] + CalcularIvaLinea(nImporte, nIvaPct)
    NEXT
 
-   IF nBaseGrupo != 0
-      cLineas += '{"Impuesto":"01","ClaveRegimen":"01","CalificacionOperacion":"S1",' + ;
-         '"TipoImpositivo":' + DecimalAPunto(nIvaPct) + ',' + ;
-         '"BaseImponibleOimporteNoSujeto":' + DecimalAPunto(nBaseGrupo) + ',' + ;
-         '"CuotaRepercutida":' + DecimalAPunto(nCuota) + '}'
-   ENDIF
+   FOR nI := 1 TO Len(aGrupos)
+      aGrupos[nI][8] := RoundFiscal(aGrupos[nI][8])
+      aGrupos[nI][9] := RoundFiscal(aGrupos[nI][9])
+   NEXT
+   ASort(aGrupos, , , {|a,b| GrupoDesgloseAntes(a, b)})
 
-   RETURN '{"DetalleDesglose":[' + cLineas + ']}'
+   FOR nI := 1 TO Len(aGrupos)
+      IF nI > 1
+         cLineas += ","
+      ENDIF
+      cLineas += JsonGrupoDesglose(aGrupos[nI])
+   NEXT
+RETURN '{"DetalleDesglose":[' + cLineas + ']}'
+
+STATIC FUNCTION BuscarGrupoDesglose(aGrupos, nTipoIvaId, nIvaPct, cImpuesto, cClaveRegimen, cCalificacion, cExenta)
+   LOCAL nI
+
+   FOR nI := 1 TO Len(aGrupos)
+      IF aGrupos[nI][1] == nTipoIvaId .AND. aGrupos[nI][3] == cImpuesto .AND. ;
+            aGrupos[nI][4] == cClaveRegimen .AND. aGrupos[nI][5] == cCalificacion .AND. ;
+            aGrupos[nI][6] == cExenta .AND. aGrupos[nI][7] == nIvaPct
+         RETURN nI
+      ENDIF
+   NEXT
+RETURN 0
+
+STATIC FUNCTION GrupoDesgloseAntes(aIzquierda, aDerecha)
+   LOCAL nComparacion
+
+   nComparacion := CompararNumeroDesglose(aIzquierda[1], aDerecha[1])
+   IF nComparacion != 0; RETURN nComparacion < 0; ENDIF
+   nComparacion := CompararNumeroDesglose(aIzquierda[7], aDerecha[7])
+   IF nComparacion != 0; RETURN nComparacion < 0; ENDIF
+   nComparacion := CompararTextoDesglose(aIzquierda[5], aDerecha[5])
+   IF nComparacion != 0; RETURN nComparacion < 0; ENDIF
+   nComparacion := CompararTextoDesglose(aIzquierda[6], aDerecha[6])
+   IF nComparacion != 0; RETURN nComparacion < 0; ENDIF
+   nComparacion := CompararTextoDesglose(aIzquierda[3], aDerecha[3])
+   IF nComparacion != 0; RETURN nComparacion < 0; ENDIF
+RETURN CompararTextoDesglose(aIzquierda[4], aDerecha[4]) < 0
+
+STATIC FUNCTION CompararNumeroDesglose(nIzquierda, nDerecha)
+   IF nIzquierda == NIL .AND. nDerecha != NIL; RETURN -1; ENDIF
+   IF nIzquierda != NIL .AND. nDerecha == NIL; RETURN 1; ENDIF
+   IF nIzquierda == NIL; RETURN 0; ENDIF
+   IF nIzquierda < nDerecha; RETURN -1; ENDIF
+   IF nIzquierda > nDerecha; RETURN 1; ENDIF
+RETURN 0
+
+STATIC FUNCTION CompararTextoDesglose(cIzquierda, cDerecha)
+   IF cIzquierda == NIL .AND. cDerecha != NIL; RETURN -1; ENDIF
+   IF cIzquierda != NIL .AND. cDerecha == NIL; RETURN 1; ENDIF
+   IF cIzquierda == NIL; RETURN 0; ENDIF
+   IF cIzquierda < cDerecha; RETURN -1; ENDIF
+   IF cIzquierda > cDerecha; RETURN 1; ENDIF
+RETURN 0
+
+STATIC FUNCTION NumeroDesglose(xValor)
+   IF ValType(xValor) == "N"
+      RETURN xValor
+   ENDIF
+   IF ValType(xValor) == "C"
+      RETURN Val(xValor)
+   ENDIF
+RETURN 0
+
+STATIC FUNCTION TextoDesglose(cValor)
+   IF cValor == NIL .OR. Empty(AllTrim(cValor))
+      RETURN NIL
+   ENDIF
+RETURN AllTrim(cValor)
+
+STATIC FUNCTION CodigoDesglose(cValor, cDefecto)
+   LOCAL cCodigo := TextoDesglose(cValor)
+
+   IF cCodigo == NIL
+      RETURN cDefecto
+   ENDIF
+RETURN Upper(cCodigo)
+
+STATIC FUNCTION JsonGrupoDesglose(aGrupo)
+   RETURN '{"TipoIvaId":' + JsonNumeroONull(aGrupo[1]) + ;
+      ',"TipoIvaNombre":' + JsonTextoONull(aGrupo[2]) + ;
+      ',"Impuesto":' + JsonTextoONull(aGrupo[3]) + ;
+      ',"ClaveRegimen":' + JsonTextoONull(aGrupo[4]) + ;
+      ',"CalificacionOperacion":' + JsonTextoONull(aGrupo[5]) + ;
+      ',"OperacionExenta":' + JsonTextoONull(aGrupo[6]) + ;
+      ',"TipoImpositivo":' + DecimalAPuntoSinEspacios(aGrupo[7]) + ;
+      ',"BaseImponibleOimporteNoSujeto":' + DecimalAPuntoSinEspacios(aGrupo[8]) + ;
+      ',"CuotaRepercutida":' + DecimalAPuntoSinEspacios(aGrupo[9]) + '}'
+
+STATIC FUNCTION JsonNumeroONull(nValor)
+   IF nValor == NIL
+      RETURN "null"
+   ENDIF
+RETURN LTrim(Str(nValor, 12, 0))
+
+STATIC FUNCTION JsonTextoONull(cValor)
+   IF cValor == NIL
+      RETURN "null"
+   ENDIF
+RETURN hb_jsonEncode(cValor, .F.)
 
 STATIC FUNCTION ObtenerUltimoHashRegistro(db)
    LOCAL stmt := sqlite3_prepare(db, "SELECT Hash FROM RegistrosFacturacion ORDER BY Id DESC LIMIT 1")
@@ -350,60 +528,81 @@ STATIC FUNCTION ObtenerFacturaRectificadaData(db, nId)
 
 // --- Eventos VERI*FACTU (hash chain) ---
 
-FUNCTION CalcularHashEvento(cTipo, cDesc, cAnt, dHuso)
-   LOCAL cData := cTipo + "|" + cDesc + "|" + Iif(cAnt == NIL, "", cAnt) + "|" + FechaISO8601ConTimeZone(dHuso)
+FUNCTION CalcularHashEvento(cTipo, cDesc, cUsuario, dHuso, nIdEventoAnterior, cAnt)
+   LOCAL cData := cTipo + "|" + cDesc + "|" + cUsuario + "|" + ;
+      FechaISO8601ConTimeZone(dHuso) + "|" + Iif(nIdEventoAnterior == NIL, "", LTrim(Str(nIdEventoAnterior))) + "|" + ;
+      Iif(cAnt == NIL, "", cAnt)
    RETURN Upper(hb_SHA256(cData, 1))
 
-FUNCTION ObtenerUltimoHashEvento(db)
-   LOCAL stmt := sqlite3_prepare(db, "SELECT Hash FROM RegistrosEvento ORDER BY Id DESC LIMIT 1")
-   LOCAL cHash := NIL
+FUNCTION ObtenerUltimoEvento(db)
+   LOCAL stmt := sqlite3_prepare(db, "SELECT Id, Hash FROM RegistrosEvento ORDER BY Id DESC LIMIT 1")
+   LOCAL aEvento := NIL
    IF sqlite3_step(stmt) == SQLITE_ROW
-      cHash := sqlite3_column_text(stmt, 1)
+      aEvento := {sqlite3_column_int(stmt, 1), sqlite3_column_text(stmt, 2)}
    ENDIF
    sqlite3_finalize(stmt)
-   RETURN cHash
+RETURN aEvento
 
-FUNCTION RegistrarEvento(db, cTipoEvento, cDescripcion)
-   LOCAL cHashAnterior := ObtenerUltimoHashEvento(db)
+FUNCTION RegistrarEvento(db, cTipoEvento, cDescripcion, cUsuario)
+   LOCAL aEventoAnterior := ObtenerUltimoEvento(db)
+   LOCAL nIdEventoAnterior := Iif(aEventoAnterior == NIL, NIL, aEventoAnterior[1])
+   LOCAL cHashAnterior := Iif(aEventoAnterior == NIL, "", aEventoAnterior[2])
+   LOCAL cUsuarioFinal := Iif(cUsuario == NIL .OR. Empty(AllTrim(cUsuario)), hb_UserName(), cUsuario)
    LOCAL dFechaHuso := hb_DateTime()
-   LOCAL cHash := CalcularHashEvento(cTipoEvento, cDescripcion, cHashAnterior, hb_DateTime())
+   LOCAL cHash := CalcularHashEvento(cTipoEvento, cDescripcion, cUsuarioFinal, dFechaHuso, nIdEventoAnterior, cHashAnterior)
    LOCAL stmt, nRes
 
    stmt := sqlite3_prepare(db, ;
-      "INSERT INTO RegistrosEvento(TipoEvento, Descripcion, Hash, HashAnterior, FechaHora) " + ;
-      "VALUES(?, ?, ?, ?, ?)")
+      "INSERT INTO RegistrosEvento(TipoEvento, Descripcion, Usuario, FechaHora, Hash, HashAnterior, IdEventoAnterior) " + ;
+      "VALUES(?, ?, ?, ?, ?, ?, ?)")
 
    sqlite3_bind_text(stmt, 1, cTipoEvento)
    sqlite3_bind_text(stmt, 2, cDescripcion)
-   sqlite3_bind_text(stmt, 3, cHash)
+   sqlite3_bind_text(stmt, 3, cUsuarioFinal)
+   sqlite3_bind_text(stmt, 4, FechaISO8601ConTimeZone(dFechaHuso))
+   sqlite3_bind_text(stmt, 5, cHash)
    IF Empty(cHashAnterior)
-      sqlite3_bind_null(stmt, 4)
+      sqlite3_bind_null(stmt, 6)
    ELSE
-      sqlite3_bind_text(stmt, 4, cHashAnterior)
+      sqlite3_bind_text(stmt, 6, cHashAnterior)
    ENDIF
-   sqlite3_bind_text(stmt, 5, FechaISO8601ConTimeZone(hb_DateTime()))
+   IF nIdEventoAnterior == NIL
+      sqlite3_bind_null(stmt, 7)
+   ELSE
+      sqlite3_bind_int(stmt, 7, nIdEventoAnterior)
+   ENDIF
 
    nRes := sqlite3_step(stmt)
    sqlite3_finalize(stmt)
    RETURN nRes == SQLITE_DONE
 
 FUNCTION VerificarCadenaEventos(db)
-   LOCAL stmt := sqlite3_prepare(db, "SELECT Id, TipoEvento, Descripcion, Hash, HashAnterior, FechaHora FROM RegistrosEvento ORDER BY Id")
-   LOCAL cHashAnterior := NIL, lOk := .T.
-   LOCAL cHash, cHashAnt, cTipo, cDesc, dFecha, cRecalc
+   LOCAL stmt := sqlite3_prepare(db, "SELECT Id, TipoEvento, Descripcion, Usuario, FechaHora, Hash, HashAnterior, IdEventoAnterior FROM RegistrosEvento ORDER BY Id")
+   LOCAL cHashAnterior := "", nIdEventoAnterior := NIL, lOk := .T.
+   LOCAL nId, cHash, cHashAnt, cTipo, cDesc, cUsuario, cFecha, cIdAnterior, nIdAnteriorActual, cRecalc
 
    DO WHILE sqlite3_step(stmt) == SQLITE_ROW
-      cHash := sqlite3_column_text(stmt, 4)
-      cHashAnt := sqlite3_column_text(stmt, 5)
+      nId := sqlite3_column_int(stmt, 1)
       cTipo := sqlite3_column_text(stmt, 2)
       cDesc := sqlite3_column_text(stmt, 3)
-      dFecha := sqlite3_column_text(stmt, 6)
-      cRecalc := CalcularHashEvento(cTipo, cDesc, cHashAnt, SqlDateToDate(dFecha))
+      cUsuario := sqlite3_column_text(stmt, 4)
+      cFecha := sqlite3_column_text(stmt, 5)
+      cHash := sqlite3_column_text(stmt, 6)
+      cHashAnt := sqlite3_column_text(stmt, 7)
+      cIdAnterior := sqlite3_column_text(stmt, 8)
+      nIdAnteriorActual := Iif(cIdAnterior == NIL .OR. Empty(cIdAnterior), NIL, Val(cIdAnterior))
+      IF Iif(cHashAnt == NIL, "", cHashAnt) != cHashAnterior .OR. nIdAnteriorActual != nIdEventoAnterior
+         lOk := .F.
+         EXIT
+      ENDIF
+      cRecalc := CalcularHashEvento(cTipo, cDesc, Iif(cUsuario == NIL, "", cUsuario), ;
+         SqlDateTimeToDateTime(cFecha), nIdAnteriorActual, cHashAnterior)
       IF cRecalc != cHash
          lOk := .F.
          EXIT
       ENDIF
       cHashAnterior := cHash
+      nIdEventoAnterior := nId
    ENDDO
    sqlite3_finalize(stmt)
    RETURN lOk

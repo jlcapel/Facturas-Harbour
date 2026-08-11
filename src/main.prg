@@ -5,7 +5,7 @@ STATIC s_Db
 STATIC s_oPanel
 
 PROCEDURE Main()
-   LOCAL oDlg, cLang, oTitleFnt
+   LOCAL oVentana, cLang, oTitleFnt
 
    InicializarBaseDatos()
    s_Db := AbrirBaseDatos()
@@ -14,59 +14,57 @@ PROCEDURE Main()
       LogInfo("Main: no se pudo asegurar integridad BD")
    ENDIF
    HacerBackup()
-    LocalizationNew()
+   LocalizationNew()
    cLang := ObtenerConfiguracion(s_Db, "Language")
    IF cLang != NIL
       LocalizationSetLang(cLang)
    ENDIF
 
-   // --- Evento VERI*FACTU: Login ---
    RegistrarEvento(s_Db, "Login", L("MainEventoLogin"))
-   // --- Fin Evento ---
 
    PREPARE FONT oTitleFnt NAME "Arial" WIDTH 0 HEIGHT -20 WEIGHT 700
 
-   INIT DIALOG oDlg ;
+   INIT WINDOW oVentana MAIN ;
       TITLE "Facturas-Harbour" ;
-      AT 0, 0 ;
+      AT 50, 60 ;
       SIZE 860, 540 ;
       STYLE WS_DLGFRAME + WS_SYSMENU + DS_CENTER
 
-   MENU OF oDlg
+   MENU OF oVentana
       MENU TITLE L("MenuMaestros")
-         MENUITEM L("MenuPaises") ACTION {|| AbrirVista("Paises", oDlg)}
-         MENUITEM L("MenuTiposIva") ACTION {|| AbrirVista("TiposIva", oDlg)}
-         MENUITEM L("MenuTiposIdent") ACTION {|| AbrirVista("TiposIdent", oDlg)}
+         MENUITEM L("MenuPaises") ACTION AbrirVista("Paises", oVentana)
+         MENUITEM L("MenuTiposIva") ACTION AbrirVista("TiposIva", oVentana)
+         MENUITEM L("MenuTiposIdent") ACTION AbrirVista("TiposIdent", oVentana)
          SEPARATOR
-         MENUITEM L("MenuClientes") ACTION {|| AbrirVista("Clientes", oDlg)}
-         MENUITEM L("MenuArticulos") ACTION {|| AbrirVista("Articulos", oDlg)}
+         MENUITEM L("MenuClientes") ACTION AbrirVista("Clientes", oVentana)
+         MENUITEM L("MenuArticulos") ACTION AbrirVista("Articulos", oVentana)
          SEPARATOR
-         MENUITEM L("MenuProveedores") ACTION {|| AbrirVista("Proveedores", oDlg)}
-         MENUITEM L("MenuCategoriasGasto") ACTION {|| AbrirVista("CategoriasGasto", oDlg)}
-         MENUITEM L("MenuBienesInversion") ACTION {|| AbrirVista("BienesInversion", oDlg)}
+         MENUITEM L("MenuProveedores") ACTION AbrirVista("Proveedores", oVentana)
+         MENUITEM L("MenuCategoriasGasto") ACTION AbrirVista("CategoriasGasto", oVentana)
+         MENUITEM L("MenuBienesInversion") ACTION AbrirVista("BienesInversion", oVentana)
       ENDMENU
       MENU TITLE L("MenuEmpresa")
-         MENUITEM L("MenuConfiguracion") ACTION {|| AbrirVista("Empresa", oDlg)}
+         MENUITEM L("MenuConfiguracion") ACTION AbrirVista("Empresa", oVentana)
       ENDMENU
       MENU TITLE L("MenuFacturas")
-         MENUITEM L("MenuListado") ACTION {|| AbrirVista("Facturas", oDlg)}
+         MENUITEM L("MenuListado") ACTION AbrirVista("Facturas", oVentana)
       ENDMENU
       MENU TITLE L("MenuGastos")
-         MENUITEM L("MenuListado") ACTION {|| AbrirVista("Gastos", oDlg)}
+         MENUITEM L("MenuListado") ACTION AbrirVista("Gastos", oVentana)
       ENDMENU
       MENU TITLE L("MenuValidacion")
-         MENUITEM L("MenuNifAeat") ACTION {|| AbrirVista("ValidacionNif", oDlg)}
+         MENUITEM L("MenuNifAeat") ACTION AbrirVista("ValidacionNif", oVentana)
          SEPARATOR
-         MENUITEM L("MenuVatVies") ACTION {|| AbrirVista("Vies", oDlg)}
+         MENUITEM L("MenuVatVies") ACTION AbrirVista("Vies", oVentana)
       ENDMENU
       MENU TITLE "AEAT"
-         MENUITEM L("MenuModelosAeat") ACTION {|| AbrirVista("ModelosAeat", oDlg)}
+         MENUITEM L("MenuModelosAeat") ACTION AbrirVista("ModelosAeat", oVentana)
       ENDMENU
       MENU TITLE L("MenuExportar")
-         MENUITEM L("MenuRegistrosXml") ACTION {|| ExportarRegAeat()}
-         MENUITEM L("MenuEventosXml") ACTION {|| ExportarEventosXml()}
+         MENUITEM L("MenuRegistrosXml") ACTION ExportarRegAeat()
+         MENUITEM L("MenuEventosXml") ACTION ExportarEventosXml()
          SEPARATOR
-         MENUITEM L("MenuGastosCsv") ACTION {|| ExportarGastosCsv()}
+         MENUITEM L("MenuGastosCsv") ACTION ExportarGastosCsv()
       ENDMENU
    ENDMENU
 
@@ -76,9 +74,7 @@ PROCEDURE Main()
    @ 130, 32 SAY L("MainMsgSeleccionOpcion") SIZE 400, 18 ;
       COLOR hwg_ColorRGB2N(100, 116, 139)
 
-   ADD STATUS TO oDlg PARTS 400, 200
-
-   ACTIVATE DIALOG oDlg CENTER
+   ACTIVATE WINDOW oVentana
 
    s_Db := NIL
 RETURN

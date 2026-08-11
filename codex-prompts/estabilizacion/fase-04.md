@@ -1,6 +1,6 @@
 # FASE 04 — Desglose IVA fiscal
 
-Lee `AGENTS.md`, `reglas-base.md` y `contexto-03.md`.
+Lee `AGENTS.md`, `reglas-base.md` y `contexto-04a.md`.
 
 ## Objetivo único
 
